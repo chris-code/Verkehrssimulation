@@ -27,14 +27,18 @@ class Simulation {
 
 			uniform_real_distribution<double> carDistribution(0,1);
 
-			for (auto s = 0; s < streetLength; ++s) {
+			/*for (auto s = 0; s < streetLength; ++s) {
 				for (auto l = 0; l < laneCount; ++l) {
 					if (carDistribution(randomEngine) < carDensity) {
 						Vehicle* v = new Vehicle(randomEngine, dallyFactorDistribution, riskFactorDistribution, maxSpeedDistribution);
 						road.insertVehicle(s, l, v);
 					}
 				}
-			}
+			}*/
+			Vehicle* v1 = new Vehicle(randomEngine, dallyFactorDistribution, riskFactorDistribution, maxSpeedDistribution);
+			Vehicle* v2 = new Vehicle(randomEngine, dallyFactorDistribution, riskFactorDistribution, maxSpeedDistribution);
+			road.insertVehicle(0, 4, v1);
+			road.insertVehicle(1, 4, v2);
 		}
 
 		void simulate(long runs) {
@@ -46,12 +50,12 @@ class Simulation {
 				vis.appendRoad(road);
 			}
 
-			vis.show();
+			//vis.show();
 			vis.save();
 		}
 
 		void update() {
-			addCars();
+			//addCars();
 			
 			// Accelerate vehicles
 			accelerate();
@@ -70,7 +74,7 @@ class Simulation {
 		}
 		
 		void addCars() {
-			for (auto l = 0; l < road.getLaneCount(); ++l) {
+			for (auto l = road.getLaneCount() - 1; l >=0; --l) {
 				if (road.getVehicle(0, l) == nullptr && road.getDensity() < carDensity) {
 					Vehicle* v = new Vehicle(randomEngine, dallyFactorDistribution, riskFactorDistribution, maxSpeedDistribution);
 					road.insertVehicle(0, l, v);
