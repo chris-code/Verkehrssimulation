@@ -1,11 +1,12 @@
 #pragma once
 
+#include <unordered_set>
 #include <random>
 #include <chrono>
+#include <iostream>
 #include "Road.hpp"
 #include "Vehicle.hpp"
 #include "Visualization.hpp"
-#include <iostream>
 
 using namespace std;
 
@@ -87,7 +88,96 @@ class Simulation {
 		}
 
 		void changeLanes() {
-
+			bernoulli_distribution laneChoiceDistribution(0.5);
+			
+			unordered_set<Vehicle*> processed;
+			for (auto s = 0; s < road.getStreetLength(); ++s) {
+				for (auto l = 0; l < road.getLaneCount(); ++l) {
+					Vehicle *v = road.getVehicle(s, l);
+					if(processed.count(v) > 0) {
+						continue;
+					}
+					processed.insert(v);
+					
+					if(laneChoiceDistribution(randomEngine)) { //Try left lane first
+						if(! changeToLeftLane(s, l)) {
+							changeToRightLane(s, l);
+						}
+					} else { //Try right lane first
+						if(! changeToRightLane(s, l)) {
+							changeToLeftLane(s, l);
+						}
+					}
+				}
+			}
+		}
+		
+		bool changeToLeftLane(long s, long l) {
+			if(l == 0) {
+				return false; // There is no left lane
+			}
+			if(road.getVehicle(s, l-1) != nullptr) {
+				return false; // Left lane not empty
+			}
+			
+			Vehicle *v = road.getVehicle(s, l);
+			
+			long gap = 0; // Space ahead the car has on its current lane
+			for(auto offset = 1; offset <= v->currentSpeed; ++offset) {
+				if(s + offset >= road.getStreetLength()) {
+					break; // Road ended, gap ends here
+				}
+				if(road.getVehicle(s + offset, l) != nullptr) {
+					break; // Vehicle found, gap ends here
+				}
+				++gap;
+			}
+			
+			long gapLeft = 0; // Space ahead the car would have on the left lane
+			for(auto offset = 1; offset <= gap; ++offset) {
+				if(s + offset >= road.getStreetLength()) {
+					break; // Road ended, gap ends here
+				}
+				if(road.getVehicle(s + offset, l-1) != nullptr) {
+					break; // Vehicle found, gap ends here
+				}
+				++gapLeft;
+			}
+			
+			if(v->currentSpeed > gap && gapLeft >= gap) { // Desire to change lanes
+				long gapBack = 0; // Space backwards the car would have on the left lane
+				long vBack = 0; // Speed of the follow-up car on the left lane
+				for(auto offset = -1; offset >= -7; --offset) {
+					if(s + offset < 0) {
+						break; // Road ended, gap ends here
+					}
+					if(road.getVehicle(s + offset, l-1) != nullptr) {
+						vBack = road.getVehicle(s + offset, l-1)->currentSpeed;
+						break; // Vehicle found, gap ends here. Remember its speed, though.
+					}
+					++gapBack;
+				}
+				
+				if(vBack <= gapBack) { // Enough back gap for safe lane switch
+					road.moveVehicle(s, l, s, l-1);
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				return false;
+			}
+		}
+		
+		bool changeToRightLane(long s, long l) {
+			if(l == road.getLaneCount()-1) {
+				return false; // There is no right lane
+			}
+			if(road.getVehicle(s, l+1) != nullptr) {
+				return false; // Right lane not empty
+			}
+			
+			return true; // FIXME
 		}
 
 		void checkDistances() {
