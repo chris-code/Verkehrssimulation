@@ -27,18 +27,14 @@ class Simulation {
 
 			uniform_real_distribution<double> carDistribution(0,1);
 
-			/*for (auto s = 0; s < streetLength; ++s) {
+			for (auto s = 0; s < streetLength; ++s) {
 				for (auto l = 0; l < laneCount; ++l) {
 					if (carDistribution(randomEngine) < carDensity) {
 						Vehicle* v = new Vehicle(randomEngine, dallyFactorDistribution, riskFactorDistribution, maxSpeedDistribution);
 						road.insertVehicle(s, l, v);
 					}
 				}
-			}*/
-			Vehicle* v1 = new Vehicle(randomEngine, dallyFactorDistribution, riskFactorDistribution, maxSpeedDistribution);
-			Vehicle* v2 = new Vehicle(randomEngine, dallyFactorDistribution, riskFactorDistribution, maxSpeedDistribution);
-			road.insertVehicle(0, 4, v1);
-			road.insertVehicle(1, 4, v2);
+			}
 		}
 
 		void simulate(long runs) {
@@ -55,7 +51,7 @@ class Simulation {
 		}
 
 		void update() {
-			//addCars();
+			addCars();
 			
 			// Accelerate vehicles
 			accelerate();
@@ -126,6 +122,10 @@ class Simulation {
 			}
 			
 			Vehicle *v = road.getVehicle(s, l);
+			if(uniform01distribution(randomEngine) < v->riskFactor) {
+				road.moveVehicle(s, l, s, l-1); // Switch lanes regardless of distances
+				return true;
+			}
 			
 			long gap = 0; // Space ahead the car has on its current lane
 			for(auto offset = 1; offset <= v->currentSpeed; ++offset) {
@@ -164,7 +164,7 @@ class Simulation {
 				}
 				
 				if(vBack <= gapBack) { // Enough back gap for safe lane switch
-					road.moveVehicle(s, l, s, l-1);
+					road.moveVehicle(s, l, s, l-1); // Switch lanes
 					return true;
 				} else {
 					return false;
@@ -181,8 +181,61 @@ class Simulation {
 			if(road.getVehicle(s, l+1) != nullptr) {
 				return false; // Right lane not empty
 			}
+
+			Vehicle *v = road.getVehicle(s, l);
+			if(uniform01distribution(randomEngine) < v->riskFactor) {
+				road.moveVehicle(s, l, s, l+1); // Switch lanes regardless of distances
+				return true;
+			}
 			
-			return true; // FIXME
+			long vMax = v->currentSpeed;
+			long vOffset = 1;
+
+			long gap = 0; // Space ahead the car has on its current lane
+			for(auto offset = 1; offset <= v->currentSpeed; ++offset) {
+				if(s + offset >= road.getStreetLength()) {
+					break; // Road ended, gap ends here
+				}
+				if(road.getVehicle(s + offset, l) != nullptr) {
+					break; // Vehicle found, gap ends here
+				}
+				++gap;
+			}
+
+			long gapRight = 0; // Space ahead the car would have on the left lane
+			for(auto offset = 1; offset <= gap; ++offset) {
+				if(s + offset >= road.getStreetLength()) {
+					break; // Road ended, gap ends here
+				}
+				if(road.getVehicle(s + offset, l+1) != nullptr) {
+					break; // Vehicle found, gap ends here
+				}
+				++gapRight;
+			}
+			
+			if( vMax + vOffset < gap && vMax + vOffset < gapRight) { // Desire to change lanes
+				long gapBack = 0; // Space backwards the car would have on the right lane
+				long vBack = 0; // Speed of the follow-up car on the right lane
+				for(auto offset = -1; offset >= -7; --offset) {
+					if(s + offset < 0) {
+						break; // Road ended, gap ends here
+					}
+					if(road.getVehicle(s + offset, l-1) != nullptr) {
+						vBack = road.getVehicle(s + offset, l+1)->currentSpeed;
+						break; // Vehicle found, gap ends here. Remember its speed, though.
+					}
+					++gapBack;
+				}
+
+				if(vBack <= gapBack) { // Enough back gap for safe lane switch
+					road.moveVehicle(s, l, s, l+1); // Switch lanes
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				return false;
+			}
 		}
 
 		void checkDistances() {
