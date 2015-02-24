@@ -2,11 +2,13 @@
 
 #include "CImg.h"
 
+#include <iostream>
+
 using namespace cimg_library;
 
 class Visualization {
 	public:
-		Visualization(long streetLength) : seperationLine(streetLength, 1, 0, 3) {
+		Visualization(long streetLength) : seperationLine(streetLength, 1, 1, 3) {
 			firstAppend = true;
 			for (auto x = 0; x < streetLength; ++x) {
 				seperationLine(x,0,0,2) = 255;
