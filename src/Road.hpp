@@ -48,24 +48,24 @@ class Road {
 			if(fromS < 0 || fromS >= streetLength || fromL < 0 || fromL >= laneCount) {
 				throw MessageException("Invalid move: source not in road");
 			}
-			if(toS < 0 || toL < 0 || toL >= laneCount) {
-				throw MessageException("Invalid move: destination not in road");
-			}
 			if(contents[fromS][fromL] == nullptr) {
 				throw MessageException("Invalid move: source is empty");
 			}
-			if(contents[toS][toL] != nullptr) {
-				throw MessageException("Invalid move: target not empty");
-			}
-			
 			if(toS >= streetLength) { // Car leaves the road
 				Vehicle *v = removeVehicle(fromS, fromL);
 				delete v;
-			} else {
-				Vehicle *v = contents[fromS][fromL];
-				contents[fromS][fromL] = nullptr;
-				contents[toS][toL] = v;
+				return;
 			}
+			
+			if(toS < 0 || toS >= streetLength || toL < 0 || toL >= laneCount) {
+				throw MessageException("Invalid move: destination not in road");
+			}
+			//if(contents[toS][toL] != nullptr) {
+			//	throw MessageException("Invalid move: target not empty");
+			//}
+			Vehicle *v = contents[fromS][fromL];
+			contents[fromS][fromL] = nullptr;
+			contents[toS][toL] = v;
 		}
 
 		Vehicle* removeVehicle(long s, long l) {

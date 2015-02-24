@@ -96,10 +96,12 @@ class Simulation {
 					Vehicle* v = road.getVehicle(s, l);
 					if (v != nullptr) {
 						for (int offset = 1; offset <= v->currentSpeed; ++offset) {
-							Vehicle* otherV = road.getVehicle(s + offset, l);
-							if (otherV != nullptr) {
-								v->currentSpeed = offset - 1;
-								break;
+							if(s + offset < road.getStreetLength()) {
+								Vehicle* otherV = road.getVehicle(s + offset, l);
+								if (otherV != nullptr) {
+									v->currentSpeed = offset - 1;
+									break;
+								}
 							}
 						}
 					}
