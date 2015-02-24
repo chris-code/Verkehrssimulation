@@ -88,7 +88,6 @@ class Simulation {
 		}
 
 		void changeLanes() {
-
 		}
 
 		void checkDistances() {
