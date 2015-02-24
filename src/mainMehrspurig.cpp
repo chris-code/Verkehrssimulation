@@ -14,7 +14,7 @@ int main() {
 	Simulation simulation(minDallyFactor, maxDallyFactor, lambdaRiskFactor, maxSpeedMean, maxSpeedStd);
 
 	long streetLength = 300;
-	long laneCount = 1;
+	long laneCount = 2;
 	double carDensity = 0.3;
 
 	simulation.initialize(streetLength, laneCount, carDensity);

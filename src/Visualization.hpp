@@ -2,17 +2,15 @@
 
 #include "CImg.h"
 
-#include <iostream>
-
 using namespace cimg_library;
 
 class Visualization {
 	public:
-		Visualization(long streetLength) : seperationLine(streetLength, 1, 1, 3) {
+		Visualization(long streetLength) : seperationLine(streetLength, 1, 1, 3, 100) {
 			firstAppend = true;
-			for (auto x = 0; x < streetLength; ++x) {
-				seperationLine(x,0,0,2) = 255;
-			}
+//			for (auto x = 0; x < streetLength; ++x) {
+//				seperationLine(x,0,0,1) = 255;
+//			}
 		}
 
 		void appendRoad(Road &r) {
@@ -32,6 +30,10 @@ class Visualization {
 			while(! disp.is_closed()) {
 				disp.wait();
 			}
+		}
+
+		void save() {
+			roadImg.save_png("road_image.png", 1);
 		}
 
 	private:
