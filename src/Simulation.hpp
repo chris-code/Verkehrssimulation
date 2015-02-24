@@ -5,6 +5,7 @@
 #include "Road.hpp"
 #include "Vehicle.hpp"
 #include "Visualization.hpp"
+#include <iostream>
 
 using namespace std;
 
@@ -125,7 +126,7 @@ class Simulation {
 			for (auto s = road.getStreetLength() - 1; s >= 0; --s) {
 				for (auto l = road.getLaneCount() - 1; l >= 0; --l) {
 					Vehicle* v = road.getVehicle(s, l);
-					if (v != nullptr) {
+					if (v != nullptr && v->currentSpeed > 0) {
 						road.moveVehicle(s, l, s + v->currentSpeed, l);
 					}
 				}
