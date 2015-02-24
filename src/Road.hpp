@@ -21,6 +21,8 @@ class Road {
 		}
 
 		void resize(long streetLength, long laneCount) {
+			clear();
+
 			this->streetLength = streetLength;
 			this->laneCount = laneCount;
 			contents.resize(streetLength);
@@ -73,7 +75,22 @@ class Road {
 			return v;
 		}
 
+		Vehicle* getVehicle(long s, long l) {
+			return contents[s][l];
+		}
+
 	private:
+		void clear() {
+			for (long s = 0; s < long(contents.size()); ++s) {
+				for (long l = 0; l < long(contents[s].size()); ++l) {
+					if (contents[s][l] != nullptr) {
+						delete contents[s][l];
+						contents[s][l] = nullptr;
+					}
+				}
+			}
+		}
+
 		vector< vector<Vehicle*> > contents;
 		long streetLength;
 		long laneCount;
