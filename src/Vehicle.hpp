@@ -35,8 +35,7 @@ class Vehicle {
 		}
 
 		void accelerate(long deltaV = 1) {
-			if (currentSpeed < maxSpeed)
-				currentSpeed += deltaV;
+			currentSpeed += deltaV;
 			if (currentSpeed > maxSpeed)
 				currentSpeed = maxSpeed;
 			if (currentSpeed < 0)
