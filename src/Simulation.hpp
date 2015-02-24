@@ -16,10 +16,11 @@ class Simulation {
 		  dallyFactorDistribution(minDallyFactor, maxDallyFactor),
 		  riskFactorDistribution(lambdaRiskFactor),
 		  maxSpeedDistribution(maxSpeedMean, maxSpeedStd),
-		  dallyDistribution(0., 1.) {
+		  uniform01distribution(0., 1.) {
 		}
 
 		void initialize(long streetLength, long laneCount, double carDensity) {
+			this->carDensity = carDensity;
 			road.resize(streetLength, laneCount);
 
 			uniform_real_distribution<double> carDistribution(0,1);
@@ -48,6 +49,8 @@ class Simulation {
 		}
 
 		void update() {
+			addCars();
+			
 			// Accelerate vehicles
 			accelerate();
 
@@ -62,6 +65,15 @@ class Simulation {
 
 			// Car Motion
 			move();
+		}
+		
+		void addCars() {
+			for (auto l = 0; l < road.getLaneCount(); ++l) {
+				if (road.getVehicle(0, l) == nullptr && uniform01distribution(randomEngine) < carDensity) {
+					Vehicle* v = new Vehicle(randomEngine, dallyFactorDistribution, riskFactorDistribution, maxSpeedDistribution);
+					road.insertVehicle(0, l, v);
+				}
+			}
 		}
 
 		void accelerate() {
@@ -100,7 +112,7 @@ class Simulation {
 				for (auto l = 0; l < road.getLaneCount(); ++l) {
 					Vehicle* v = road.getVehicle(s, l);
 					if (v != nullptr) {
-						if (dallyDistribution(randomEngine) < v->dallyFactor) {
+						if (uniform01distribution(randomEngine) < v->dallyFactor) {
 							v->accelerate(-1);
 						}
 					}
@@ -125,5 +137,6 @@ class Simulation {
 		uniform_real_distribution<double> dallyFactorDistribution;
 		exponential_distribution<double> riskFactorDistribution;
 		normal_distribution<double> maxSpeedDistribution;
-		uniform_real_distribution<double> dallyDistribution;
+		uniform_real_distribution<double> uniform01distribution;
+		double carDensity;
 };
