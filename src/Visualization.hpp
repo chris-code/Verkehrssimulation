@@ -36,7 +36,7 @@ class Visualization {
 
 	private:
 		CImg<unsigned char> roadToImg(Road &r) {
-			CImg<unsigned char> img(r.getStreetLength(), r.getLaneCount());
+			CImg<unsigned char> img(r.getStreetLength(), r.getLaneCount(), 1, 3);
 
 			for (auto s = 0; s < r.getStreetLength(); ++s) {
 				for (auto l = 0; l < r.getLaneCount(); ++l) {

@@ -60,9 +60,12 @@ class Road {
 			if(toS < 0 || toS >= streetLength || toL < 0 || toL >= laneCount) {
 				throw MessageException("Invalid move: destination not in road");
 			}
-			//if(contents[toS][toL] != nullptr) {
-			//	throw MessageException("Invalid move: target not empty");
-			//}
+			if(contents[toS][toL] != nullptr) {
+				if(fromS == toS && fromL == toL) {
+					throw MessageException("Invalid move: self-replacement!");
+				}
+				throw MessageException("Invalid move: target not empty");
+			}
 			Vehicle *v = contents[fromS][fromL];
 			contents[fromS][fromL] = nullptr;
 			contents[toS][toL] = v;

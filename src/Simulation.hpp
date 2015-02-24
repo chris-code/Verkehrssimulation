@@ -37,9 +37,8 @@ class Simulation {
 
 		void simulate(long runs) {
 			Visualization vis(road.getStreetLength());
-
+			
 			vis.appendRoad(road);
-
 			for (long i = 0; i < runs; ++i) {
 				update();
 				vis.appendRoad(road);
