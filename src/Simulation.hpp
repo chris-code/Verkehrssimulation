@@ -47,6 +47,7 @@ class Simulation {
 			}
 
 			vis.show();
+			vis.save();
 		}
 
 		void update() {
