@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include "MessageException.hpp"
 #include "Vehicle.hpp"
 
 using namespace std;
@@ -32,10 +33,29 @@ class Road {
 		}
 
 		void insertVehicle(long s, long l, Vehicle* v) {
+			if(contents[s][l] != nullptr) {
+				throw MessageException("Invalid insertion");
+			}
 			contents[s][l] = v;
 		}
 
+		void moveVehicle(long fromS, long fromL, long toS, long toL) {			
+			if(contents[fromS][fromL] == nullptr) {
+				throw MessageException("Invalid move: source is empty");
+			}
+			if(contents[toS][toL] != nullptr) {
+				throw MessageException("Invalid move: target not empty");
+			}
+			
+			Vehicle *v = contents[fromS][fromL];
+			contents[fromS][fromL] = nullptr;
+			contents[toS][toL] = v;
+		}
+
 		Vehicle* removeVehicle(long s, long l) {
+			if(contents[s][l] == nullptr) {
+				throw MessageException("Invalid remove");
+			}
 			Vehicle* v = contents[s][l];
 			contents[s][l] = nullptr;
 			return v;
