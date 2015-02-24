@@ -4,6 +4,7 @@
 #include <chrono>
 #include "Road.hpp"
 #include "Vehicle.hpp"
+#include "Visualization.hpp"
 
 using namespace std;
 
@@ -11,7 +12,6 @@ class Simulation {
 	public:
 		Simulation(double minDallyFactor, double maxDallyFactor, double lambdaRiskFactor, double maxSpeedMean, double maxSpeedStd)
 		: road(0,0),
-		  newRoad(0,0),
 		  randomEngine(chrono::system_clock::now().time_since_epoch().count()),
 		  dallyFactorDistribution(minDallyFactor, maxDallyFactor),
 		  riskFactorDistribution(lambdaRiskFactor),
@@ -32,6 +32,19 @@ class Simulation {
 					}
 				}
 			}
+		}
+
+		void simulate(long runs) {
+			Visualization vis(road.getStreetLength());
+
+			vis.appendRoad(road);
+
+			for (long i = 0; i < runs; ++i) {
+				update();
+				vis.appendRoad(road);
+			}
+
+			vis.show();
 		}
 
 		void update() {
@@ -100,7 +113,7 @@ class Simulation {
 				for (auto l = road.getLaneCount() - 1; l >= 0; --l) {
 					Vehicle* v = road.getVehicle(s, l);
 					if (v != nullptr) {
-						road->moveVehicle(s, l, s + v->currentSpeed, l);
+						road.moveVehicle(s, l, s + v->currentSpeed, l);
 					}
 				}
 			}

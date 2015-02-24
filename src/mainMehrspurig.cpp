@@ -2,7 +2,6 @@
 #include "Road.hpp"
 #include "Simulation.hpp"
 
-
 using namespace std;
 
 int main() {
@@ -15,11 +14,10 @@ int main() {
 	Simulation simulation(minDallyFactor, maxDallyFactor, lambdaRiskFactor, maxSpeedMean, maxSpeedStd);
 
 	long streetLength = 300;
-	long laneCount = 2;
+	long laneCount = 1;
 	double carDensity = 0.3;
 
 	simulation.initialize(streetLength, laneCount, carDensity);
 
-	for (long i = 0; i < 500; ++i)
-		simulation.update();
+	simulation.simulate(500);
 }
