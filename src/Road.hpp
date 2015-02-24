@@ -33,13 +33,22 @@ class Road {
 		}
 
 		void insertVehicle(long s, long l, Vehicle* v) {
+			if(s < 0 || s >= streetLength || l < 0 || l >= laneCount) {
+				throw MessageException("Invalid insert: cell not in road");
+			}
 			if(contents[s][l] != nullptr) {
-				throw MessageException("Invalid insertion");
+				throw MessageException("Invalid insert: cell is not empty");
 			}
 			contents[s][l] = v;
 		}
 
 		void moveVehicle(long fromS, long fromL, long toS, long toL) {			
+			if(fromS < 0 || fromS >= streetLength || fromL < 0 || fromL >= laneCount) {
+				throw MessageException("Invalid move: source not in road");
+			}
+			if(toS < 0 || toS >= streetLength || toL < 0 || toL >= laneCount) {
+				throw MessageException("Invalid move: destination not in road");
+			}
 			if(contents[fromS][fromL] == nullptr) {
 				throw MessageException("Invalid move: source is empty");
 			}
@@ -54,7 +63,10 @@ class Road {
 
 		Vehicle* removeVehicle(long s, long l) {
 			if(contents[s][l] == nullptr) {
-				throw MessageException("Invalid remove");
+				throw MessageException("Invalid remove: cell is empty");
+			}
+			if(s < 0 || s >= streetLength || l < 0 || l >= laneCount) {
+				throw MessageException("Invalid remove: cell not in road");
 			}
 			Vehicle* v = contents[s][l];
 			contents[s][l] = nullptr;
