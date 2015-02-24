@@ -86,6 +86,18 @@ class Road {
 		Vehicle* getVehicle(long s, long l) {
 			return contents[s][l];
 		}
+		
+		double getDensity() {
+			double density = 0.0;
+			for (long s = 0; s < long(contents.size()); ++s) {
+				for (long l = 0; l < long(contents[s].size()); ++l) {
+					if(contents[s][l] != nullptr) {
+						density += 1.0;
+					}
+				}
+			}
+			return density / (streetLength * laneCount);
+		}
 
 	private:
 		void clear() {
