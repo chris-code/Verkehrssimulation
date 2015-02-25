@@ -10,14 +10,15 @@ int main() {
 	double lambdaRiskFactor = 5.;
 	double maxSpeedMean = 5.;
 	double maxSpeedStd = 1.2;
-
-	Simulation simulation(minDallyFactor, maxDallyFactor, lambdaRiskFactor, maxSpeedMean, maxSpeedStd);
-
+	
+	SimulationMehrspurig simulation( minDallyFactor, maxDallyFactor, lambdaRiskFactor, maxSpeedMean,
+	                                 maxSpeedStd );
+	                                 
 	long streetLength = 300;
 	long laneCount = 5;
 	double carDensity = 0.1;
-
-	simulation.initialize(streetLength, laneCount, carDensity);
-
-	simulation.simulate(500);
+	
+	simulation.initialize( streetLength, laneCount, carDensity );
+	
+	simulation.simulate( 500 );
 }
