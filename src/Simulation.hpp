@@ -95,18 +95,20 @@ class Simulation {
 			for (auto s = 0; s < road.getStreetLength(); ++s) {
 				for (auto l = 0; l < road.getLaneCount(); ++l) {
 					Vehicle *v = road.getVehicle(s, l);
-					if(processed.count(v) > 0) {
-						continue;
-					}
-					processed.insert(v);
-					
-					if(laneChoiceDistribution(randomEngine)) { //Try left lane first
-						if(! changeToLeftLane(s, l)) {
-							changeToRightLane(s, l);
+					if (v != nullptr) {
+						if(processed.count(v) > 0) {
+							continue;
 						}
-					} else { //Try right lane first
-						if(! changeToRightLane(s, l)) {
-							changeToLeftLane(s, l);
+						processed.insert(v);
+
+						if(laneChoiceDistribution(randomEngine)) { //Try left lane first
+							if(! changeToLeftLane(s, l)) {
+								changeToRightLane(s, l);
+							}
+						} else { //Try right lane first
+							if(! changeToRightLane(s, l)) {
+								changeToLeftLane(s, l);
+							}
 						}
 					}
 				}
@@ -126,7 +128,7 @@ class Simulation {
 				road.moveVehicle(s, l, s, l-1); // Switch lanes regardless of distances
 				return true;
 			}
-			
+
 			long gap = 0; // Space ahead the car has on its current lane
 			for(auto offset = 1; offset <= v->currentSpeed; ++offset) {
 				if(s + offset >= road.getStreetLength()) {
@@ -239,16 +241,20 @@ class Simulation {
 		}
 
 		void checkDistances() {
-			for (auto s = 0; s < road.getStreetLength(); ++s) {
-				for (auto l = 0; l < road.getLaneCount(); ++l) {
+			for (auto s = 0; s < road.getStreetLength(); ++s) { // iterate over all segments
+				for (auto l = 0; l < road.getLaneCount(); ++l) { // iterate over all lanes
 					Vehicle* v = road.getVehicle(s, l);
 					if (v != nullptr) {
-						for (int offset = 1; offset <= v->currentSpeed; ++offset) {
-							if(s + offset < road.getStreetLength()) {
-								Vehicle* otherV = road.getVehicle(s + offset, l);
-								if (otherV != nullptr) {
-									v->currentSpeed = offset - 1;
-									break;
+						for (long lane = l; lane >= 0; --lane) { // iterate over lanes that are not on the right of the considered vehicle
+							for (long offset = 1; offset <= v->currentSpeed; ++offset) {
+								if(s + offset < road.getStreetLength()) {
+									Vehicle* otherV = road.getVehicle(s + offset, l);
+									if (otherV != nullptr) {
+										if (v->currentSpeed > offset - 1) {
+											v->currentSpeed = offset - 1;
+											break;
+										}
+									}
 								}
 							}
 						}
