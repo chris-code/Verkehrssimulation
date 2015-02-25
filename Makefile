@@ -6,15 +6,18 @@ OPTFLAGS=
 INCLUDES=
 LIBS=-lpthread -lX11
 
-PROGRAMS=einspurig mehrspurig
+#PROGRAMS=einspurig mehrspurig
+PROGRAMS=mehrspurig kreisverkehr
 
 all:$(PROGRAMS)
 .PHONY:$(PROGRAMS)
 
-einspurig:
-	$(CC) $(CFLAGS) src/mainEinspurig.cpp -o $@ $(INCLUDES) $(LIBS) $(OPTFLAGS)
+#einspurig:
+#	$(CC) $(CFLAGS) src/mainEinspurig.cpp -o $@ $(INCLUDES) $(LIBS) $(OPTFLAGS)
 mehrspurig:
 	$(CC) $(CFLAGS) src/mainMehrspurig.cpp -o $@ $(INCLUDES) $(LIBS) $(OPTFLAGS)
+kreisverkehr:
+	$(CC) $(CFLAGS) src/mainKreisverkehr.cpp -o $@ $(INCLUDES) $(LIBS) $(OPTFLAGS)
 
 clean:
 	rm $(PROGRAMS) 2>/dev/null

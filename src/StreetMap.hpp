@@ -1,29 +1,45 @@
-#include <vector>
-#include <random>
-#include <chrono>
+#pragma once
+
+#include<vector>
+#include<chrono>
+#include<random>
 #include "StreetSegment.hpp"
 
 using namespace std;
 
 class StreetMap {
 	public:
-		StreetMap(long xSize, long ySize) {
-			randomEngine = default_random_engine(chrono::system_clock::now().time_since_epoch().count());
-
-			data.resize(xSize);
-
-			for (auto x = 0L; x < xSize; ++x) {
-				for (auto y = 0L; y < ySize; ++y) {
-					StreetSegment ss(randomEngine);
-					data[x].push_back(ss);
+		StreetMap( long dimX, long dimY ) :
+			randomEngine( chrono::system_clock::now().time_since_epoch().count() ) {
+			this->dimX = dimX;
+			this->dimY = dimY;
+			contents.resize( dimX );
+			for( long x = 0; x < dimX; ++x ) {
+				contents[x].resize( dimY );
+			}
+		}
+		
+		void setDestinations() {
+			for( long x = 0; x < dimX; ++x ) {
+				for( long y = 0; y < dimY; ++y ) {
+					long choices = contents[x][y].destinations.size();
+					uniform_int_distribution<long> destinationDistribution( 0, choices - 1 );
+					contents[x][y].nextDestination = destinationDistribution( randomEngine );
 				}
 			}
-
 		}
-		StreetSegment & operator()(long x, long y) {
-			return data[x][y];
+		
+		void clearMarks() {
+			for( long x = 0; x < dimX; ++x ) {
+				for( long y = 0; y < dimY; ++y ) {
+					contents[x][y].mark = false;
+				}
+			}
 		}
 	private:
-		vector< vector< StreetSegment > > data;
+		long dimX;
+		long dimY;
+		vector<vector<StreetSegment>> contents;
+		
 		default_random_engine randomEngine;
 };
