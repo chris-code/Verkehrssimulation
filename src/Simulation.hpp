@@ -95,8 +95,8 @@ class Simulation {
 			for (auto s = 0; s < road.getStreetLength(); ++s) {
 				for (auto l = 0; l < road.getLaneCount(); ++l) {
 					Vehicle *v = road.getVehicle(s, l);
-					if(processed.count(v) > 0) {
-						continue;
+					if(v == nullptr || processed.count(v) > 0) {
+						continue; // v is not a vehicle or has already been processed
 					}
 					processed.insert(v);
 					
@@ -181,7 +181,7 @@ class Simulation {
 			if(road.getVehicle(s, l+1) != nullptr) {
 				return false; // Right lane not empty
 			}
-
+			
 			Vehicle *v = road.getVehicle(s, l);
 			if(uniform01distribution(randomEngine) < v->riskFactor) {
 				road.moveVehicle(s, l, s, l+1); // Switch lanes regardless of distances
