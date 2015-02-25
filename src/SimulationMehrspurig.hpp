@@ -10,9 +10,9 @@
 
 using namespace std;
 
-class Simulation {
+class SimulationMehrspurig {
 	public:
-		Simulation(double minDallyFactor, double maxDallyFactor, double lambdaRiskFactor, double maxSpeedMean, double maxSpeedStd)
+		SimulationMehrspurig(double minDallyFactor, double maxDallyFactor, double lambdaRiskFactor, double maxSpeedMean, double maxSpeedStd)
 		: road(0,0),
 		  randomEngine(chrono::system_clock::now().time_since_epoch().count()),
 		  dallyFactorDistribution(minDallyFactor, maxDallyFactor),
