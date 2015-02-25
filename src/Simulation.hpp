@@ -248,7 +248,7 @@ class Simulation {
 						for (long lane = l; lane >= 0; --lane) { // iterate over lanes that are not on the right of the considered vehicle
 							for (long offset = 1; offset <= v->currentSpeed; ++offset) {
 								if(s + offset < road.getStreetLength()) {
-									Vehicle* otherV = road.getVehicle(s + offset, l);
+									Vehicle* otherV = road.getVehicle(s + offset, lane);
 									if (otherV != nullptr) {
 										if (v->currentSpeed > offset - 1) {
 											v->currentSpeed = offset - 1;
