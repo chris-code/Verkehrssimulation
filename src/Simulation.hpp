@@ -183,7 +183,7 @@ class Simulation {
 			if(road.getVehicle(s, l+1) != nullptr) {
 				return false; // Right lane not empty
 			}
-
+			
 			Vehicle *v = road.getVehicle(s, l);
 			if(uniform01distribution(randomEngine) < v->riskFactor) {
 				road.moveVehicle(s, l, s, l+1); // Switch lanes regardless of distances
