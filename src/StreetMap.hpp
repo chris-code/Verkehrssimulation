@@ -11,26 +11,28 @@ using namespace std;
 
 class StreetMap {
 	public:
-		StreetMap( long dimX, long dimY, default_random_engine &randomEngine ) :
-			randomEngine( randomEngine ) {
-			this->dimX = dimX;
-			this->dimY = dimY;
-			contents.resize( dimX );
-			for( long x = 0; x < dimX; ++x ) {
-				contents[x].resize( dimY );
-			}
+		StreetMap( long dimX, long dimY, double trafficDensity, default_random_engine &randomEngine,
+		           uniform_real_distribution<double> &dallyFactorDistribution,
+		           exponential_distribution<double> &riskFactorDistribution,
+		           normal_distribution<double> &maxSpeedDistribution ) :
+			randomEngine( randomEngine ),
+			dallyFactorDistribution( dallyFactorDistribution ),
+			riskFactorDistribution( riskFactorDistribution ),
+			maxSpeedDistribution( maxSpeedDistribution ) {
 			
-			initialize();
-			drawDestinations();
+			buildMap( dimX, dimY );
+			populateMap( trafficDensity );
 			visualize();
 		}
 		
 		void drawDestinations() {
 			for( long x = 0; x < dimX; ++x ) {
 				for( long y = 0; y < dimY; ++y ) {
-					long choices = contents[x][y].destinations.size();
-					uniform_int_distribution<long> destinationDistribution( 0, choices - 1 );
-					contents[x][y].nextDestination = destinationDistribution( randomEngine );
+					if( ! contents[x][y].isDummy() ) {
+						long choices = contents[x][y].destinations.size();
+						uniform_int_distribution<long> destinationDistribution( 0, choices - 1 );
+						contents[x][y].nextDestination = destinationDistribution( randomEngine );
+					}
 				}
 			}
 		}
@@ -43,9 +45,17 @@ class StreetMap {
 			}
 		}
 		
-		void initialize() { //TODO set max speed
+		void buildMap( long dimX, long dimY ) { //TODO set max speed
 			if( dimX != 70 || dimY != 70 ) {
 				throw MessageException( "Can't initialize: Unrecognized dimensions!" );
+			}
+			
+			this->dimX = dimX;
+			this->dimY = dimY;
+			contents.resize( dimX );
+			for( long x = 0; x < dimX; ++x ) {
+				contents[x].clear(); // Make sure we don't reuse segments (-> avoid broken pointers)
+				contents[x].resize( dimY );
 			}
 			
 			// Roundabout is spanned by [30,30] and [37,35]
@@ -84,15 +94,31 @@ class StreetMap {
 			buildSourcePointers();
 		}
 		
+		void populateMap( double trafficDensity ) {
+			this->trafficDensity = trafficDensity;
+			bernoulli_distribution carPlacementDistribution( trafficDensity );
+			
+			for( long x = 0; x < dimX; ++x ) {
+				for( long y = 0; y < dimY; ++y ) {
+					if( ! contents[x][y].isDummy() ) {
+						if( carPlacementDistribution( randomEngine ) ) {
+							Vehicle* v = new Vehicle( randomEngine, dallyFactorDistribution,
+							                          riskFactorDistribution, maxSpeedDistribution );
+							contents[x][y].v = v;
+						}
+					}
+				}
+			}
+		}
+		
 		void visualize() {
 			for( long y = 0; y < dimY; ++y ) {
 				for( long x = 0; x < dimX; ++x ) {
-					if(contents[x][y].v != nullptr) {
+					if( contents[x][y].v != nullptr ) {
 						cout << contents[x][y].v->currentSpeed;
-					} else if(contents[x][y].destinations.size() > 0) {
+					} else if( ! contents[x][y].isDummy() ) {
 						cout << "#";
-					}
-					else {
+					} else {
 						cout << " ";
 					}
 				}
@@ -102,12 +128,15 @@ class StreetMap {
 	private:
 		long dimX;
 		long dimY;
+		double trafficDensity;
 		vector<vector<StreetSegment>> contents;
 		
 		default_random_engine &randomEngine;
+		uniform_real_distribution<double> dallyFactorDistribution;
+		exponential_distribution<double> riskFactorDistribution;
+		normal_distribution<double> maxSpeedDistribution;
 		
 		void buildSourcePointers() {
-			//TODO build sources
 			for( long x = 0; x < dimX; ++x ) {
 				for( long y = 0; y < dimY; ++y ) {
 					long destinationCount = contents[x][y].destinations.size();
