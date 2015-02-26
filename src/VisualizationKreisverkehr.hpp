@@ -44,7 +44,7 @@ class VisualizationKreisverkehr {
 			long dimX = streetSegments.size();
 			long dimY = streetSegments[0].size();
 
-			CImg streetMapImg( dimX, dimY, 1, 3 );
+			CImg<unsigned char> streetMapImg( dimX, dimY, 1, 3 );
 
 			for (long x = 0; x < dimX; ++x) {
 				for (long y = 0; y < dimY; ++y) {
