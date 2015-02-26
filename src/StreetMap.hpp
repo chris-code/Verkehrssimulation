@@ -1,9 +1,10 @@
 #pragma once
 
-#include<vector>
-#include<chrono>
-#include<random>
-#include<iostream> //FIXME remove this
+#include <vector>
+#include <set>
+#include <chrono>
+#include <random>
+#include <iostream> //FIXME remove this
 #include "MessageException.hpp"
 #include "StreetSegment.hpp"
 
@@ -11,7 +12,8 @@ using namespace std;
 
 class StreetMap {
 	public:
-		StreetMap( long dimX, long dimY, double trafficDensity, default_random_engine &randomEngine,
+		StreetMap( long roundaboutWidth, long roundaboutHeight, long driveUpLength,
+		           double trafficDensity, default_random_engine &randomEngine,
 		           uniform_real_distribution<double> &dallyFactorDistribution,
 		           exponential_distribution<double> &riskFactorDistribution,
 		           normal_distribution<double> &maxSpeedDistribution ) :
@@ -20,16 +22,15 @@ class StreetMap {
 			riskFactorDistribution( riskFactorDistribution ),
 			maxSpeedDistribution( maxSpeedDistribution ) {
 			
-			buildMap( dimX, dimY );
+			buildMap( roundaboutWidth, roundaboutHeight, driveUpLength );
 			populateMap( trafficDensity );
-			visualize();
 		}
 		
 		void drawDestinations() {
 			for( long x = 0; x < dimX; ++x ) {
 				for( long y = 0; y < dimY; ++y ) {
-					if( ! contents[x][y].isDummy() ) {
-						long choices = contents[x][y].destinations.size();
+					long choices = contents[x][y].destinations.size();
+					if( choices > 1 ) {
 						uniform_int_distribution<long> destinationDistribution( 0, choices - 1 );
 						contents[x][y].nextDestination = destinationDistribution( randomEngine );
 					}
@@ -45,53 +46,73 @@ class StreetMap {
 			}
 		}
 		
-		void buildMap( long dimX, long dimY ) { //TODO set max speed
-			if( dimX != 70 || dimY != 70 ) {
-				throw MessageException( "Can't initialize: Unrecognized dimensions!" );
-			}
+		void buildMap( long roundaboutWidth, long roundaboutHeight, long driveUpLength ) {
+			long buffer = 3;
+			dimX = ( driveUpLength + buffer ) * 2 + roundaboutWidth;
+			dimY = ( driveUpLength + buffer ) * 1 + roundaboutHeight + buffer;
 			
-			this->dimX = dimX;
-			this->dimY = dimY;
 			contents.resize( dimX );
 			for( long x = 0; x < dimX; ++x ) {
 				contents[x].clear(); // Make sure we don't reuse segments (-> avoid broken pointers)
 				contents[x].resize( dimY );
 			}
 			
-			// Roundabout is spanned by [30,30] and [37,35]
-			for( long x = 31; x <= 37; ++x ) {
-				contents[x][30].destinations.push_back( &( contents[x - 1][30] ) );
+			long leftBorder = driveUpLength + buffer + 1;
+			long upperBorder = buffer + 1;
+			long rightBorder = leftBorder + roundaboutWidth - 1;
+			long lowerBorder = upperBorder + roundaboutHeight - 1;
+			
+			for( long x = leftBorder; x < rightBorder; ++x ) {
+				contents[x][upperBorder].predecessors.push_back( & ( contents[x + 1][upperBorder] ) );
 			}
-			for( long x = 30; x <= 36; ++x ) {
-				contents[x][35].destinations.push_back( &( contents[x + 1][35] ) );
+			for( long x = rightBorder; x > leftBorder; --x ) {
+				contents[x][lowerBorder].predecessors.push_back( &( contents[x - 1][lowerBorder] ) );
 			}
-			for( long y = 30; y <= 34; ++y ) {
-				contents[30][y].destinations.push_back( &( contents[30][y + 1] ) );
+			for( long y = upperBorder; y < lowerBorder; ++y ) {
+				contents[rightBorder][y].predecessors.push_back( &( contents[rightBorder][y + 1] ) );
 			}
-			for( long y = 31; y <= 35; ++y ) {
-				contents[37][y].destinations.push_back( &( contents[37][y - 1] ) );
+			for( long y = lowerBorder; y > upperBorder; --y ) {
+				contents[leftBorder][y].predecessors.push_back( &( contents[leftBorder][y - 1] ) );
 			}
 			
-			// Create roads
-			for( long x = 5; x < 30; ++x ) {
-				contents[x][32].destinations.push_back( &( contents[x - 1][32] ) );
-				contents[x][33].destinations.push_back( &( contents[x + 1][33] ) );
+			long leftDriveUpStart = leftBorder - driveUpLength;
+			long leftDriveUpLower = upperBorder + roundaboutHeight / 2;
+			long leftDriveUpUpper = leftDriveUpLower - 1;
+			for( long x = leftDriveUpStart; x < leftBorder; ++x ) {
+				contents[x][leftDriveUpUpper].predecessors.push_back(
+				    & ( contents[x + 1][leftDriveUpUpper] ) );
+				contents[x][leftDriveUpLower].predecessors.push_back(
+				    & ( contents[x - 1][leftDriveUpLower] ) );
 			}
-			contents[30][32].destinations.push_back( &( contents[30 - 1][32] ) );
-			
-			for( long x = 38; x < 63; ++x ) {
-				contents[x][32].destinations.push_back( &( contents[x - 1][32] ) );
-				contents[x][33].destinations.push_back( &( contents[x + 1][33] ) );
+			contents[leftBorder][leftDriveUpLower].predecessors.push_back(
+			    &( contents[leftBorder - 1][leftDriveUpLower] ) );
+			    
+			long rightDriveUpStart = rightBorder + driveUpLength;
+			long rightDriveUpLower = upperBorder + roundaboutHeight / 2;
+			long rightDriveUpUpper = rightDriveUpLower - 1;
+			for( long x = rightDriveUpStart; x > rightBorder; --x ) {
+				contents[x][rightDriveUpUpper].predecessors.push_back(
+				    &( contents[x + 1][rightDriveUpUpper] ) );
+				contents[x][rightDriveUpLower].predecessors.push_back(
+				    &( contents[x - 1][rightDriveUpLower] ) );
 			}
-			contents[37][33].destinations.push_back( &( contents[37 + 1][33] ) );
-			
-			for( long y = 36; y < 61; ++y ) {
-				contents[33][y].destinations.push_back( &( contents[33][y + 1] ) );
-				contents[34][y].destinations.push_back( &( contents[34][y - 1] ) );
+			contents[rightBorder][rightDriveUpUpper].predecessors.push_back(
+			    &( contents[rightBorder + 1][rightDriveUpUpper] ) );
+			    
+			long lowerDriveUpStart = lowerBorder + driveUpLength;
+			long lowerDriveUpRight = leftBorder + roundaboutWidth / 2;
+			long lowerDriveUpLeft = lowerDriveUpRight - 1;
+			for( long y = lowerDriveUpStart; y > lowerBorder; --y ) {
+				contents[lowerDriveUpLeft][y].predecessors.push_back(
+				    &( contents[lowerDriveUpLeft][y - 1] ) );
+				contents[lowerDriveUpRight][y].predecessors.push_back(
+				    &( contents[lowerDriveUpRight][y + 1] ) );
 			}
-			contents[33][35].destinations.push_back( &( contents[33][35 + 1] ) );
-			
-			buildSourcePointers();
+			contents[lowerDriveUpRight][lowerBorder].predecessors.push_back(
+			    &( contents[lowerDriveUpRight][lowerBorder + 1] ) );
+			    
+			buildDestinationPointers();
+			determineSourcesAndSinks();
 		}
 		
 		void populateMap( double trafficDensity ) {
@@ -116,6 +137,10 @@ class StreetMap {
 				for( long x = 0; x < dimX; ++x ) {
 					if( contents[x][y].v != nullptr ) {
 						cout << contents[x][y].v->currentSpeed;
+					} else if( sources.count( &contents[x][y] ) ) {
+						cout << "+";
+					} else if( sinks.count( &contents[x][y] ) ) {
+						cout << "-";
 					} else if( ! contents[x][y].isDummy() ) {
 						cout << "#";
 					} else {
@@ -130,18 +155,47 @@ class StreetMap {
 		long dimY;
 		double trafficDensity;
 		vector<vector<StreetSegment>> contents;
+		set<StreetSegment*> sources;
+		set<StreetSegment*> sinks;
 		
 		default_random_engine &randomEngine;
 		uniform_real_distribution<double> dallyFactorDistribution;
 		exponential_distribution<double> riskFactorDistribution;
 		normal_distribution<double> maxSpeedDistribution;
 		
-		void buildSourcePointers() {
+		void buildPredecessorPointers() {
 			for( long x = 0; x < dimX; ++x ) {
 				for( long y = 0; y < dimY; ++y ) {
 					long destinationCount = contents[x][y].destinations.size();
 					for( long d = 0; d < destinationCount; ++d ) {
-						contents[x][y].destinations[d]->sources.push_back( &( contents[x][y] ) );
+						contents[x][y].destinations[d]->predecessors.push_back( &( contents[x][y] ) );
+					}
+				}
+			}
+		}
+		
+		void buildDestinationPointers() {
+			for( long x = 0; x < dimX; ++x ) {
+				for( long y = 0; y < dimY; ++y ) {
+					long predecessorCount = contents[x][y].predecessors.size();
+					for( long p = 0; p < predecessorCount; ++p ) {
+						contents[x][y].predecessors[p]->destinations.push_back( &( contents[x][y] ) );
+					}
+				}
+			}
+		}
+		
+		void determineSourcesAndSinks() {
+			sources.clear();
+			sinks.clear();
+			
+			for( long x = 0; x < dimX; ++x ) {
+				for( long y = 0; y < dimY; ++y ) {
+					if( contents[x][y].isSource() ) {
+						sources.insert( &( contents[x][y] ) );
+					}
+					if( contents[x][y].isSink() ) {
+						sinks.insert( &( contents[x][y] ) );
 					}
 				}
 			}

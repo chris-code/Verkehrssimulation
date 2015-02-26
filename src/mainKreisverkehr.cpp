@@ -16,12 +16,14 @@ int main( int argc, char **argv ) {
 	exponential_distribution<double> riskFactorDistribution( lambdaRiskFactor );
 	normal_distribution<double> maxSpeedDistribution( maxSpeedMean, maxSpeedStd );
 	
-	long dimX = 70;
-	long dimY = 70;
+	long roundaboutWidth = 8;
+	long roundaboutHeight = 6;
+	long driveUpLength = 20;
 	double trafficDensity = 0.3;
 	
-	StreetMap streetMap( dimX, dimY, trafficDensity, randomEngine, dallyFactorDistribution,
-	                     riskFactorDistribution, maxSpeedDistribution );
+	StreetMap streetMap( roundaboutWidth, roundaboutHeight, driveUpLength, trafficDensity,
+	                     randomEngine, dallyFactorDistribution, riskFactorDistribution,
+	                     maxSpeedDistribution );
 	SimulationKreisverkehr simulation( randomEngine );
 	return EXIT_SUCCESS;
 }

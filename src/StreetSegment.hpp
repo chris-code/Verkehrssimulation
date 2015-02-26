@@ -16,7 +16,21 @@ class StreetSegment {
 		}
 		
 		bool isDummy() {
-			if( destinations.size() == 0 ) {
+			if( destinations.size() == 0 && predecessors.size() == 0 ) {
+				return true;
+			}
+			return false;
+		}
+		
+		bool isSource() {
+			if( ! isDummy() && predecessors.size() == 0 ) {
+				return true;
+			}
+			return false;
+		}
+		
+		bool isSink() {
+			if( !isDummy() && destinations.size() == 0 ) {
 				return true;
 			}
 			return false;
@@ -24,7 +38,7 @@ class StreetSegment {
 		
 		long maxSpeed;
 		vector<StreetSegment*> destinations;
-		vector<StreetSegment*> sources;
+		vector<StreetSegment*> predecessors;
 		
 		short nextDestination;
 		bool mark;
