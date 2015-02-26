@@ -138,8 +138,10 @@ class SimulationMehrspurig {
 				return true;
 			}
 
+			long vMax = v->maxSpeed;
+
 			long gap = 0; // Space ahead the car has on its current lane
-			for(auto offset = 1; offset <= v->currentSpeed; ++offset) {
+			for(auto offset = 1; offset <= vMax; ++offset) {
 				if(s + offset >= road.getStreetLength()) {
 					break; // Road ended, gap ends here
 				}
@@ -160,7 +162,7 @@ class SimulationMehrspurig {
 				++gapLeft;
 			}
 			
-			if(v->currentSpeed > gap && gapLeft >= gap) { // Desire to change lanes
+			if(vMax > gap && gapLeft >= gap) { // Desire to change lanes
 				long gapBack = 0; // Space backwards the car would have on the left lane
 				long vBack = 0; // Speed of the follow-up car on the left lane
 				for(auto offset = -1; offset >= -7; --offset) {
@@ -199,11 +201,11 @@ class SimulationMehrspurig {
 				return true;
 			}
 			
-			long vMax = v->currentSpeed;
+			long vMax = v->maxSpeed;
 			long vOffset = 1;
 
 			long gap = 0; // Space ahead the car has on its current lane
-			for(auto offset = 1; offset <= v->currentSpeed; ++offset) {
+			for(auto offset = 1; offset <= vMax; ++offset) {
 				if(s + offset >= road.getStreetLength()) {
 					break; // Road ended, gap ends here
 				}
