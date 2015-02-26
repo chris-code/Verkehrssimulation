@@ -25,21 +25,13 @@ class SimulationKreisverkehr {
 			
 			populateMap();
 			
-			//visualization = new VisualizationKreisverkehr(streetMap.getContents().size(), streetMap.getContents()[0].size());
-			//visualization->appendRoundabout(streetMap);
-			
 			for( long i = 0; i < iterations; ++i ) {
 				this->streetMap->visualize();
-				//visualization->appendRoundabout(streetMap);
 				simulateStep();
 			}
 			
-			//visualization->save();
-			
 			this->streetMap = nullptr;
 			this->trafficDensity = 0;
-			
-			//delete visualization;
 		}
 		
 		void simulateStep() {
@@ -47,10 +39,10 @@ class SimulationKreisverkehr {
 			streetMap->clearMarks();
 			
 //			addCars();
-//			accelerate();
+			accelerate();
 			checkDistances();
 //			dally();
-			//move();
+			move();
 			
 			streetMap->clearMarks();
 		}
@@ -129,7 +121,10 @@ class SimulationKreisverkehr {
 				for( long step = 0; step < ( *startSegment )->v->currentSpeed; ++step ) {
 					previousSegment = nextSegment;
 					nextSegment = nextSegment->destinations[nextSegment->nextDestination];
-					if( nextSegment->mark != nullptr ) { //Someone was here before
+					if( nextSegment->v != nullptr) { // We ran into a car
+						break;
+					}
+					if( nextSegment->mark != nullptr ) { // No vehicle, but someone was here before
 						if( nextSegment->predecessors[0] != previousSegment ) { // No right of way
 							break;
 						}
@@ -179,5 +174,32 @@ class SimulationKreisverkehr {
 			}
 		}
 		
-		VisualizationKreisverkehr *visualization;
+		void move() {
+			vector< vector<StreetSegment> > &contents = streetMap->getContents();
+			set<Vehicle*> processedVehicles;
+			
+			for( long x = 0; x < long( contents.size() ); ++x ) {
+				for( long y = 0; y < long( contents[x].size() ); ++y ) {
+					Vehicle *v = contents[x][y].v;
+					if( v != nullptr && processedVehicles.count( v ) == 0 ) {
+						StreetSegment *previousSegment = nullptr;
+						StreetSegment *nextSegment = &( contents[x][y] );
+						for( long step = 0; step < v->currentSpeed; ++step ) {
+							previousSegment = nextSegment;
+							if( previousSegment->isSink() ) {
+								delete previousSegment->v;
+								previousSegment->v = nullptr;
+								break;
+							}
+							nextSegment = nextSegment->destinations[nextSegment->nextDestination];
+//							TODO sanity checks (is empty and marked by current vehicle)
+							nextSegment->v = v;
+							previousSegment->v = nullptr;
+						}
+						
+						processedVehicles.insert( v );
+					}
+				}
+			}
+		}
 };
