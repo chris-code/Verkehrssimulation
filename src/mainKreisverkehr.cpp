@@ -21,9 +21,14 @@ int main( int argc, char **argv ) {
 	long driveUpLength = 20;
 	double trafficDensity = 0.3;
 	
+	long iterations = 3;
+	
 	StreetMap streetMap( roundaboutWidth, roundaboutHeight, driveUpLength, trafficDensity,
 	                     randomEngine, dallyFactorDistribution, riskFactorDistribution,
 	                     maxSpeedDistribution );
-	SimulationKreisverkehr simulation( randomEngine );
+	SimulationKreisverkehr simulation( randomEngine, dallyFactorDistribution, riskFactorDistribution,
+	                                   maxSpeedDistribution );
+	simulation.simulate( streetMap, trafficDensity, iterations );
+	
 	return EXIT_SUCCESS;
 }

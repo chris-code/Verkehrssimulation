@@ -116,7 +116,7 @@ class StreetMap {
 		}
 		
 		void populateMap( double trafficDensity ) {
-			this->trafficDensity = trafficDensity;
+			this->desiredTrafficDensity = trafficDensity;
 			bernoulli_distribution carPlacementDistribution( trafficDensity );
 			
 			for( long x = 0; x < dimX; ++x ) {
@@ -130,6 +130,24 @@ class StreetMap {
 					}
 				}
 			}
+		}
+		
+		double computeDensity() {
+			long cells = 0;
+			long vehicles = 0;
+			
+			for( long x = 0; x < dimX; ++x ) {
+				for( long y = 0; y < dimY; ++y ) {
+					if( ! contents[x][y].isDummy() ) {
+						++cells;
+						if( contents[x][y].v != nullptr ) {
+							++vehicles;
+						}
+					}
+				}
+			}
+			
+			return double( vehicles ) / double( cells );
 		}
 		
 		void visualize() {
@@ -150,15 +168,26 @@ class StreetMap {
 				cout << endl;
 			}
 		}
-
+		
+		double getDesiredTrafficDensity() {
+			return desiredTrafficDensity;
+		}
+		
+		set<StreetSegment*> &getSources() {
+			return sources;
+		}
+		set<StreetSegment*> &getSinks() {
+			return sinks;
+		}
+		
 		vector< vector<StreetSegment> > &getContents() {
 			return contents;
 		}
-
+		
 	private:
 		long dimX;
 		long dimY;
-		double trafficDensity;
+		double desiredTrafficDensity;
 		vector<vector<StreetSegment>> contents;
 		set<StreetSegment*> sources;
 		set<StreetSegment*> sinks;
