@@ -15,7 +15,7 @@ int main() {
 	                                 maxSpeedStd );
 	                                 
 	long streetLength = 300;
-	long laneCount = 5;
+	long laneCount = 4;
 	double carDensity = 0.1;
 	
 	simulation.initialize( streetLength, laneCount, carDensity );

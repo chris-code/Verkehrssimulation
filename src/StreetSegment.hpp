@@ -11,7 +11,7 @@ class StreetSegment {
 			maxSpeed = 1;
 			
 			nextDestination = 0;
-			mark = false;
+			mark = nullptr;
 			v = nullptr;
 		}
 		
@@ -41,7 +41,7 @@ class StreetSegment {
 		vector<StreetSegment*> predecessors;
 		
 		short nextDestination;
-		bool mark;
+		Vehicle *mark;
 		Vehicle *v;
 	private:
 };

@@ -23,7 +23,6 @@ class StreetMap {
 			maxSpeedDistribution( maxSpeedDistribution ) {
 			
 			buildMap( roundaboutWidth, roundaboutHeight, driveUpLength );
-			populateMap( trafficDensity );
 		}
 		
 		void drawDestinations() {
@@ -41,7 +40,7 @@ class StreetMap {
 		void clearMarks() {
 			for( long x = 0; x < dimX; ++x ) {
 				for( long y = 0; y < dimY; ++y ) {
-					contents[x][y].mark = false;
+					contents[x][y].mark = nullptr;
 				}
 			}
 		}
@@ -115,23 +114,6 @@ class StreetMap {
 			determineSourcesAndSinks();
 		}
 		
-		void populateMap( double trafficDensity ) {
-			this->desiredTrafficDensity = trafficDensity;
-			bernoulli_distribution carPlacementDistribution( trafficDensity );
-			
-			for( long x = 0; x < dimX; ++x ) {
-				for( long y = 0; y < dimY; ++y ) {
-					if( ! contents[x][y].isDummy() ) {
-						if( carPlacementDistribution( randomEngine ) ) {
-							Vehicle* v = new Vehicle( randomEngine, dallyFactorDistribution,
-							                          riskFactorDistribution, maxSpeedDistribution );
-							contents[x][y].v = v;
-						}
-					}
-				}
-			}
-		}
-		
 		double computeDensity() {
 			long cells = 0;
 			long vehicles = 0;
@@ -169,10 +151,6 @@ class StreetMap {
 			}
 		}
 		
-		double getDesiredTrafficDensity() {
-			return desiredTrafficDensity;
-		}
-		
 		set<StreetSegment*> &getSources() {
 			return sources;
 		}
@@ -187,7 +165,6 @@ class StreetMap {
 	private:
 		long dimX;
 		long dimY;
-		double desiredTrafficDensity;
 		vector<vector<StreetSegment>> contents;
 		set<StreetSegment*> sources;
 		set<StreetSegment*> sinks;

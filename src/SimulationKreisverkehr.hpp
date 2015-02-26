@@ -19,6 +19,8 @@ class SimulationKreisverkehr {
 			this->streetMap = &streetMap;
 			this->trafficDensity = trafficDensity;
 			
+			populateMap();
+			
 			for( long i = 0; i < iterations; ++i ) {
 				this->streetMap->visualize();
 				simulateStep();
@@ -32,11 +34,12 @@ class SimulationKreisverkehr {
 			streetMap->drawDestinations();
 			
 			addCars();
-			
 			accelerate();
 			//checkDistances();
 			dally();
 			//move();
+			
+			streetMap->clearMarks();
 		}
 	private:
 		default_random_engine &randomEngine;
@@ -46,6 +49,22 @@ class SimulationKreisverkehr {
 		
 		StreetMap *streetMap;
 		double trafficDensity;
+		
+		void populateMap() {
+			vector< vector<StreetSegment> > &contents = streetMap->getContents();
+			bernoulli_distribution carPlacementDistribution( trafficDensity );
+			
+			for( long x = 0; x < long( contents.size() ); ++x ) {
+				for( long y = 0; y < long( contents[x].size() ); ++y ) {
+					if( ! contents[x][y].isDummy() ) {
+						if( carPlacementDistribution( randomEngine ) ) {
+							contents[x][y].v = new Vehicle( randomEngine, dallyFactorDistribution,
+							                                riskFactorDistribution, maxSpeedDistribution );
+						}
+					}
+				}
+			}
+		}
 		
 		void addCars() {
 			set<StreetSegment*> &sources = streetMap->getSources();
@@ -66,6 +85,21 @@ class SimulationKreisverkehr {
 						contents[x][y].v->accelerate();
 					}
 				}
+			}
+		}
+		
+		void checkDistances() {
+			set<StreetSegment*> carSegments;
+			vector< vector<StreetSegment> > &contents = streetMap->getContents();
+			for( long x = 0; x < long( contents.size() ); ++x ) {
+				for( long y = 0; y < long( contents[x].size() ); ++y ) {
+					if( contents[x][y].v != nullptr ) {
+						carSegments.insert( &( contents[x][y] ) );
+					}
+				}
+			}
+			
+			while(! carSegments.empty()) {
 			}
 		}
 		
