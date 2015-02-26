@@ -19,9 +19,9 @@ int main( int argc, char **argv ) {
 	long roundaboutWidth = 8;
 	long roundaboutHeight = 6;
 	long driveUpLength = 20;
-	double trafficDensity = 0.3;
+	double trafficDensity = 0.1;
 	
-	long iterations = 3;
+	long iterations = 2;
 	
 	StreetMap streetMap( roundaboutWidth, roundaboutHeight, driveUpLength, trafficDensity,
 	                     randomEngine, dallyFactorDistribution, riskFactorDistribution,

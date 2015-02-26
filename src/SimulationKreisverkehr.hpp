@@ -1,3 +1,6 @@
+#pragma once
+
+#include <deque>
 #include "StreetMap.hpp"
 #include "VisualizationKreisverkehr.hpp"
 
@@ -24,7 +27,7 @@ class SimulationKreisverkehr {
 			
 			//visualization = new VisualizationKreisverkehr(streetMap.getContents().size(), streetMap.getContents()[0].size());
 			//visualization->appendRoundabout(streetMap);
-
+			
 			for( long i = 0; i < iterations; ++i ) {
 				this->streetMap->visualize();
 				//visualization->appendRoundabout(streetMap);
@@ -32,20 +35,21 @@ class SimulationKreisverkehr {
 			}
 			
 			//visualization->save();
-
+			
 			this->streetMap = nullptr;
 			this->trafficDensity = 0;
-
+			
 			//delete visualization;
 		}
 		
 		void simulateStep() {
 			streetMap->drawDestinations();
+			streetMap->clearMarks();
 			
-			addCars();
-			accelerate();
-			//checkDistances();
-			dally();
+//			addCars();
+//			accelerate();
+			checkDistances();
+//			dally();
 			//move();
 			
 			streetMap->clearMarks();
@@ -68,7 +72,8 @@ class SimulationKreisverkehr {
 					if( ! contents[x][y].isDummy() ) {
 						if( carPlacementDistribution( randomEngine ) ) {
 							contents[x][y].v = new Vehicle( randomEngine, dallyFactorDistribution,
-							                                riskFactorDistribution, maxSpeedDistribution );
+							                                riskFactorDistribution,
+							                                maxSpeedDistribution );
 						}
 					}
 				}
@@ -98,17 +103,63 @@ class SimulationKreisverkehr {
 		}
 		
 		void checkDistances() {
-			set<StreetSegment*> carSegments;
 			vector< vector<StreetSegment> > &contents = streetMap->getContents();
+			deque<StreetSegment*> carSegments;
+			
+//			Get segments that contain cars, and mark inhabited segments
 			for( long x = 0; x < long( contents.size() ); ++x ) {
 				for( long y = 0; y < long( contents[x].size() ); ++y ) {
 					if( contents[x][y].v != nullptr ) {
-						carSegments.insert( &( contents[x][y] ) );
+						contents[x][y].mark = contents[x][y].v;
+						carSegments.push_back( &( contents[x][y] ) );
 					}
 				}
 			}
 			
-			while(! carSegments.empty()) {
+//			Place markings along each Vehicle's path. Overwrite other paths according to right of way
+			for( auto startSegment = carSegments.begin(); startSegment < carSegments.end();
+			        ++startSegment ) {
+				if( ( *startSegment )->isSink() ) {
+					continue;
+				}
+				
+				StreetSegment *previousSegment = nullptr;
+				StreetSegment *nextSegment = *startSegment;
+				
+				for( long step = 0; step < ( *startSegment )->v->currentSpeed; ++step ) {
+					previousSegment = nextSegment;
+					nextSegment = nextSegment->destinations[nextSegment->nextDestination];
+					if( nextSegment->mark != nullptr ) { //Someone was here before
+						if( nextSegment->predecessors[0] != previousSegment ) { // No right of way
+							break;
+						}
+					}
+					nextSegment->mark = ( *startSegment )->v;
+					if( nextSegment->isSink() ) {
+						break;
+					}
+				}
+			}
+			
+//			Determine max speed according to markings
+//			TODO take maxSpeed of each segment into account
+			for( auto startSegment = carSegments.begin(); startSegment < carSegments.end();
+			        ++startSegment ) {
+				if( !( *startSegment )->isSink() ) {
+					StreetSegment *nextSegment =
+					    ( *startSegment )->destinations[( *startSegment )->nextDestination];
+					long stepsTaken = 0;
+					while( nextSegment->mark == ( *startSegment )->v ) {
+						++stepsTaken;
+						if( nextSegment->isSink() ) {
+							stepsTaken = ( *startSegment )->v->currentSpeed;
+							break;
+						}
+						nextSegment = nextSegment->destinations[nextSegment->nextDestination];
+					}
+					
+					( *startSegment )->v->currentSpeed = stepsTaken;
+				}
 			}
 		}
 		
@@ -127,6 +178,6 @@ class SimulationKreisverkehr {
 				}
 			}
 		}
-
+		
 		VisualizationKreisverkehr *visualization;
 };
