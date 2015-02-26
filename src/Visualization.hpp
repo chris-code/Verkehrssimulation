@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CImg.h"
+#include <cmath>
 
 using namespace cimg_library;
 
@@ -41,60 +42,17 @@ class Visualization {
 				for (auto l = 0; l < r.getLaneCount(); ++l) {
 					Vehicle *v = r.getVehicle(s, l);
 					if (v != nullptr) {
-						switch (v->currentSpeed) {
-							// brown
-							case 0:
-								img(s,l,0,0) = 85;
-								img(s,l,0,1) = 0;
-								img(s,l,0,2) = 0;
-								break;
-							// dark red
-							case 1:
-								img(s,l,0,0) = 170;
-								img(s,l,0,1) = 0;
-								img(s,l,0,2) = 0;
-								break;
-							// red
-							case 2:
-								img(s,l,0,0) = 255;
-								img(s,l,0,1) = 0;
-								img(s,l,0,2) = 0;
-								break;
-							// dark orange
-							case 3:
-								img(s,l,0,0) = 255;
-								img(s,l,0,1) = 85;
-								img(s,l,0,2) = 0;
-								break;
-							// bright orange
-							case 4:
-								img(s,l,0,0) = 255;
-								img(s,l,0,1) = 170;
-								img(s,l,0,2) = 0;
-								break;
-							// yellow
-							case 5:
-								img(s,l,0,0) = 255;
-								img(s,l,0,1) = 255;
-								img(s,l,0,2) = 0;
-								break;
-							// bright yellow
-							case 6:
-								img(s,l,0,0) = 255;
-								img(s,l,0,1) = 255;
-								img(s,l,0,2) = 126;
-								break;
-							// white
-							case 7:
-								img(s,l,0,0) = 255;
-								img(s,l,0,1) = 255;
-								img(s,l,0,2) = 255;
-								break;
-							default:
-								img(s,l,0,0) = 0;
-								img(s,l,0,1) = 0;
-								img(s,l,0,2) = 0;
-						}
+						long colorIntensity = long(765. * (double(v->currentSpeed) + 1.) / 8.);
+
+						long red = min(255L, colorIntensity);
+						colorIntensity -= red;
+						long green = min(255L, colorIntensity);
+						colorIntensity -= green;
+						long blue =  min(255L, colorIntensity);
+
+						img(s,l,0,0) = (unsigned char) red;
+						img(s,l,0,1) = (unsigned char) green;
+						img(s,l,0,2) = (unsigned char) blue;
 					}
 					else {
 						// black
