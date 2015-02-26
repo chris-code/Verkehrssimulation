@@ -1,4 +1,5 @@
 #include "StreetMap.hpp"
+#include "VisualizationKreisverkehr.hpp"
 
 using namespace std;
 
@@ -19,13 +20,22 @@ class SimulationKreisverkehr {
 			this->streetMap = &streetMap;
 			this->trafficDensity = trafficDensity;
 			
+			visualization = new VisualizationKreisverkehr(streetMap.getContents().size(), streetMap.getContents()[0].size());
+
+			visualization->appendRoundabout(streetMap);
+
 			for( long i = 0; i < iterations; ++i ) {
-				this->streetMap->visualize();
+				//this->streetMap->visualize();
+				visualization->appendRoundabout(streetMap);
 				simulateStep();
 			}
 			
+			visualization->save();
+
 			this->streetMap = nullptr;
 			this->trafficDensity = 0;
+
+			delete visualization;
 		}
 		
 		void simulateStep() {
@@ -84,4 +94,7 @@ class SimulationKreisverkehr {
 				}
 			}
 		}
+
+	private:
+		VisualizationKreisverkehr *visualization;
 };
