@@ -6,7 +6,7 @@
 #include <iostream>
 #include "Road.hpp"
 #include "Vehicle.hpp"
-#include "Visualization.hpp"
+#include "VisualizationMehrspurig.hpp"
 
 using namespace std;
 
@@ -38,32 +38,41 @@ class SimulationMehrspurig {
 		}
 
 		void simulate(long runs) {
-			Visualization vis(road.getStreetLength());
+			VisualizationMehrspurig vis(road.getStreetLength());
 			
-			vis.appendRoad(road);
+			visualization = new VisualizationMehrspurig(road.getStreetLength());
+
+			visualization->appendRoad(road);
 			for (long i = 0; i < runs; ++i) {
 				update();
-				vis.appendRoad(road);
+				visualization->appendRoad(road);
 			}
 
 			//vis.show();
-			vis.save();
+			visualization->save();
+
+			delete visualization;
 		}
 
 		void update() {
 			addCars();
+//			visualization->appendRoad(road);
 			
 			// Accelerate vehicles
 			accelerate();
+//			visualization->appendRoad(road);
 
 			// Change lane
 			changeLanes();
+//			visualization->appendRoad(road);
 
 			// Check distances / slow down
 			checkDistances();
+//			visualization->appendRoad(road);
 
 			// Dally
 			dally();
+//			visualization->appendRoad(road);
 
 			// Car Motion
 			move();
@@ -289,6 +298,7 @@ class SimulationMehrspurig {
 
 	private:
 		Road road;
+		VisualizationMehrspurig *visualization;
 		default_random_engine randomEngine;
 		uniform_real_distribution<double> dallyFactorDistribution;
 		exponential_distribution<double> riskFactorDistribution;
