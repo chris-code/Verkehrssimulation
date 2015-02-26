@@ -5,9 +5,9 @@
 
 using namespace cimg_library;
 
-class Visualization {
+class VisualizationMehrspurig {
 	public:
-		Visualization(long streetLength) : seperationLine(streetLength, 1, 1, 3, 100) {
+		VisualizationMehrspurig(long streetLength) : seperationLine(streetLength, 1, 1, 3, 100) {
 			firstAppend = true;
 		}
 
