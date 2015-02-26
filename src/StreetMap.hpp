@@ -125,6 +125,11 @@ class StreetMap {
 				cout << endl;
 			}
 		}
+
+		vector< vector<StreetSegment> > &getContents() {
+			return contents;
+		}
+
 	private:
 		long dimX;
 		long dimY;
