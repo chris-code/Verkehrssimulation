@@ -9,12 +9,19 @@ using namespace cimg_library;
 class VisualizationKreisverkehr {
 	public:
 		VisualizationKreisverkehr( long dimX, long dimY ) :
-		seperationLine(dimX, 1, 1, 3, 100) {
+		seperationLine(dimX, 1, 1, 3, 100),
+		speedHeatMap(dimX, dimY, 1, 1, 0),
+		occupancyHeatMap(dimX, dimY, 1, 1, 0)
+		{
 			firstAppend = true;
+			iterations = 0;
+			lastUsedStreetMap = nullptr;
 		}
 
 		void appendRoundabout(StreetMap &sm) {
 			CImg<unsigned char> streetMapImg = streetMapToImg(sm);
+
+			lastUsedStreetMap = &sm;
 
 			if (firstAppend) {
 				roundaboutImg = streetMapImg;
@@ -24,6 +31,11 @@ class VisualizationKreisverkehr {
 				roundaboutImg.append(seperationLine, 'y', 0);
 				roundaboutImg.append(streetMapImg, 'y', 0);
 			}
+
+			updateSpeedHeatMap(sm);
+			updateOccupancyHeatMap(sm);
+
+			iterations++;
 		}
 
 		void show() {
@@ -34,7 +46,9 @@ class VisualizationKreisverkehr {
 		}
 
 		void save() {
-			roundaboutImg.save_png("roundabout_image.png", 1);
+			roundaboutImg.save_png("roundabout_image.png", 3);
+			saveSpeedHeatMap();
+			saveOccupancyHeatMap();
 		}
 
 	private:
@@ -73,9 +87,9 @@ class VisualizationKreisverkehr {
 							colorIntensity -= green;
 							long blue =  min(255L, colorIntensity);
 
-							streetMapImg(x,y,0,0) = (unsigned char) red;
-							streetMapImg(x,y,0,1) = (unsigned char) green;
-							streetMapImg(x,y,0,2) = (unsigned char) blue;
+							streetMapImg(x, y, 0, 0) = (unsigned char) red;
+							streetMapImg(x, y, 0, 1) = (unsigned char) green;
+							streetMapImg(x, y, 0, 2) = (unsigned char) blue;
 						}
 					}
 				}
@@ -84,7 +98,120 @@ class VisualizationKreisverkehr {
 			return streetMapImg;
 		}
 
+		void updateSpeedHeatMap(StreetMap &sm) {
+			std::vector< std::vector<StreetSegment> > &streetSegments = sm.getContents();
+
+			long dimX = streetSegments.size();
+			long dimY = streetSegments[0].size();
+
+			for (long x = 0; x < dimX; ++x) {
+				for (long y = 0; y < dimY; ++y) {
+					StreetSegment *s = &streetSegments[x][y];
+					if (!s->isDummy()) {
+						// If there is no car at this position, we consider the speed in this cell as "high"
+						if (s->v == nullptr) {
+							speedHeatMap(x,y,0,0) = speedHeatMap(x,y,0,0) + 5; // TODO Replace "5" by MaxSpeed variable or constant
+						}
+						else {
+							speedHeatMap(x,y,0,0) = speedHeatMap(x,y,0,0) + s->v->currentSpeed;
+						}
+					}
+				}
+			}
+		}
+
+		void updateOccupancyHeatMap(StreetMap &sm) {
+			std::vector< std::vector<StreetSegment> > &streetSegments = sm.getContents();
+
+			long dimX = streetSegments.size();
+			long dimY = streetSegments[0].size();
+
+			for (long x = 0; x < dimX; ++x) {
+				for (long y = 0; y < dimY; ++y) {
+					StreetSegment *s = &streetSegments[x][y];
+					if (!s->isDummy()) {
+						if (s->v != nullptr) {
+							occupancyHeatMap(x,y,0,0) = occupancyHeatMap(x,y,0,0) + 1;
+						}
+					}
+				}
+			}
+		}
+
+		void saveSpeedHeatMap() {
+			CImg<unsigned char> speedHeatMapColored(speedHeatMap.width(), speedHeatMap.height(), 1, 3);
+
+			CImg<long> speedHeatMapNormalized0_765 = speedHeatMap.get_normalize(0, 765 * 5 / 8); // TODO Replace "5" by MaxSpeed constant
+			// Here we take 765 * 5 / 8 as maximal value, because the minimal speed is 0 (dark red) and the maximal speed is 4 (yellow).
+			// We don't want speed 4 to be white, so the maximal value must be 5/8 times 765.
+
+			std::vector< std::vector<StreetSegment> > &streetSegments = lastUsedStreetMap->getContents();
+
+			for (auto x = 0; x < speedHeatMapColored.width(); ++x) {
+				for (auto y = 0; y < speedHeatMapColored.height(); y++) {
+					if (streetSegments[x][y].isDummy()) {
+						speedHeatMapColored(x, y, 0, 0) = 100;
+						speedHeatMapColored(x, y, 0, 1) = 100;
+						speedHeatMapColored(x, y, 0, 2) = 100;
+					}
+					else {
+						long colorIntensity = speedHeatMapNormalized0_765(x, y, 0, 0);
+						long red = min(255L, colorIntensity);
+						colorIntensity -= red;
+						long green = min(255L, colorIntensity);
+						colorIntensity -= green;
+						long blue =  min(255L, colorIntensity);
+
+						speedHeatMapColored(x ,y, 0, 0) = (unsigned char) red;
+						speedHeatMapColored(x ,y, 0, 1) = (unsigned char) green;
+						speedHeatMapColored(x ,y, 0, 2) = (unsigned char) blue;
+					}
+				}
+			}
+
+			speedHeatMapColored.save_png("roundabout_speed_heat_map.png", 3);
+		}
+
+		void saveOccupancyHeatMap() {
+			CImg<unsigned char> occupancyHeatMapColored(occupancyHeatMap.width(), occupancyHeatMap.height(), 1, 3);
+
+			CImg<long> occupancyHeatMapNormalized0_765 = occupancyHeatMap.get_normalize(0, 765);
+
+			std::vector< std::vector<StreetSegment> > &streetSegments = lastUsedStreetMap->getContents();
+
+			for (auto x = 0; x < occupancyHeatMapColored.width(); ++x) {
+				for (auto y = 0; y < occupancyHeatMapColored.height(); y++) {
+					if (streetSegments[x][y].isDummy()) {
+						occupancyHeatMapColored(x, y, 0, 0) = 100;
+						occupancyHeatMapColored(x, y, 0, 1) = 100;
+						occupancyHeatMapColored(x, y, 0, 2) = 100;
+					}
+					else {
+						long colorIntensity = occupancyHeatMapNormalized0_765(x, y, 0, 0);
+						long red = min(255L, colorIntensity);
+						colorIntensity -= red;
+						long green = min(255L, colorIntensity);
+						colorIntensity -= green;
+						long blue =  min(255L, colorIntensity);
+
+						occupancyHeatMapColored(x ,y, 0, 0) = (unsigned char) red;
+						occupancyHeatMapColored(x ,y, 0, 1) = (unsigned char) green;
+						occupancyHeatMapColored(x ,y, 0, 2) = (unsigned char) blue;
+					}
+				}
+			}
+
+			occupancyHeatMapColored.save_png("roundabout_occupancy_heat_map.png", 3);
+
+
+			occupancyHeatMap.get_normalize(0,255).save_png("roundabout_occupancy_heat_map_uncolored.png", 1);
+		}
+
 		CImg<unsigned char> roundaboutImg;
 		CImg<unsigned char> seperationLine;
+		CImg<long> speedHeatMap;
+		CImg<long> occupancyHeatMap;
+		StreetMap *lastUsedStreetMap;
 		bool firstAppend;
+		long iterations;
 };
