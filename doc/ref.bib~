@@ -1,0 +1,24 @@
+@incollection {nestbyexample,
+	title = {NEST by example: an introduction to the neural simulation tool NEST},
+	author = {Marc-Oliver Gewaltig AND Abigail Morrison AND Hans Plesser},
+	year = {2011},
+	abstract = {The neural simulation tool NEST can simulate small to very large networks of point-neurons or neurons with a few compartments. In this chapter, we show by example how models are programmed and simulated in NEST.},
+	publisher = {Springer},
+	booktitle = {Computational Systems Biology},
+	editor = {Nicolas Lenoviere}
+}
+
+@manual {nesttopology,
+	address		= {Department of Mathematical Sciences and Technology, Norwegian University of Life Sciences, 1432 Ås, Norway},
+	title 		= {NEST Topology User Manual},
+	year		= {2010},
+	author		= {Hans Ekkehard Plesser},
+	organization	= {The NEST Initiative}
+}
+
+@article {mehrspurig,
+	author		= {Brilon, Werner and Wu, Ning},
+	title		= {{Kalibrierung von Zellular-Automaten für die Simulation des Verkehrsflusses}},
+	journal		= {Straßenverkehrstechnik},
+	year		= {6/2000},
+}
