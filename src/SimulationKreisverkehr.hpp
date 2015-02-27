@@ -26,11 +26,18 @@ class SimulationKreisverkehr {
 			
 			populateMap();
 			
+			VisualizationKreisverkehr vis(streetMap.getContents().size(), streetMap.getContents()[0].size());
+
+			vis.appendRoundabout(streetMap);
+
 			for( long i = 0; i < iterations; ++i ) {
 				this->streetMap->visualize();
 				simulateStep();
+				vis.appendRoundabout(streetMap);
 			}
 			
+			vis.save();
+
 			this->streetMap = nullptr;
 			this->trafficDensity = 0;
 		}
