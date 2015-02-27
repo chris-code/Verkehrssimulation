@@ -27,7 +27,6 @@ class SimulationKreisverkehr {
 			populateMap();
 			
 			VisualizationKreisverkehr vis(streetMap.getContents().size(), streetMap.getContents()[0].size());
-
 			vis.appendRoundabout(streetMap);
 
 			for( long i = 0; i < iterations; ++i ) {
@@ -149,7 +148,6 @@ class SimulationKreisverkehr {
 			}
 			
 //			Determine max speed according to markings
-//			TODO take maxSpeed of each segment into account
 			for( auto startSegment = carSegments.begin(); startSegment < carSegments.end();
 			        ++startSegment ) {
 				if( !( *startSegment )->isSink() ) {

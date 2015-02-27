@@ -11,7 +11,6 @@ int main( int argc, char **argv ) {
 	double maxSpeedStd = 1.2;
 	
 	default_random_engine randomEngine( chrono::system_clock::now().time_since_epoch().count() );
-	
 	uniform_real_distribution<double> dallyFactorDistribution( minDallyFactor, maxDallyFactor );
 	exponential_distribution<double> riskFactorDistribution( lambdaRiskFactor );
 	normal_distribution<double> maxSpeedDistribution( maxSpeedMean, maxSpeedStd );
