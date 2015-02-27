@@ -9,13 +9,12 @@ using namespace cimg_library;
 class VisualizationKreisverkehr {
 	public:
 		VisualizationKreisverkehr( long dimX, long dimY ) :
-		seperationLine(dimX, 1, 1, 3, 100),
-		speedHeatMap(dimX, dimY, 1, 1, 0),
-		occupancyHeatMap(dimX, dimY, 1, 1, 0)
-		{
+			seperationLine(dimX, 1, 1, 3, 100),
+			speedHeatMap(dimX, dimY, 1, 1, 0),
+			occupancyHeatMap(dimX, dimY, 1, 1, 0) {
 			firstAppend = true;
-			iterations = 0;
 			lastUsedStreetMap = nullptr;
+			iterations = 0;
 		}
 
 		void appendRoundabout(StreetMap &sm) {
@@ -110,7 +109,7 @@ class VisualizationKreisverkehr {
 					if (!s->isDummy()) {
 						// If there is no car at this position, we consider the speed in this cell as "high"
 						if (s->v == nullptr) {
-							speedHeatMap(x,y,0,0) = speedHeatMap(x,y,0,0) + 5; // TODO Replace "5" by MaxSpeed variable or constant
+							speedHeatMap(x,y,0,0) = speedHeatMap(x,y,0,0) + 4; // TODO Replace "4" by MaxSpeed variable or constant
 						}
 						else {
 							speedHeatMap(x,y,0,0) = speedHeatMap(x,y,0,0) + s->v->currentSpeed;
@@ -141,9 +140,13 @@ class VisualizationKreisverkehr {
 		void saveSpeedHeatMap() {
 			CImg<unsigned char> speedHeatMapColored(speedHeatMap.width(), speedHeatMap.height(), 1, 3);
 
-			CImg<long> speedHeatMapNormalized0_765 = speedHeatMap.get_normalize(0, 765 * 5 / 8); // TODO Replace "5" by MaxSpeed constant
-			// Here we take 765 * 5 / 8 as maximal value, because the minimal speed is 0 (dark red) and the maximal speed is 4 (yellow).
-			// We don't want speed 4 to be white, so the maximal value must be 5/8 times 765.
+			long minValue = long(765. * ((double(speedHeatMap.min()) / double(iterations)) + 1.) / 5.);
+			long maxValue = long(765. * ((double(speedHeatMap.max()) / double(iterations)) + 1.) / 5.); // TODO Replace 5 by MaxSpeed Constant + 1
+			// Reminder: maxValue has been 765 * 4 / 8 before I calculated maxValue
+
+			CImg<long> speedHeatMapNormalized0_765 = speedHeatMap.get_normalize(minValue, maxValue); // TODO Replace "4" by MaxSpeed constant
+			// Here we take 765 * 4 / 8 as maximal value, because the minimal speed is 0 (dark red) and the maximal speed is 4 (yellow).
+			// We don't want speed 4 to be white, so the maximal value must be 4/8 times 765.
 
 			std::vector< std::vector<StreetSegment> > &streetSegments = lastUsedStreetMap->getContents();
 
@@ -202,9 +205,6 @@ class VisualizationKreisverkehr {
 			}
 
 			occupancyHeatMapColored.save_png("roundabout_occupancy_heat_map.png", 3);
-
-
-			occupancyHeatMap.get_normalize(0,255).save_png("roundabout_occupancy_heat_map_uncolored.png", 1);
 		}
 
 		CImg<unsigned char> roundaboutImg;

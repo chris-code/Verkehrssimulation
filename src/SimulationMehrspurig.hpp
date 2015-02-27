@@ -38,7 +38,7 @@ class SimulationMehrspurig {
 		}
 
 		void simulate(long runs) {
-			visualization = new VisualizationMehrspurig(road.getStreetLength());
+			visualization = new VisualizationMehrspurig(road.getStreetLength(), road.getLaneCount());
 
 			visualization->appendRoad(road);
 			for (long i = 0; i < runs; ++i) {
