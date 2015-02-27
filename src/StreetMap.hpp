@@ -118,7 +118,7 @@ class StreetMap {
 			}
 			contents[lowerDriveUpRight][lowerBorder].predecessors.push_back(
 			    &( contents[lowerDriveUpRight][lowerBorder + 1] ) );
-			contents[lowerDriveUpRight][lowerDriveUpStart+1].maxSpeed = driveUpSpeed;
+			contents[lowerDriveUpRight][lowerDriveUpStart + 1].maxSpeed = driveUpSpeed;
 			
 			buildDestinationPointers();
 			determineSourcesAndSinks();

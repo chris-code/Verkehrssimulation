@@ -189,7 +189,8 @@ class SimulationKreisverkehr {
 					if( v != nullptr && processedVehicles.count( v ) == 0 ) {
 						StreetSegment *previousSegment = nullptr;
 						StreetSegment *nextSegment = &( contents[x][y] );
-						for( long step = 0; step < v->currentSpeed; ++step ) {
+						for( long remainingSteps = v->currentSpeed; remainingSteps > 0;
+						        --remainingSteps ) {
 							previousSegment = nextSegment;
 							if( previousSegment->isSink() ) {
 //								Previous segment was sink and we are moving one further. Remove car.
@@ -198,12 +199,15 @@ class SimulationKreisverkehr {
 								break;
 							}
 							nextSegment = nextSegment->destinations[nextSegment->nextDestination];
+							
 							if( nextSegment->v != nullptr || nextSegment->mark != v ) {
 								throw MessageException( "MOVE: invalid move, segment not empty \
 								or not marked by moving car." );
 							}
 							nextSegment->v = v;
 							previousSegment->v = nullptr;
+							
+							v->currentSpeed = min( v->currentSpeed, nextSegment->maxSpeed );
 						}
 						
 						processedVehicles.insert( v );
