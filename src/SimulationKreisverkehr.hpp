@@ -130,7 +130,7 @@ class SimulationKreisverkehr {
 				for( long remainingSteps = ( *startSegment )->v->currentSpeed; remainingSteps > 0;
 				        --remainingSteps ) {
 					previousSegment = nextSegment;
-					nextSegment = nextSegment->destinations[nextSegment->nextDestination];
+					nextSegment = nextSegment->getCurrentDestination();
 					if( nextSegment->v != nullptr ) { // We ran into a car
 						break;
 					}
@@ -152,8 +152,7 @@ class SimulationKreisverkehr {
 			for( auto startSegment = carSegments.begin(); startSegment < carSegments.end();
 			        ++startSegment ) {
 				if( !( *startSegment )->isSink() ) {
-					StreetSegment *nextSegment =
-					    ( *startSegment )->destinations[( *startSegment )->nextDestination];
+					StreetSegment *nextSegment = ( *startSegment )->getCurrentDestination();
 					long stepsTaken = 0;
 					while( nextSegment->mark == ( *startSegment )->v ) {
 						++stepsTaken;
@@ -161,7 +160,7 @@ class SimulationKreisverkehr {
 							stepsTaken = ( *startSegment )->v->currentSpeed;
 							break;
 						}
-						nextSegment = nextSegment->destinations[nextSegment->nextDestination];
+						nextSegment = nextSegment->getCurrentDestination();
 					}
 					
 					( *startSegment )->v->currentSpeed = stepsTaken;
@@ -206,7 +205,7 @@ class SimulationKreisverkehr {
 								previousSegment->v = nullptr;
 								break;
 							}
-							nextSegment = nextSegment->destinations[nextSegment->nextDestination];
+							nextSegment = nextSegment->getCurrentDestination();
 							
 							if( nextSegment->v != nullptr || nextSegment->mark != v ) {
 								throw MessageException( "MOVE: invalid move, segment not empty \

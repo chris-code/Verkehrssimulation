@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <random>
 #include "Vehicle.hpp"
 
 using namespace std;
@@ -9,38 +10,51 @@ class StreetSegment {
 	public:
 		StreetSegment() {
 			maxSpeed = 1;
-			nextDestination = 0;
+			currentDestinationID = 0;
 			mark = nullptr;
 			v = nullptr;
 		}
 		
-		bool isDummy() {
-			if( destinations.size() == 0 && predecessors.size() == 0 ) {
-				return true;
+		void drawDestination( default_random_engine &randomEngine ) {
+			if( destinations.size() > 1 ) {
+				discrete_distribution<long> destinationDistribution( destinationWeights.begin(),
+				        destinationWeights.end() );
+				currentDestinationID = destinationDistribution( randomEngine );
 			}
-			return false;
+		}
+		
+		StreetSegment * getCurrentDestination() {
+			return destinations[currentDestinationID];
+		}
+		
+		void addPredecessor( StreetSegment *pred ) {
+			predecessors.push_back( pred );
+		}
+		
+		void addDestination( StreetSegment *dest, double weight ) {
+			destinations.push_back( dest );
+			destinationWeights.push_back( weight );
+		}
+		
+		bool isDummy() {
+			return destinations.size() == 0 && predecessors.size() == 0;
 		}
 		
 		bool isSource() {
-			if( ! isDummy() && predecessors.size() == 0 ) {
-				return true;
-			}
-			return false;
+			return !isDummy() && predecessors.size() == 0;
 		}
 		
 		bool isSink() {
-			if( !isDummy() && destinations.size() == 0 ) {
-				return true;
-			}
-			return false;
+			return !isDummy() && destinations.size() == 0;
 		}
 		
 		long maxSpeed;
-		vector<StreetSegment*> destinations;
 		vector<StreetSegment*> predecessors;
 		
-		short nextDestination;
 		Vehicle *mark;
 		Vehicle *v;
 	private:
+		vector<StreetSegment*> destinations;
+		vector<double> destinationWeights;
+		short currentDestinationID;
 };
