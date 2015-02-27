@@ -178,8 +178,10 @@ class SimulationKreisverkehr {
 				for( long y = 0; y < long( contents[x].size() ); ++y ) {
 					Vehicle *v = contents[x][y].v;
 					if( v != nullptr ) {
-						if( uniform01distribution( randomEngine ) < v->dallyFactor ) {
-							contents[x][y].v->accelerate( -1 );
+						if (v->currentSpeed > 1) {
+							if( uniform01distribution( randomEngine ) < v->dallyFactor ) {
+								contents[x][y].v->accelerate( -1 );
+							}
 						}
 					}
 				}
