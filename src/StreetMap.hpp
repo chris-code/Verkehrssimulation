@@ -13,14 +13,8 @@ using namespace std;
 class StreetMap {
 	public:
 		StreetMap( long roundaboutWidth, long roundaboutHeight, long driveUpLength,
-		           double trafficDensity, default_random_engine &randomEngine,
-		           uniform_real_distribution<double> &dallyFactorDistribution,
-		           exponential_distribution<double> &riskFactorDistribution,
-		           normal_distribution<double> &maxSpeedDistribution ) :
-			randomEngine( randomEngine ),
-			dallyFactorDistribution( dallyFactorDistribution ),
-			riskFactorDistribution( riskFactorDistribution ),
-			maxSpeedDistribution( maxSpeedDistribution ) {
+		           double trafficDensity, default_random_engine &randomEngine ) :
+			randomEngine( randomEngine ) {
 			
 			buildMap( roundaboutWidth, roundaboutHeight, driveUpLength );
 		}
@@ -47,6 +41,7 @@ class StreetMap {
 		
 		void buildMap( long roundaboutWidth, long roundaboutHeight, long driveUpLength ) {
 			long buffer = 3;
+			long driveUpSpeed = 4;
 			dimX = ( driveUpLength + buffer ) * 2 + roundaboutWidth;
 			dimY = ( driveUpLength + buffer ) * 1 + roundaboutHeight + buffer;
 			
@@ -74,6 +69,7 @@ class StreetMap {
 				contents[leftBorder][y].predecessors.push_back( &( contents[leftBorder][y - 1] ) );
 			}
 			
+//			Build left drive up
 			long leftDriveUpStart = leftBorder - driveUpLength;
 			long leftDriveUpLower = upperBorder + roundaboutHeight / 2;
 			long leftDriveUpUpper = leftDriveUpLower - 1;
@@ -82,10 +78,15 @@ class StreetMap {
 				    & ( contents[x + 1][leftDriveUpUpper] ) );
 				contents[x][leftDriveUpLower].predecessors.push_back(
 				    & ( contents[x - 1][leftDriveUpLower] ) );
+				    
+				contents[x][leftDriveUpUpper].maxSpeed = driveUpSpeed;
+				contents[x][leftDriveUpLower].maxSpeed = driveUpSpeed;
 			}
 			contents[leftBorder][leftDriveUpLower].predecessors.push_back(
 			    &( contents[leftBorder - 1][leftDriveUpLower] ) );
-			    
+			contents[leftDriveUpStart - 1][leftDriveUpLower].maxSpeed = driveUpSpeed;
+			
+//			Build right drive up
 			long rightDriveUpStart = rightBorder + driveUpLength;
 			long rightDriveUpLower = upperBorder + roundaboutHeight / 2;
 			long rightDriveUpUpper = rightDriveUpLower - 1;
@@ -94,10 +95,15 @@ class StreetMap {
 				    &( contents[x + 1][rightDriveUpUpper] ) );
 				contents[x][rightDriveUpLower].predecessors.push_back(
 				    &( contents[x - 1][rightDriveUpLower] ) );
+				    
+				contents[x][rightDriveUpUpper].maxSpeed = driveUpSpeed;
+				contents[x][rightDriveUpLower].maxSpeed = driveUpSpeed;
 			}
 			contents[rightBorder][rightDriveUpUpper].predecessors.push_back(
 			    &( contents[rightBorder + 1][rightDriveUpUpper] ) );
-			    
+			contents[rightDriveUpStart + 1][rightDriveUpUpper].maxSpeed = driveUpSpeed;
+			
+//			Build lower drive up
 			long lowerDriveUpStart = lowerBorder + driveUpLength;
 			long lowerDriveUpRight = leftBorder + roundaboutWidth / 2;
 			long lowerDriveUpLeft = lowerDriveUpRight - 1;
@@ -106,10 +112,14 @@ class StreetMap {
 				    &( contents[lowerDriveUpLeft][y - 1] ) );
 				contents[lowerDriveUpRight][y].predecessors.push_back(
 				    &( contents[lowerDriveUpRight][y + 1] ) );
+				    
+				contents[lowerDriveUpLeft][y].maxSpeed = driveUpSpeed;
+				contents[lowerDriveUpRight][y].maxSpeed = driveUpSpeed;
 			}
 			contents[lowerDriveUpRight][lowerBorder].predecessors.push_back(
 			    &( contents[lowerDriveUpRight][lowerBorder + 1] ) );
-			    
+			contents[lowerDriveUpRight][lowerDriveUpStart+1].maxSpeed = driveUpSpeed;
+			
 			buildDestinationPointers();
 			determineSourcesAndSinks();
 		}
@@ -135,6 +145,10 @@ class StreetMap {
 		void visualize() {
 			for( long y = 0; y < dimY; ++y ) {
 				for( long x = 0; x < dimX; ++x ) {
+//					if( ! contents[x][y].isDummy() ) { //FIXME remove this
+//						cout << contents[x][y].maxSpeed;
+//						continue;
+//					}
 					if( contents[x][y].v != nullptr ) {
 						cout << contents[x][y].v->currentSpeed;
 					} else if( sources.count( &contents[x][y] ) ) {
@@ -170,9 +184,6 @@ class StreetMap {
 		set<StreetSegment*> sinks;
 		
 		default_random_engine &randomEngine;
-		uniform_real_distribution<double> dallyFactorDistribution;
-		exponential_distribution<double> riskFactorDistribution;
-		normal_distribution<double> maxSpeedDistribution;
 		
 		void buildPredecessorPointers() {
 			for( long x = 0; x < dimX; ++x ) {

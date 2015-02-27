@@ -9,7 +9,6 @@ class StreetSegment {
 	public:
 		StreetSegment() {
 			maxSpeed = 1;
-			
 			nextDestination = 0;
 			mark = nullptr;
 			v = nullptr;

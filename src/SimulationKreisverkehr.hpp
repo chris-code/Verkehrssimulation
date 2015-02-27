@@ -1,6 +1,7 @@
 #pragma once
 
 #include <deque>
+#include "MessageException.hpp"
 #include "StreetMap.hpp"
 #include "VisualizationKreisverkehr.hpp"
 
@@ -34,18 +35,6 @@ class SimulationKreisverkehr {
 			this->trafficDensity = 0;
 		}
 		
-		void simulateStep() {
-			streetMap->drawDestinations();
-			streetMap->clearMarks();
-			
-//			addCars();
-			accelerate();
-			checkDistances();
-//			dally();
-			move();
-			
-			streetMap->clearMarks();
-		}
 	private:
 		default_random_engine &randomEngine;
 		uniform_real_distribution<double> dallyFactorDistribution;
@@ -54,6 +43,19 @@ class SimulationKreisverkehr {
 		
 		StreetMap *streetMap;
 		double trafficDensity;
+		
+		void simulateStep() {
+			streetMap->drawDestinations();
+			streetMap->clearMarks();
+			
+			addCars();
+			accelerate();
+			checkDistances();
+			dally();
+			move();
+			
+			streetMap->clearMarks();
+		}
 		
 		void populateMap() {
 			vector< vector<StreetSegment> > &contents = streetMap->getContents();
@@ -96,7 +98,7 @@ class SimulationKreisverkehr {
 		
 		void checkDistances() {
 			vector< vector<StreetSegment> > &contents = streetMap->getContents();
-			deque<StreetSegment*> carSegments;
+			deque<StreetSegment*> carSegments; // Segments that contain a vehiclex
 			
 //			Get segments that contain cars, and mark inhabited segments
 			for( long x = 0; x < long( contents.size() ); ++x ) {
@@ -118,10 +120,11 @@ class SimulationKreisverkehr {
 				StreetSegment *previousSegment = nullptr;
 				StreetSegment *nextSegment = *startSegment;
 				
-				for( long step = 0; step < ( *startSegment )->v->currentSpeed; ++step ) {
+				for( long remainingSteps = ( *startSegment )->v->currentSpeed; remainingSteps > 0;
+				        --remainingSteps ) {
 					previousSegment = nextSegment;
 					nextSegment = nextSegment->destinations[nextSegment->nextDestination];
-					if( nextSegment->v != nullptr) { // We ran into a car
+					if( nextSegment->v != nullptr ) { // We ran into a car
 						break;
 					}
 					if( nextSegment->mark != nullptr ) { // No vehicle, but someone was here before
@@ -133,6 +136,8 @@ class SimulationKreisverkehr {
 					if( nextSegment->isSink() ) {
 						break;
 					}
+					
+					remainingSteps = min( remainingSteps, nextSegment->maxSpeed );
 				}
 			}
 			
@@ -187,12 +192,16 @@ class SimulationKreisverkehr {
 						for( long step = 0; step < v->currentSpeed; ++step ) {
 							previousSegment = nextSegment;
 							if( previousSegment->isSink() ) {
+//								Previous segment was sink and we are moving one further. Remove car.
 								delete previousSegment->v;
 								previousSegment->v = nullptr;
 								break;
 							}
 							nextSegment = nextSegment->destinations[nextSegment->nextDestination];
-//							TODO sanity checks (is empty and marked by current vehicle)
+							if( nextSegment->v != nullptr || nextSegment->mark != v ) {
+								throw MessageException( "MOVE: invalid move, segment not empty \
+								or not marked by moving car." );
+							}
 							nextSegment->v = v;
 							previousSegment->v = nullptr;
 						}
