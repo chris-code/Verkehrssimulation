@@ -20,7 +20,7 @@ int main( int argc, char **argv ) {
 	long driveUpLength = 20;
 	double trafficDensity = 0.1;
 	
-	long iterations = 20;
+	long iterations = 50;
 	
 	StreetMap streetMap( roundaboutWidth, roundaboutHeight, driveUpLength, trafficDensity,
 	                     randomEngine );

@@ -4,7 +4,7 @@
 #include <set>
 #include <chrono>
 #include <random>
-#include <iostream> //FIXME remove this
+#include <iostream> //TODO remove this
 #include "MessageException.hpp"
 #include "StreetSegment.hpp"
 
@@ -51,11 +51,11 @@ class StreetMap {
 				contents[x].resize( dimY );
 			}
 			
+//			Build roundabout
 			long leftBorder = driveUpLength + buffer + 1;
 			long upperBorder = buffer + 1;
 			long rightBorder = leftBorder + roundaboutWidth - 1;
 			long lowerBorder = upperBorder + roundaboutHeight - 1;
-			
 			for( long x = leftBorder; x < rightBorder; ++x ) {
 				contents[x][upperBorder].predecessors.push_back( & ( contents[x + 1][upperBorder] ) );
 			}
@@ -85,6 +85,7 @@ class StreetMap {
 			contents[leftBorder][leftDriveUpLower].predecessors.push_back(
 			    &( contents[leftBorder - 1][leftDriveUpLower] ) );
 			contents[leftDriveUpStart - 1][leftDriveUpLower].maxSpeed = driveUpSpeed;
+			contents[leftBorder - 1][leftDriveUpLower].maxSpeed = 1;
 			
 //			Build right drive up
 			long rightDriveUpStart = rightBorder + driveUpLength;
@@ -102,6 +103,7 @@ class StreetMap {
 			contents[rightBorder][rightDriveUpUpper].predecessors.push_back(
 			    &( contents[rightBorder + 1][rightDriveUpUpper] ) );
 			contents[rightDriveUpStart + 1][rightDriveUpUpper].maxSpeed = driveUpSpeed;
+			contents[rightBorder + 1][rightDriveUpUpper].maxSpeed = 1;
 			
 //			Build lower drive up
 			long lowerDriveUpStart = lowerBorder + driveUpLength;
@@ -119,6 +121,7 @@ class StreetMap {
 			contents[lowerDriveUpRight][lowerBorder].predecessors.push_back(
 			    &( contents[lowerDriveUpRight][lowerBorder + 1] ) );
 			contents[lowerDriveUpRight][lowerDriveUpStart + 1].maxSpeed = driveUpSpeed;
+			contents[lowerDriveUpRight][lowerBorder + 1].maxSpeed = 1;
 			
 			buildDestinationPointers();
 			determineSourcesAndSinks();
@@ -145,10 +148,6 @@ class StreetMap {
 		void visualize() {
 			for( long y = 0; y < dimY; ++y ) {
 				for( long x = 0; x < dimX; ++x ) {
-//					if( ! contents[x][y].isDummy() ) { //FIXME remove this
-//						cout << contents[x][y].maxSpeed;
-//						continue;
-//					}
 					if( contents[x][y].v != nullptr ) {
 						cout << contents[x][y].v->currentSpeed;
 					} else if( sources.count( &contents[x][y] ) ) {

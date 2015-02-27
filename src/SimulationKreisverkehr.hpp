@@ -26,17 +26,18 @@ class SimulationKreisverkehr {
 			
 			populateMap();
 			
-			VisualizationKreisverkehr vis(streetMap.getContents().size(), streetMap.getContents()[0].size());
-			vis.appendRoundabout(streetMap);
-
+			VisualizationKreisverkehr vis( streetMap.getContents().size(),
+			                               streetMap.getContents()[0].size() );
+			vis.appendRoundabout( streetMap );
+			
 			for( long i = 0; i < iterations; ++i ) {
 				this->streetMap->visualize();
 				simulateStep();
-				vis.appendRoundabout(streetMap);
+				vis.appendRoundabout( streetMap );
 			}
 			
 			vis.save();
-
+			
 			this->streetMap = nullptr;
 			this->trafficDensity = 0;
 		}
@@ -176,7 +177,7 @@ class SimulationKreisverkehr {
 				for( long y = 0; y < long( contents[x].size() ); ++y ) {
 					Vehicle *v = contents[x][y].v;
 					if( v != nullptr ) {
-						if (v->currentSpeed > 1) {
+						if( v->currentSpeed > 1 ) {
 							if( uniform01distribution( randomEngine ) < v->dallyFactor ) {
 								contents[x][y].v->accelerate( -1 );
 							}
