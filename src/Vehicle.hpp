@@ -2,7 +2,6 @@
 
 #include <random>
 #include <cmath>
-#include <iostream> // FIXME remove me
 
 using namespace std;
 
