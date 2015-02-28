@@ -12,11 +12,12 @@ using namespace std;
 
 class SimulationMehrspurig {
 	public:
-		SimulationMehrspurig(double minDallyFactor, double maxDallyFactor, double lambdaRiskFactor, double maxSpeedMean, double maxSpeedStd)
+		SimulationMehrspurig(double minDallyFactor, double maxDallyFactor, double lambdaRiskFactorL2R, double lambdaRiskFactorR2L, double maxSpeedMean, double maxSpeedStd)
 		: road(0,0),
 		  randomEngine(chrono::system_clock::now().time_since_epoch().count()),
 		  dallyFactorDistribution(minDallyFactor, maxDallyFactor),
-		  riskFactorDistribution(lambdaRiskFactor),
+		  riskFactorDistributionL2R(lambdaRiskFactorL2R),
+		  riskFactorDistributionR2L(lambdaRiskFactorR2L),
 		  maxSpeedDistribution(maxSpeedMean, maxSpeedStd),
 		  uniform01distribution(0., 1.) {
 		}
@@ -30,7 +31,7 @@ class SimulationMehrspurig {
 			for (auto s = 0; s < streetLength; ++s) {
 				for (auto l = 0; l < laneCount; ++l) {
 					if (carDistribution(randomEngine) < carDensity) {
-						Vehicle* v = new Vehicle(randomEngine, dallyFactorDistribution, riskFactorDistribution, maxSpeedDistribution);
+						Vehicle* v = new Vehicle(randomEngine, dallyFactorDistribution, riskFactorDistributionL2R, riskFactorDistributionR2L, maxSpeedDistribution);
 						road.insertVehicle(s, l, v);
 					}
 				}
@@ -79,7 +80,7 @@ class SimulationMehrspurig {
 		void addCars() {
 			for (auto l = road.getLaneCount() - 1; l >=0; --l) {
 				if (road.getVehicle(0, l) == nullptr && road.getDensity() < carDensity) {
-					Vehicle* v = new Vehicle(randomEngine, dallyFactorDistribution, riskFactorDistribution, maxSpeedDistribution);
+					Vehicle* v = new Vehicle(randomEngine, dallyFactorDistribution, riskFactorDistributionL2R, riskFactorDistributionR2L, maxSpeedDistribution);
 					road.insertVehicle(0, l, v);
 				}
 			}
@@ -131,7 +132,7 @@ class SimulationMehrspurig {
 			}
 			
 			Vehicle *v = road.getVehicle(s, l);
-			if(uniform01distribution(randomEngine) < v->riskFactor) {
+			if(uniform01distribution(randomEngine) < v->riskFactorR2L) {
 				road.moveVehicle(s, l, s, l-1); // Switch lanes regardless of distances
 				return true;
 			}
@@ -194,7 +195,7 @@ class SimulationMehrspurig {
 			}
 			
 			Vehicle *v = road.getVehicle(s, l);
-			if(uniform01distribution(randomEngine) < v->riskFactor) {
+			if(uniform01distribution(randomEngine) < v->riskFactorL2R) {
 				road.moveVehicle(s, l, s, l+1); // Switch lanes regardless of distances
 				return true;
 			}
@@ -301,7 +302,8 @@ class SimulationMehrspurig {
 		VisualizationMehrspurig *visualization;
 		default_random_engine randomEngine;
 		uniform_real_distribution<double> dallyFactorDistribution;
-		exponential_distribution<double> riskFactorDistribution;
+		exponential_distribution<double> riskFactorDistributionL2R;
+		exponential_distribution<double> riskFactorDistributionR2L;
 		normal_distribution<double> maxSpeedDistribution;
 		uniform_real_distribution<double> uniform01distribution;
 		double carDensity;

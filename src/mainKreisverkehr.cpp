@@ -6,13 +6,15 @@ using namespace std;
 int main( int argc, char **argv ) {
 	double minDallyFactor = 0.;
 	double maxDallyFactor = 0.3;
-	double lambdaRiskFactor = 5.;
+	double lambdaRiskFactorL2R = 12.;
+	double lambdaRiskFactorR2L = 8.;
 	double maxSpeedMean = 5.;
 	double maxSpeedStd = 1.2;
 	
 	default_random_engine randomEngine( chrono::system_clock::now().time_since_epoch().count() );
 	uniform_real_distribution<double> dallyFactorDistribution( minDallyFactor, maxDallyFactor );
-	exponential_distribution<double> riskFactorDistribution( lambdaRiskFactor );
+	exponential_distribution<double> riskFactorDistributionL2R( lambdaRiskFactorL2R );
+	exponential_distribution<double> riskFactorDistributionR2L( lambdaRiskFactorR2L );
 	normal_distribution<double> maxSpeedDistribution( maxSpeedMean, maxSpeedStd );
 	
 	long roundaboutWidth = 8;
@@ -24,8 +26,8 @@ int main( int argc, char **argv ) {
 	
 	StreetMap streetMap( roundaboutWidth, roundaboutHeight, driveUpLength, trafficDensity,
 	                     randomEngine );
-	SimulationKreisverkehr simulation( randomEngine, dallyFactorDistribution, riskFactorDistribution,
-	                                   maxSpeedDistribution );
+	SimulationKreisverkehr simulation( randomEngine, dallyFactorDistribution, riskFactorDistributionL2R,
+	                                   riskFactorDistributionR2L, maxSpeedDistribution );
 	simulation.simulate( streetMap, trafficDensity, iterations );
 	
 	return EXIT_SUCCESS;
