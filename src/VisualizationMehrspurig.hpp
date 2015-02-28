@@ -43,7 +43,7 @@ class VisualizationMehrspurig {
 		}
 
 		void save() {
-			roadImg.save_png("road_image.png", 3);
+			roadImg.save_png("multilane_image.png", 3);
 			saveSpeedHeatMap();
 			saveOccupancyHeatMap();
 		}
@@ -86,7 +86,11 @@ class VisualizationMehrspurig {
 				for (auto l = 0; l < r.getLaneCount(); ++l) {
 					Vehicle *v = r.getVehicle(s, l);
 					if (v != nullptr) {
-						speedCounter(s, l, 0, 0) = speedCounter(s, l, 0, 0) + v->currentSpeed;
+//						speedCounter(s, l, 0, 0) = speedCounter(s, l, 0, 0) + v->currentSpeed;
+						// update speed counter for each cell that was passed by the vehicle
+						for (long pos = s; pos >= 0 && pos >= s - v->currentSpeed + 1; --pos) {
+							speedCounter(pos, l, 0, 0) = speedCounter(pos, l, 0, 0) + v->currentSpeed;
+						}
 					}
 				}
 			}
@@ -97,7 +101,11 @@ class VisualizationMehrspurig {
 				for (auto l = 0; l < r.getLaneCount(); ++l) {
 					Vehicle *v = r.getVehicle(s, l);
 					if (v != nullptr) {
-						occupancyCounter(s, l, 0, 0) = occupancyCounter(s, l, 0, 0) + 1;
+//						occupancyCounter(s, l, 0, 0) = occupancyCounter(s, l, 0, 0) + 1;
+						// update speed counter for each cell that was passed by the vehicle
+						for (long pos = s; pos >= 0 && pos >= s - v->currentSpeed + 1; --pos) {
+							occupancyCounter(pos, l, 0, 0) = occupancyCounter(pos, l, 0, 0) + 1;
+						}
 					}
 				}
 			}

@@ -11,88 +11,93 @@ class SimulationKreisverkehr {
 	public:
 		SimulationKreisverkehr( default_random_engine &randomEngine,
 		                        uniform_real_distribution<double> &dallyFactorDistribution,
-		                        exponential_distribution<double> &riskFactorDistribution,
+		                        exponential_distribution<double> &riskFactorDistributionL2R,
+								exponential_distribution<double> &riskFactorDistributionR2L,
 		                        normal_distribution<double> &maxSpeedDistribution ) :
 			randomEngine( randomEngine ),
 			dallyFactorDistribution( dallyFactorDistribution ),
-			riskFactorDistribution( riskFactorDistribution ),
+			riskFactorDistributionL2R( riskFactorDistributionL2R ),
+			riskFactorDistributionR2L( riskFactorDistributionR2L ),
 			maxSpeedDistribution( maxSpeedDistribution ) {
 			streetMap = nullptr;
 		}
-		
+
 		void simulate( StreetMap &streetMap, double trafficDensity, long iterations ) {
 			this->streetMap = &streetMap;
 			this->trafficDensity = trafficDensity;
-			
+
 			populateMap();
-			
+
 			VisualizationKreisverkehr vis( streetMap.getContents().size(),
 			                               streetMap.getContents()[0].size() );
 			vis.appendRoundabout( streetMap );
-			
+
 			for( long i = 0; i < iterations; ++i ) {
 				this->streetMap->visualize();
 				simulateStep();
 				vis.appendRoundabout( streetMap );
 			}
-			
+
 			vis.save();
-			
+
 			this->streetMap = nullptr;
 			this->trafficDensity = 0;
 		}
-		
+
 	private:
 		default_random_engine &randomEngine;
 		uniform_real_distribution<double> dallyFactorDistribution;
-		exponential_distribution<double> riskFactorDistribution;
+		exponential_distribution<double> riskFactorDistributionL2R;
+		exponential_distribution<double> riskFactorDistributionR2L;
 		normal_distribution<double> maxSpeedDistribution;
-		
+
 		StreetMap *streetMap;
 		double trafficDensity;
-		
+
 		void simulateStep() {
 			streetMap->drawDestinationsRandomly();
 			streetMap->clearMarks();
-			
+
 			addCars();
 			accelerate();
 			checkDistances();
 			dally();
 			move();
 		}
-		
+
 		void populateMap() {
 			vector< vector<StreetSegment> > &contents = streetMap->getContents();
 			bernoulli_distribution carPlacementDistribution( trafficDensity );
-			
+
 			for( long x = 0; x < long( contents.size() ); ++x ) {
 				for( long y = 0; y < long( contents[x].size() ); ++y ) {
 					if( ! contents[x][y].isDummy() ) {
 						if( carPlacementDistribution( randomEngine ) ) {
 							contents[x][y].v = new Vehicle( randomEngine, dallyFactorDistribution,
-							                                riskFactorDistribution,
+							                                riskFactorDistributionL2R,
+															riskFactorDistributionR2L,
 							                                maxSpeedDistribution );
 						}
 					}
 				}
 			}
 		}
-		
+
 		void addCars() {
 			set<StreetSegment*> &sources = streetMap->getSources();
 			double carAddProbability = trafficDensity / sources.size();
 			uniform_real_distribution<double> uniform01Distribution( 0.0, 1.0 );
-			
+
 			for( auto s = sources.begin(); s != sources.end(); ++s ) {
 				if( ( *s )->v == nullptr &&
 				        uniform01Distribution( randomEngine ) < carAddProbability ) {
 					( *s )->v = new Vehicle( randomEngine, dallyFactorDistribution,
-					                         riskFactorDistribution, maxSpeedDistribution );
+					                         riskFactorDistributionL2R, riskFactorDistributionR2L,
+											 maxSpeedDistribution );
 				}
 			}
 		}
-		
+
 		void accelerate() {
 			vector< vector<StreetSegment> > &contents = streetMap->getContents();
 			for( long x = 0; x < long( contents.size() ); ++x ) {
@@ -103,11 +108,11 @@ class SimulationKreisverkehr {
 				}
 			}
 		}
-		
+
 		void checkDistances() {
 			vector< vector<StreetSegment> > &contents = streetMap->getContents();
 			deque<StreetSegment*> carSegments; // Segments that contain a vehiclex
-			
+
 //			Get segments that contain cars, and mark inhabited segments
 			for( long x = 0; x < long( contents.size() ); ++x ) {
 				for( long y = 0; y < long( contents[x].size() ); ++y ) {
@@ -117,17 +122,17 @@ class SimulationKreisverkehr {
 					}
 				}
 			}
-			
+
 //			Place markings along each Vehicle's path. Overwrite other paths according to right of way
 			for( auto startSegment = carSegments.begin(); startSegment < carSegments.end();
 			        ++startSegment ) {
 				if( ( *startSegment )->isSink() ) {
 					continue;
 				}
-				
+
 				StreetSegment *previousSegment = nullptr;
 				StreetSegment *nextSegment = *startSegment;
-				
+
 				for( long remainingSteps = ( *startSegment )->v->currentSpeed; remainingSteps > 0;
 				        --remainingSteps ) {
 					previousSegment = nextSegment;
@@ -144,11 +149,11 @@ class SimulationKreisverkehr {
 					if( nextSegment->isSink() ) {
 						break;
 					}
-					
+
 					remainingSteps = min( remainingSteps, nextSegment->maxSpeed );
 				}
 			}
-			
+
 //			Determine max speed according to markings
 			for( auto startSegment = carSegments.begin(); startSegment < carSegments.end();
 			        ++startSegment ) {
@@ -163,16 +168,16 @@ class SimulationKreisverkehr {
 						}
 						nextSegment = nextSegment->getCurrentDestination();
 					}
-					
+
 					( *startSegment )->v->currentSpeed = stepsTaken;
 				}
 			}
 		}
-		
+
 		void dally() {
 			vector< vector<StreetSegment> > &contents = streetMap->getContents();
 			uniform_real_distribution<double> uniform01distribution( 0.0, 1.0 );
-			
+
 			for( long x = 0; x < long( contents.size() ); ++x ) {
 				for( long y = 0; y < long( contents[x].size() ); ++y ) {
 					Vehicle *v = contents[x][y].v;
@@ -186,11 +191,11 @@ class SimulationKreisverkehr {
 				}
 			}
 		}
-		
+
 		void move() {
 			vector< vector<StreetSegment> > &contents = streetMap->getContents();
 			set<Vehicle*> processedVehicles;
-			
+
 			for( long x = 0; x < long( contents.size() ); ++x ) {
 				for( long y = 0; y < long( contents[x].size() ); ++y ) {
 					Vehicle *v = contents[x][y].v;
@@ -207,17 +212,17 @@ class SimulationKreisverkehr {
 								break;
 							}
 							nextSegment = nextSegment->getCurrentDestination();
-							
+
 							if( nextSegment->v != nullptr || nextSegment->mark != v ) {
 								throw MessageException( "MOVE: invalid move, segment not empty \
 								or not marked by moving car." );
 							}
 							nextSegment->v = v;
 							previousSegment->v = nullptr;
-							
+
 							v->currentSpeed = min( v->currentSpeed, nextSegment->maxSpeed );
 						}
-						
+
 						processedVehicles.insert( v );
 					}
 				}

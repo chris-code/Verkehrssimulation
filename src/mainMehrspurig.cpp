@@ -14,7 +14,8 @@ int main( int argc, char **argv ) {
 	
 	double minDallyFactor = 0.;
 	double maxDallyFactor = 0.3;
-	double lambdaRiskFactor = 5.;
+	double lambdaRiskFactorL2R = 12.;
+	double lambdaRiskFactorR2L = 8.;
 	double maxSpeedMean = 5.;
 	double maxSpeedStd = 1.2;
 	
@@ -27,7 +28,8 @@ int main( int argc, char **argv ) {
 		
 		{"min-dally-factor", required_argument, nullptr, 'd'},
 		{"max-dally-factor", required_argument, nullptr, 'D'},
-		{"lambda-risk-factor", required_argument, nullptr, 'r'},
+		{"lambda-risk-factor-l2r", required_argument, nullptr, 'r'},
+		{"lambda-risk-factor-r2l", required_argument, nullptr, 'R'},
 		{"speed-mean", required_argument, nullptr, 's'},
 		{"speed-std", required_argument, nullptr, 'S'},
 		
@@ -35,7 +37,7 @@ int main( int argc, char **argv ) {
 	};
 	
 	char option;
-	while( ( option = getopt_long( argc, argv, "i:x:y:t:d:D:r:s:S:", options, nullptr ) ) != -1 ) {
+	while( ( option = getopt_long( argc, argv, "i:x:y:t:d:D:r:R:s:S:", options, nullptr ) ) != -1 ) {
 		switch( option ) {
 			case 'i':
 				iterations = atoi( optarg );
@@ -58,7 +60,10 @@ int main( int argc, char **argv ) {
 				maxDallyFactor = atof( optarg );
 				break;
 			case 'r':
-				lambdaRiskFactor = atof( optarg );
+				lambdaRiskFactorL2R = atof( optarg );
+				break;
+			case 'R':
+				lambdaRiskFactorR2L = atof( optarg );
 				break;
 			case 's':
 				maxSpeedMean = atof( optarg );
@@ -69,8 +74,8 @@ int main( int argc, char **argv ) {
 				
 			case '?':
 				if( optopt == 'i' || optopt == 'x' || optopt == 'y' || optopt == 't' ||
-				        optopt == 'd' || optopt == 'D' || optopt == 'r' || optopt == 's' ||
-				        optopt == 'S' ) {
+				        optopt == 'd' || optopt == 'D' || optopt == 'r' || optopt == 'R' ||
+				        optopt == 's' || optopt == 'S' ) {
 					cerr << "Option -%" << optopt << " requires an argument." << endl;
 				} else {
 					cerr << "Unknown option " << optopt << endl;
@@ -82,8 +87,8 @@ int main( int argc, char **argv ) {
 		}
 	}
 	
-	SimulationMehrspurig simulation( minDallyFactor, maxDallyFactor, lambdaRiskFactor, maxSpeedMean,
-	                                 maxSpeedStd );
+	SimulationMehrspurig simulation( minDallyFactor, maxDallyFactor, lambdaRiskFactorL2R,
+	                                 lambdaRiskFactorR2L, maxSpeedMean, maxSpeedStd );
 	simulation.initialize( streetLength, laneCount, trafficDensity );
 	
 	simulation.simulate( iterations );
