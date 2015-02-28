@@ -19,10 +19,10 @@ class StreetMap {
 			buildMap( roundaboutWidth, roundaboutHeight, driveUpLength );
 		}
 		
-		void drawDestinations() {
+		void drawDestinationsRandomly() {
 			for( long x = 0; x < dimX; ++x ) {
 				for( long y = 0; y < dimY; ++y ) {
-					contents[x][y].drawDestination( randomEngine );
+					contents[x][y].drawDestinationRandomly( randomEngine );
 				}
 			}
 		}
@@ -71,7 +71,7 @@ class StreetMap {
 			long leftDriveUpUpper = leftDriveUpLower - 1;
 			for( long x = leftDriveUpStart; x < leftBorder; ++x ) {
 				contents[x][leftDriveUpUpper].addPredecessor(
-					& ( contents[x + 1][leftDriveUpUpper] ) );
+				    & ( contents[x + 1][leftDriveUpUpper] ) );
 				contents[x][leftDriveUpLower].addPredecessor(
 				    & ( contents[x - 1][leftDriveUpLower] ) );
 				    
@@ -119,6 +119,15 @@ class StreetMap {
 			contents[lowerDriveUpRight][lowerDriveUpStart + 1].maxSpeed = driveUpSpeed;
 			contents[lowerDriveUpRight][lowerBorder + 1].maxSpeed = 1;
 			
+//			Set weights
+			contents[leftBorder][leftDriveUpUpper].setDestinationWeight(
+			    &( contents[leftBorder][leftDriveUpUpper + 1] ), 2.0 );
+			contents[rightBorder][rightDriveUpLower].setDestinationWeight(
+			    &( contents[rightBorder][rightDriveUpLower + 1] ), 2.0 );
+			contents[lowerDriveUpLeft][lowerBorder].setDestinationWeight(
+			    &( contents[lowerDriveUpLeft + 1][lowerBorder] ), 2.0 );
+			    
+//			Generate other info from the current state
 			buildDestinationPointers();
 			determineSourcesAndSinks();
 		}

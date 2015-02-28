@@ -15,7 +15,7 @@ class StreetSegment {
 			v = nullptr;
 		}
 		
-		void drawDestination( default_random_engine &randomEngine ) {
+		void drawDestinationRandomly( default_random_engine &randomEngine ) {
 			if( destinations.size() > 1 ) {
 				discrete_distribution<long> destinationDistribution( destinationWeights.begin(),
 				        destinationWeights.end() );
@@ -34,6 +34,14 @@ class StreetSegment {
 		void addDestination( StreetSegment *dest, double weight ) {
 			destinations.push_back( dest );
 			destinationWeights.push_back( weight );
+		}
+		
+		void setDestinationWeight( StreetSegment *dest, double weight ) {
+			for( long i = 0; i < long( destinations.size() ); ++i ) {
+				if( destinations[i] == dest ) {
+					destinationWeights[i] = weight;
+				}
+			}
 		}
 		
 		bool isDummy() {
