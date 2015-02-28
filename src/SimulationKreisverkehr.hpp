@@ -60,8 +60,6 @@ class SimulationKreisverkehr {
 			checkDistances();
 			dally();
 			move();
-			
-			streetMap->clearMarks();
 		}
 		
 		void populateMap() {
@@ -82,14 +80,6 @@ class SimulationKreisverkehr {
 		}
 		
 		void addCars() {
-//			set<StreetSegment*> &sources = streetMap->getSources();
-//			for( auto s = sources.begin(); s != sources.end(); ++s ) {
-//				double currentDensity = streetMap->computeDensity();
-//				if( currentDensity < trafficDensity && ( *s )->v == nullptr ) {
-//					( *s )->v = new Vehicle( randomEngine, dallyFactorDistribution,
-//					                         riskFactorDistribution, maxSpeedDistribution );
-//				}
-//			}
 			set<StreetSegment*> &sources = streetMap->getSources();
 			double carAddProbability = trafficDensity / sources.size();
 			uniform_real_distribution<double> uniform01Distribution( 0.0, 1.0 );
