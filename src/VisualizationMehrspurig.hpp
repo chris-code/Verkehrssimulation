@@ -6,12 +6,14 @@
 
 using namespace cimg_library;
 
+const long MAXSPEED = 7;
+
 class VisualizationMehrspurig {
 	public:
 		VisualizationMehrspurig(long streetLength, long laneCount) :
 			seperationLine(streetLength, 1, 1, 3, 100),
-			speedHeatMap(streetLength, laneCount, 1, 1, 0),
-			occupancyHeatMap(streetLength, laneCount, 1, 1, 0) {
+			speedCounter(streetLength, laneCount, 1, 1, 0),
+			occupancyCounter(streetLength, laneCount, 1, 1, 0) {
 			firstAppend = true;
 			iterations = 0;
 		}
@@ -83,11 +85,8 @@ class VisualizationMehrspurig {
 			for (auto s = 0; s < r.getStreetLength(); ++s) {
 				for (auto l = 0; l < r.getLaneCount(); ++l) {
 					Vehicle *v = r.getVehicle(s, l);
-					if (v == nullptr) {
-						speedHeatMap(s, l, 0, 0) = speedHeatMap(s, l, 0, 0) + 7; // TODO Replace "8" by MaxSpeed Constant
-					}
-					else {
-						speedHeatMap(s, l, 0, 0) = speedHeatMap(s, l, 0, 0) + v->currentSpeed;
+					if (v != nullptr) {
+						speedCounter(s, l, 0, 0) = speedCounter(s, l, 0, 0) + v->currentSpeed;
 					}
 				}
 			}
@@ -98,23 +97,32 @@ class VisualizationMehrspurig {
 				for (auto l = 0; l < r.getLaneCount(); ++l) {
 					Vehicle *v = r.getVehicle(s, l);
 					if (v != nullptr) {
-						occupancyHeatMap(s, l, 0, 0) = occupancyHeatMap(s, l, 0, 0) + 1;
+						occupancyCounter(s, l, 0, 0) = occupancyCounter(s, l, 0, 0) + 1;
 					}
 				}
 			}
 		}
 
 		void saveSpeedHeatMap() {
-			CImg<unsigned char> speedHeatMapColored(speedHeatMap.width(), speedHeatMap.height(), 1, 3);
+			CImg<unsigned char> speedHeatMapColored(speedCounter.width(), speedCounter.height(), 1, 3);
 
-			long minValue = long(765. * ((double(speedHeatMap.min()) / double(iterations)) + 1.) / 8.);
-			long maxValue = long(765. * ((double(speedHeatMap.max()) / double(iterations)) + 1.) / 8.); // TODO Replace 8 by MaxSpeed Constant + 1
-
-			CImg<long> speedHeatMapNormalized0_765 = speedHeatMap.get_normalize(minValue, maxValue);
+			CImg<double> relativeSpeedMap(speedCounter.width(), speedCounter.height(), 1, 1);
 
 			for (auto x = 0; x < speedHeatMapColored.width(); ++x) {
 				for (auto y = 0; y < speedHeatMapColored.height(); y++) {
-					long colorIntensity = speedHeatMapNormalized0_765(x, y, 0, 0);
+					// calculate relative speed at position (x,y)
+					if (occupancyCounter(x, y, 0, 0) == 0) {
+						relativeSpeedMap(x, y, 0, 0) = 0.;
+					}
+					else {
+						relativeSpeedMap(x, y, 0, 0) = double(speedCounter(x, y, 0, 0)) / double(occupancyCounter(x, y, 0, 0));
+					}
+
+					long colorIntensity = 0;
+					if (occupancyCounter(x, y, 0, 0) != 0) {
+						colorIntensity = long(((relativeSpeedMap(x, y, 0, 0) + 1.) / (double(MAXSPEED) + 1.)) * 765.);
+					}
+
 					long red = min(255L, colorIntensity);
 					colorIntensity -= red;
 					long green = min(255L, colorIntensity);
@@ -131,13 +139,16 @@ class VisualizationMehrspurig {
 		}
 
 		void saveOccupancyHeatMap() {
-			CImg<unsigned char> occupancyHeatMapColored(occupancyHeatMap.width(), occupancyHeatMap.height(), 1, 3);
+			CImg<unsigned char> occupancyHeatMapColored(occupancyCounter.width(), occupancyCounter.height(), 1, 3);
 
-			CImg<long> occupancyHeatMapNormalized0_765 = occupancyHeatMap.get_normalize(0, 765);
+			long minValue = occupancyCounter.min();
+			long maxValue = 765;
+
+			CImg<long> occupancyHeatMapNormalized = occupancyCounter.get_normalize(minValue, maxValue);
 
 			for (auto x = 0; x < occupancyHeatMapColored.width(); ++x) {
 				for (auto y = 0; y < occupancyHeatMapColored.height(); y++) {
-					long colorIntensity = occupancyHeatMapNormalized0_765(x, y, 0, 0);
+					long colorIntensity = occupancyHeatMapNormalized(x, y, 0, 0);
 					long red = min(255L, colorIntensity);
 					colorIntensity -= red;
 					long green = min(255L, colorIntensity);
@@ -155,8 +166,8 @@ class VisualizationMehrspurig {
 
 		CImg<unsigned char> roadImg;
 		CImg<unsigned char> seperationLine;
-		CImg<long> speedHeatMap;
-		CImg<long> occupancyHeatMap;
+		CImg<long> speedCounter;
+		CImg<long> occupancyCounter;
 		bool firstAppend;
 		long iterations;
 };
