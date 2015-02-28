@@ -6,12 +6,14 @@
 
 using namespace cimg_library;
 
+const long MAXSPEED = 7;
+
 class VisualizationKreisverkehr {
 	public:
 		VisualizationKreisverkehr( long dimX, long dimY ) :
 			seperationLine(dimX, 1, 1, 3, 100),
-			speedHeatMap(dimX, dimY, 1, 1, 0),
-			occupancyHeatMap(dimX, dimY, 1, 1, 0) {
+			speedCounter(dimX, dimY, 1, 1, 0),
+			occupancyCounter(dimX, dimY, 1, 1, 0) {
 			firstAppend = true;
 			lastUsedStreetMap = nullptr;
 			iterations = 0;
@@ -107,12 +109,8 @@ class VisualizationKreisverkehr {
 				for (long y = 0; y < dimY; ++y) {
 					StreetSegment *s = &streetSegments[x][y];
 					if (!s->isDummy()) {
-						// If there is no car at this position, we consider the speed in this cell as "high"
-						if (s->v == nullptr) {
-							speedHeatMap(x,y,0,0) = speedHeatMap(x,y,0,0) + 4; // TODO Replace "4" by MaxSpeed variable or constant
-						}
-						else {
-							speedHeatMap(x,y,0,0) = speedHeatMap(x,y,0,0) + s->v->currentSpeed;
+						if (s->v != nullptr) {
+							speedCounter(x,y,0,0) = speedCounter(x,y,0,0) + s->v->currentSpeed;
 						}
 					}
 				}
@@ -130,7 +128,7 @@ class VisualizationKreisverkehr {
 					StreetSegment *s = &streetSegments[x][y];
 					if (!s->isDummy()) {
 						if (s->v != nullptr) {
-							occupancyHeatMap(x,y,0,0) = occupancyHeatMap(x,y,0,0) + 1;
+							occupancyCounter(x,y,0,0) = occupancyCounter(x,y,0,0) + 1;
 						}
 					}
 				}
@@ -138,17 +136,11 @@ class VisualizationKreisverkehr {
 		}
 
 		void saveSpeedHeatMap() {
-			CImg<unsigned char> speedHeatMapColored(speedHeatMap.width(), speedHeatMap.height(), 1, 3);
-
-			long minValue = long(765. * ((double(speedHeatMap.min()) / double(iterations)) + 1.) / 5.);
-			long maxValue = long(765. * ((double(speedHeatMap.max()) / double(iterations)) + 1.) / 5.); // TODO Replace 5 by MaxSpeed Constant + 1
-			// Reminder: maxValue has been 765 * 4 / 8 before I calculated maxValue
-
-			CImg<long> speedHeatMapNormalized0_765 = speedHeatMap.get_normalize(minValue, maxValue); // TODO Replace "4" by MaxSpeed constant
-			// Here we take 765 * 4 / 8 as maximal value, because the minimal speed is 0 (dark red) and the maximal speed is 4 (yellow).
-			// We don't want speed 4 to be white, so the maximal value must be 4/8 times 765.
+			CImg<unsigned char> speedHeatMapColored(speedCounter.width(), speedCounter.height(), 1, 3);
 
 			std::vector< std::vector<StreetSegment> > &streetSegments = lastUsedStreetMap->getContents();
+
+			CImg<double> relativeSpeedMap(speedCounter.width(), speedCounter.height(), 1, 1);
 
 			for (auto x = 0; x < speedHeatMapColored.width(); ++x) {
 				for (auto y = 0; y < speedHeatMapColored.height(); y++) {
@@ -158,7 +150,19 @@ class VisualizationKreisverkehr {
 						speedHeatMapColored(x, y, 0, 2) = 100;
 					}
 					else {
-						long colorIntensity = speedHeatMapNormalized0_765(x, y, 0, 0);
+						// calculate relative speed at position (x,y)
+						if (occupancyCounter(x, y, 0, 0) == 0) {
+							relativeSpeedMap(x, y, 0, 0) = 0.;
+						}
+						else {
+							relativeSpeedMap(x, y, 0, 0) = double(speedCounter(x, y, 0, 0)) / double(occupancyCounter(x, y, 0, 0));
+						}
+
+						long colorIntensity = 0;
+						if (occupancyCounter(x, y, 0, 0) != 0) {
+							colorIntensity = long(((relativeSpeedMap(x, y, 0, 0) + 1.) / (double(MAXSPEED) + 1.)) * 765.);
+						}
+
 						long red = min(255L, colorIntensity);
 						colorIntensity -= red;
 						long green = min(255L, colorIntensity);
@@ -176,9 +180,12 @@ class VisualizationKreisverkehr {
 		}
 
 		void saveOccupancyHeatMap() {
-			CImg<unsigned char> occupancyHeatMapColored(occupancyHeatMap.width(), occupancyHeatMap.height(), 1, 3);
+			CImg<unsigned char> occupancyHeatMapColored(occupancyCounter.width(), occupancyCounter.height(), 1, 3);
 
-			CImg<long> occupancyHeatMapNormalized0_765 = occupancyHeatMap.get_normalize(0, 765);
+			long minValue = occupancyCounter.min();
+			long maxValue = 765;
+
+			CImg<long> occupancyHeatMapNormalized = occupancyCounter.get_normalize(minValue, maxValue);
 
 			std::vector< std::vector<StreetSegment> > &streetSegments = lastUsedStreetMap->getContents();
 
@@ -190,7 +197,7 @@ class VisualizationKreisverkehr {
 						occupancyHeatMapColored(x, y, 0, 2) = 100;
 					}
 					else {
-						long colorIntensity = occupancyHeatMapNormalized0_765(x, y, 0, 0);
+						long colorIntensity = occupancyHeatMapNormalized(x, y, 0, 0);
 						long red = min(255L, colorIntensity);
 						colorIntensity -= red;
 						long green = min(255L, colorIntensity);
@@ -209,8 +216,8 @@ class VisualizationKreisverkehr {
 
 		CImg<unsigned char> roundaboutImg;
 		CImg<unsigned char> seperationLine;
-		CImg<long> speedHeatMap;
-		CImg<long> occupancyHeatMap;
+		CImg<long> speedCounter;
+		CImg<long> occupancyCounter;
 		StreetMap *lastUsedStreetMap;
 		bool firstAppend;
 		long iterations;
