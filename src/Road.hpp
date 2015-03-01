@@ -87,7 +87,7 @@ class Road {
 			return contents[s][l];
 		}
 		
-		double getDensity() {
+		double computeDensity() {
 			double density = 0.0;
 			for (long s = 0; s < long(contents.size()); ++s) {
 				for (long l = 0; l < long(contents[s].size()); ++l) {
