@@ -3,6 +3,7 @@ while V is not empty:
 	car <- remove car vom V
 	cell <- current cell of car
 	r <- current speed of car
+
 	while r != 0:
 		cell <- next cell car would move to
 		r = r-1

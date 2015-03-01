@@ -1,0 +1,14 @@
+V <- set of vehicles
+for all car in V:
+	cell <- current cell of car
+	r <- current speed of car
+	new_r <- 0
+
+	while r != 0:
+		cell <- next cell car would move to
+		if cell not marked by car:
+			r = 0
+		else:
+			r = r-1
+			new_r = new_r+1
+			move car to cell
