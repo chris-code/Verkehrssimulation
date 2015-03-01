@@ -131,13 +131,17 @@ class VisualizationRoundabout {
 //							speedCounter(x,y,0,0) = speedCounter(x,y,0,0) + s->v->currentSpeed;
 
 							StreetSegment *currentSegment = s;
+
 							// go back all predecessors that are marked by the vehicle "s->v"
+							long distance = 0;
+
 							while (currentSegment->predecessors.size() > 0) {
 								StreetSegment *previousSegment = nullptr;
 
 								for (long i = 0; i < long(currentSegment->predecessors.size()); ++i) {
 									if (currentSegment->predecessors[i]->getCurrentDestination() == currentSegment) {
 										previousSegment = currentSegment->predecessors[i];
+										distance++;
 										break;
 									}
 								}
@@ -147,7 +151,13 @@ class VisualizationRoundabout {
 									long xCur = segmentToPositionMap[currentSegment].first;
 									long yCur = segmentToPositionMap[currentSegment].second;
 
-									speedCounter(xCur,yCur,0,0) = speedCounter(xCur,yCur,0,0) + s->v->currentSpeed;
+									long deltaSpeed = s->v->currentSpeed;
+
+									if (distance > s->v->currentSpeed) {
+										deltaSpeed = distance;
+									}
+
+									speedCounter(xCur,yCur,0,0) = speedCounter(xCur,yCur,0,0) + deltaSpeed;
 
 									currentSegment = previousSegment;
 								}
