@@ -9,7 +9,7 @@ int main( int argc, char **argv ) {
 	
 	long roundaboutWidth = 8;
 	long roundaboutHeight = 6;
-	long driveUpLength = 20;
+	long driveUpLength = 10;
 	double trafficDensity = 0.1;
 	
 	double minDallyFactor = 0.;
@@ -88,11 +88,19 @@ int main( int argc, char **argv ) {
 	exponential_distribution<double> riskFactorDistributionR2L( lambdaRiskFactorR2L );
 	normal_distribution<double> maxSpeedDistribution( maxSpeedMean, maxSpeedStd );
 	
-	StreetMap streetMap( roundaboutWidth, roundaboutHeight, driveUpLength, trafficDensity,
-	                     randomEngine );
-	SimulationKreisverkehr simulation( randomEngine, dallyFactorDistribution, riskFactorDistributionL2R,
-	                                   riskFactorDistributionR2L, maxSpeedDistribution );
-	simulation.simulate( streetMap, trafficDensity, iterations );
+	if( true ) {
+		StreetMap streetMap( randomEngine, driveUpLength );
+		SimulationKreisverkehr simulation( randomEngine, dallyFactorDistribution,
+		                                   riskFactorDistributionL2R, riskFactorDistributionR2L,
+		                                   maxSpeedDistribution );
+		simulation.simulate( streetMap, trafficDensity, iterations );
+	} else {
+		StreetMap streetMap( roundaboutWidth, roundaboutHeight, driveUpLength, randomEngine );
+		SimulationKreisverkehr simulation( randomEngine, dallyFactorDistribution,
+		                                   riskFactorDistributionL2R, riskFactorDistributionR2L,
+		                                   maxSpeedDistribution );
+		simulation.simulate( streetMap, trafficDensity, iterations );
+	}
 	
 	return EXIT_SUCCESS;
 }
