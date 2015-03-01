@@ -140,6 +140,8 @@ class StreetMap {
 			long buffer = 3;
 			long interchangeWidth = 52;
 			long interchangeHeight = 37;
+			long lowerLeftLoopSize = 18;
+			long lowerRightLoopSize = lowerLeftLoopSize;
 			dimX = ( driveUpLength + buffer ) * 2 + interchangeWidth;
 			dimY = buffer * 2 + driveUpLength + interchangeHeight;
 			contents.resize( dimX );
@@ -151,7 +153,7 @@ class StreetMap {
 //			Set default speed
 			for( long x = 0; x < dimX; ++x ) {
 				for( long y = 0; y < dimY; ++y ) {
-					contents[x][y].maxSpeed = 7;
+					contents[x][y].maxSpeed = 4;
 				}
 			}
 			
@@ -188,6 +190,10 @@ class StreetMap {
 			for( long y = lowerLaneY + 3; y < driveUpLowerEnd; ++y ) {
 				contents[leftLaneX][y].addPredecessor( &( contents[leftLaneX][y - 1] ) );
 				contents[rightLaneX][y].addPredecessor( &( contents[rightLaneX][y + 1] ) );
+				if( y < lowerLaneY + lowerLeftLoopSize + 6 ) {
+					contents[leftLaneX][y].maxSpeed = 3;
+					contents[rightLaneX][y].maxSpeed = 3;
+				}
 			}
 			long hOffset = 10;
 			long vOffset = - 10;
@@ -196,31 +202,47 @@ class StreetMap {
 				    &( contents[leftLaneX + hOffset][y - 1 + vOffset] ) );
 				contents[rightLaneX + hOffset][y + vOffset].addPredecessor(
 				    &( contents[rightLaneX + hOffset][y + 1 + vOffset] ) );
+				contents[leftLaneX + hOffset][y + vOffset].maxSpeed = 3;
+				contents[rightLaneX + hOffset][y + vOffset].maxSpeed = 3;
 			}
 			contents[leftLaneX + hOffset][lowerLaneY - 5 - 1 + vOffset].addPredecessor(
 			    &( contents[leftLaneX][lowerLaneY - 6] ) );
+			contents[leftLaneX + hOffset][lowerLaneY - 5 - 1 + vOffset].maxSpeed = 3;
 			contents[leftLaneX][lowerLaneY + 2].addPredecessor(
 			    &( contents[leftLaneX + hOffset][lowerLaneY + 2 + vOffset] ) );
+			contents[leftLaneX][lowerLaneY + 2].maxSpeed = 3;
 			contents[rightLaneX][lowerLaneY - 5].addPredecessor(
 			    &( contents[rightLaneX + hOffset][lowerLaneY - 5 + vOffset] ) );
+			contents[rightLaneX][lowerLaneY - 5].maxSpeed = 3;
 			contents[rightLaneX + hOffset][lowerLaneY + 3 + vOffset].addPredecessor(
 			    &( contents[rightLaneX][lowerLaneY + 3] ) );
+			contents[rightLaneX + hOffset][lowerLaneY + 3 + vOffset].maxSpeed = 3;
 			for( long y = buffer; y < lowerLaneY - 5; ++y ) {
 				if( y > buffer + 5 ) {
 					contents[leftLaneX][y].addPredecessor( &( contents[leftLaneX][y - 1] ) );
+					if( y > buffer + 8 ) {
+						contents[leftLaneX][y].maxSpeed = 3;
+					} else {
+						contents[leftLaneX][y].maxSpeed = 2;
+					}
 				}
 				contents[rightLaneX][y].addPredecessor( &( contents[rightLaneX][y + 1] ) );
+				contents[rightLaneX][y].maxSpeed = 3;
 			}
 			
 //			Build horizontal segments of upper outer loop
 			long upperOuterLoopStartX = rightLaneX - upperLoopLargeWidth + 1;
 			for( long x = upperOuterLoopStartX; x < rightLaneX; ++x ) {
 				contents[x][buffer].addPredecessor( &( contents[x + 1][buffer] ) );
+				contents[x][buffer].maxSpeed = 3;
 			}
 //			Build vertical segments of upper outer loop
 			for( long y = buffer + 1; y <= upperLaneY; ++y ) {
 				contents[upperOuterLoopStartX][y].addPredecessor(
 				    &( contents[upperOuterLoopStartX][y - 1] ) );
+				if( y < upperLaneY ) {
+					contents[upperOuterLoopStartX][y].maxSpeed = 3;
+				}
 			}
 			
 //			Build horizontal segments of upper inner loop
@@ -228,37 +250,49 @@ class StreetMap {
 			long upperInnerLoopStartX = leftLaneX - upperLoopSmallWidth + 1;
 			for( long x = upperInnerLoopStartX; x <= leftLaneX; ++x ) {
 				contents[x][buffer + 5].addPredecessor( &( contents[x - 1][buffer + 5] ) );
+				contents[x][buffer + 5].maxSpeed = 2;
 			}
 //			Build vertical segments of upper inner loop
 			for( long y = buffer + 5; y < upperLaneY; ++y ) {
 				contents[upperInnerLoopStartX - 1][y].addPredecessor(
 				    &( contents[upperInnerLoopStartX - 1][y + 1] ) );
+				if( y < buffer + 9 ) {
+					contents[upperInnerLoopStartX - 1][y].maxSpeed = 2;
+				} else {
+					contents[upperInnerLoopStartX - 1][y].maxSpeed = 3;
+				}
 			}
 			
 //			Build lower left loop
-			long lowerLeftLoopSize = 18;
 			long lowerLeftLoopHorizY = lowerLaneY + lowerLeftLoopSize;
 			long lowerLeftLoopVertX = leftLaneX - lowerLeftLoopSize;
 			for( long x = lowerLeftLoopVertX + 1; x <= leftLaneX; ++x ) {
 				contents[x][lowerLeftLoopHorizY].addPredecessor(
 				    &( contents[x - 1][lowerLeftLoopHorizY] ) );
+				if( x < leftLaneX ) {
+					contents[x][lowerLeftLoopHorizY].maxSpeed = 3;
+				}
 			}
 			for( long y = lowerLaneY + 1; y <= lowerLeftLoopHorizY; ++y ) {
 				contents[lowerLeftLoopVertX][y].addPredecessor(
 				    &( contents[lowerLeftLoopVertX][y - 1] ) );
+				contents[lowerLeftLoopVertX][y].maxSpeed = 3;
 			}
 			
 //			Build lower right loop
-			long lowerRightLoopSize = lowerLeftLoopSize;
 			long lowerRightLoopHorizY = lowerLaneY + lowerRightLoopSize;
 			long lowerRightLoopVertX = rightLaneX + lowerRightLoopSize;
 			for( long x = rightLaneX + 1; x <= lowerRightLoopVertX; ++x ) {
 				contents[x][lowerRightLoopHorizY].addPredecessor(
 				    &( contents[x - 1][lowerRightLoopHorizY] ) );
+				contents[x][lowerRightLoopHorizY].maxSpeed = 3;
 			}
 			for( long y = lowerLaneY; y < lowerRightLoopHorizY; ++y ) {
 				contents[lowerRightLoopVertX][y].addPredecessor(
 				    &( contents[lowerRightLoopVertX][y + 1] ) );
+				if( y != lowerLaneY ) {
+					contents[lowerRightLoopVertX][y].maxSpeed = 3;
+				}
 			}
 			
 //			Generate other info from the current state
