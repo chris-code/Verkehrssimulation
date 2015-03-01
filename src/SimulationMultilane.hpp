@@ -1,5 +1,6 @@
 #pragma once
 
+#include <set>
 #include <unordered_set>
 #include <random>
 #include <chrono>
@@ -22,8 +23,9 @@ class SimulationMultilane {
 		  uniform01distribution(0., 1.) {
 		}
 
-		void initialize(long streetLength, long laneCount, double carDensity) {
-			this->carDensity = carDensity;
+		void initialize(long streetLength, long laneCount, double carDensity, bool wrapAround) {
+			this->trafficDensity = carDensity;
+			this->wrapAround = wrapAround;
 			road.resize(streetLength, laneCount);
 
 			uniform_real_distribution<double> carDistribution(0,1);
@@ -54,8 +56,10 @@ class SimulationMultilane {
 		}
 
 		void update() {
-			addCars();
-//			visualization->appendRoad(road);
+			if (!wrapAround) {
+				addCars();
+//				visualization->appendRoad(road);
+			}
 			
 			// Accelerate vehicles
 			accelerate();
@@ -79,7 +83,7 @@ class SimulationMultilane {
 		
 		void addCars() {
 			for (auto l = road.getLaneCount() - 1; l >=0; --l) {
-				if (road.getVehicle(0, l) == nullptr && uniform01distribution(randomEngine) < carDensity) {
+				if (road.getVehicle(0, l) == nullptr && road.computeDensity() < trafficDensity) {
 					Vehicle* v = new Vehicle(randomEngine, dallyFactorDistribution, riskFactorDistributionL2R, riskFactorDistributionR2L, maxSpeedDistribution);
 					road.insertVehicle(0, l, v);
 				}
@@ -141,23 +145,40 @@ class SimulationMultilane {
 
 			long gap = 0; // Space ahead the car has on its current lane
 			for(auto offset = 1; offset <= vMax; ++offset) {
-				if(s + offset >= road.getStreetLength()) {
-					break; // Road ended, gap ends here
+				if (wrapAround) {
+					long newS = (s + offset + road.getStreetLength()) % road.getStreetLength();
+					if(road.getVehicle(newS, l) != nullptr) {
+						break; // Vehicle found, gap ends here
+					}
 				}
-				if(road.getVehicle(s + offset, l) != nullptr) {
-					break; // Vehicle found, gap ends here
+				else {
+					if(s + offset >= road.getStreetLength()) {
+						break; // Road ended, gap ends here
+					}
+					if(road.getVehicle(s + offset, l) != nullptr) {
+						break; // Vehicle found, gap ends here
+					}
 				}
 				++gap;
 			}
 			
 			long gapLeft = 0; // Space ahead the car would have on the left lane
 			for(auto offset = 1; offset <= gap; ++offset) {
-				if(s + offset >= road.getStreetLength()) {
-					break; // Road ended, gap ends here
+				if (wrapAround) {
+					long newS = (s + offset + road.getStreetLength()) % road.getStreetLength();
+					if(road.getVehicle(newS, l-1) != nullptr) {
+						break; // Vehicle found, gap ends here
+					}
 				}
-				if(road.getVehicle(s + offset, l-1) != nullptr) {
-					break; // Vehicle found, gap ends here
+				else {
+					if(s + offset >= road.getStreetLength()) {
+						break; // Road ended, gap ends here
+					}
+					if(road.getVehicle(s + offset, l-1) != nullptr) {
+						break; // Vehicle found, gap ends here
+					}
 				}
+
 				++gapLeft;
 			}
 			
@@ -165,12 +186,21 @@ class SimulationMultilane {
 				long gapBack = 0; // Space backwards the car would have on the left lane
 				long vBack = 0; // Speed of the follow-up car on the left lane
 				for(auto offset = -1; offset >= -7; --offset) {
-					if(s + offset < 0) {
-						break; // Road ended, gap ends here
+					if (wrapAround) {
+						long newS = (s + offset + road.getStreetLength()) % road.getStreetLength();
+						if(road.getVehicle(newS, l-1) != nullptr) {
+							vBack = road.getVehicle(newS, l-1)->currentSpeed;
+							break; // Vehicle found, gap ends here. Remember its speed, though.
+						}
 					}
-					if(road.getVehicle(s + offset, l-1) != nullptr) {
-						vBack = road.getVehicle(s + offset, l-1)->currentSpeed;
-						break; // Vehicle found, gap ends here. Remember its speed, though.
+					else {
+						if(s + offset < 0) {
+							break; // Road ended, gap ends here
+						}
+						if(road.getVehicle(s + offset, l-1) != nullptr) {
+							vBack = road.getVehicle(s + offset, l-1)->currentSpeed;
+							break; // Vehicle found, gap ends here. Remember its speed, though.
+						}
 					}
 					++gapBack;
 				}
@@ -205,22 +235,38 @@ class SimulationMultilane {
 
 			long gap = 0; // Space ahead the car has on its current lane
 			for(auto offset = 1; offset <= vMax; ++offset) {
-				if(s + offset >= road.getStreetLength()) {
-					break; // Road ended, gap ends here
+				if (wrapAround) {
+					long newS = (s + offset + road.getStreetLength()) % road.getStreetLength();
+					if(road.getVehicle(newS, l) != nullptr) {
+						break; // Vehicle found, gap ends here
+					}
 				}
-				if(road.getVehicle(s + offset, l) != nullptr) {
-					break; // Vehicle found, gap ends here
+				else {
+					if(s + offset >= road.getStreetLength()) {
+						break; // Road ended, gap ends here
+					}
+					if(road.getVehicle(s + offset, l) != nullptr) {
+						break; // Vehicle found, gap ends here
+					}
 				}
 				++gap;
 			}
 
 			long gapRight = 0; // Space ahead the car would have on the left lane
 			for(auto offset = 1; offset <= gap; ++offset) {
-				if(s + offset >= road.getStreetLength()) {
-					break; // Road ended, gap ends here
+				if (wrapAround) {
+					long newS = (s + offset + road.getStreetLength()) % road.getStreetLength();
+					if(road.getVehicle(newS, l+1) != nullptr) {
+						break; // Vehicle found, gap ends here
+					}
 				}
-				if(road.getVehicle(s + offset, l+1) != nullptr) {
-					break; // Vehicle found, gap ends here
+				else {
+					if(s + offset >= road.getStreetLength()) {
+						break; // Road ended, gap ends here
+					}
+					if(road.getVehicle(s + offset, l+1) != nullptr) {
+						break; // Vehicle found, gap ends here
+					}
 				}
 				++gapRight;
 			}
@@ -229,12 +275,21 @@ class SimulationMultilane {
 				long gapBack = 0; // Space backwards the car would have on the right lane
 				long vBack = 0; // Speed of the follow-up car on the right lane
 				for(auto offset = -1; offset >= -7; --offset) {
-					if(s + offset < 0) {
-						break; // Road ended, gap ends here
+					if (wrapAround) {
+						long newS = (s + offset + road.getStreetLength()) % road.getStreetLength();
+						if(road.getVehicle(newS, l-1) != nullptr) {
+							vBack = road.getVehicle(newS, l+1)->currentSpeed;
+							break; // Vehicle found, gap ends here. Remember its speed, though.
+						}
 					}
-					if(road.getVehicle(s + offset, l-1) != nullptr) {
-						vBack = road.getVehicle(s + offset, l+1)->currentSpeed;
-						break; // Vehicle found, gap ends here. Remember its speed, though.
+					else {
+						if(s + offset < 0) {
+							break; // Road ended, gap ends here
+						}
+						if(road.getVehicle(s + offset, l-1) != nullptr) {
+							vBack = road.getVehicle(s + offset, l+1)->currentSpeed;
+							break; // Vehicle found, gap ends here. Remember its speed, though.
+						}
 					}
 					++gapBack;
 				}
@@ -257,12 +312,24 @@ class SimulationMultilane {
 					if (v != nullptr) {
 						for (long leftLane = l; leftLane >= 0; --leftLane) { // iterate over lanes that are not on the right of the considered vehicle
 							for (long offset = 1; offset <= v->currentSpeed; ++offset) {
-								if(s + offset < road.getStreetLength()) {
-									Vehicle* otherV = road.getVehicle(s + offset, leftLane);
+								if (wrapAround) {
+									long newPos = (s + offset + road.getStreetLength()) % road.getStreetLength();
+									Vehicle* otherV = road.getVehicle(newPos, leftLane);
 									if (otherV != nullptr) {
 										if (v->currentSpeed > offset - 1) {
 											v->currentSpeed = offset - 1;
 											break;
+										}
+									}
+								}
+								else {
+									if(s + offset < road.getStreetLength()) {
+										Vehicle* otherV = road.getVehicle(s + offset, leftLane);
+										if (otherV != nullptr) {
+											if (v->currentSpeed > offset - 1) {
+												v->currentSpeed = offset - 1;
+												break;
+											}
 										}
 									}
 								}
@@ -287,11 +354,18 @@ class SimulationMultilane {
 		}
 
 		void move() {
+			set<Vehicle*> processedVehicles;
 			for (auto s = road.getStreetLength() - 1; s >= 0; --s) {
 				for (auto l = road.getLaneCount() - 1; l >= 0; --l) {
 					Vehicle* v = road.getVehicle(s, l);
-					if (v != nullptr && v->currentSpeed > 0) {
-						road.moveVehicle(s, l, s + v->currentSpeed, l);
+					if (v != nullptr && processedVehicles.count( v ) == 0  && v->currentSpeed > 0) {
+						if (wrapAround) {
+							road.moveVehicle(s, l, ((s + v->currentSpeed) + road.getStreetLength()) % road.getStreetLength(), l);
+						}
+						else {
+							road.moveVehicle(s, l, s + v->currentSpeed, l);
+						}
+						processedVehicles.insert( v );
 					}
 				}
 			}
@@ -306,5 +380,6 @@ class SimulationMultilane {
 		exponential_distribution<double> riskFactorDistributionR2L;
 		normal_distribution<double> maxSpeedDistribution;
 		uniform_real_distribution<double> uniform01distribution;
-		double carDensity;
+		double trafficDensity;
+		bool wrapAround;
 };

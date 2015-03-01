@@ -1,5 +1,6 @@
 #pragma once
 
+#include <set>
 #include <deque>
 #include "MessageException.hpp"
 #include "StreetMap.hpp"

@@ -199,7 +199,8 @@ class VisualizationMultilane {
 
 			densitiesFile.close();
 
-			double deltaMinMax = max - min;
+			double minDist = 0.05;
+			double deltaMinMax = max - min + minDist;
 
 			double yRangeMin = std::max(0., (min - deltaMinMax));
 			double yRangeMax = max + deltaMinMax;
