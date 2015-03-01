@@ -44,7 +44,7 @@ class Road {
 			contents[s][l] = v;
 		}
 
-		void moveVehicle(long fromS, long fromL, long toS, long toL) {			
+		void moveVehicle(long fromS, long fromL, long toS, long toL) {
 			if(fromS < 0 || fromS >= streetLength || fromL < 0 || fromL >= laneCount) {
 				throw MessageException("Invalid move: source not in road");
 			}

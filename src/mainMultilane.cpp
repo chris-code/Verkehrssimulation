@@ -19,9 +19,12 @@ int main( int argc, char **argv ) {
 	double maxSpeedMean = 5.;
 	double maxSpeedStd = 1.2;
 	
+	bool wrapAround = false;
+
 	struct option options[] = {
 		{"iterations", required_argument, nullptr, 'i'},
 		
+		{"wrap-around", no_argument, nullptr, 'w'},
 		{"street-length", required_argument, nullptr, 'x'},
 		{"lanes", required_argument, nullptr, 'y'},
 		{"traffic-density", required_argument, nullptr, 't'},
@@ -37,12 +40,15 @@ int main( int argc, char **argv ) {
 	};
 	
 	char option;
-	while( ( option = getopt_long( argc, argv, "i:x:y:t:d:D:r:R:s:S:", options, nullptr ) ) != -1 ) {
+	while( ( option = getopt_long( argc, argv, "i:wx:y:t:d:D:r:R:s:S:", options, nullptr ) ) != -1 ) {
 		switch( option ) {
 			case 'i':
 				iterations = atoi( optarg );
 				break;
 				
+			case 'w':
+				wrapAround = true;
+				break;
 			case 'x':
 				streetLength = atoi( optarg );
 				break;
@@ -87,9 +93,12 @@ int main( int argc, char **argv ) {
 		}
 	}
 	
-	SimulationMultilane simulation( minDallyFactor, maxDallyFactor, lambdaRiskFactorL2R,
-	                                 lambdaRiskFactorR2L, maxSpeedMean, maxSpeedStd );
-	simulation.initialize( streetLength, laneCount, trafficDensity );
+	SimulationMultilane simulation( minDallyFactor, maxDallyFactor,
+									lambdaRiskFactorL2R, lambdaRiskFactorR2L, maxSpeedMean,
+									maxSpeedStd );
+	simulation.initialize( streetLength, laneCount, trafficDensity, wrapAround );
 	
 	simulation.simulate( iterations );
+
+	return EXIT_SUCCESS;
 }

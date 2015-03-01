@@ -14,7 +14,7 @@ while V is not empty:
 				r = 0
 			else:
 				remove all markings by otherCar
-				V.add(car2)				
+				V.add(otherCar)				
 				mark cell
 		else:
 			mark cell
