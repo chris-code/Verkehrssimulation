@@ -2,6 +2,7 @@
 
 #include "CImg.h"
 #include <vector>
+#include <map>
 #include <cmath>
 
 using namespace cimg_library;
@@ -27,6 +28,7 @@ class VisualizationRoundabout {
 			if (firstAppend) {
 				roundaboutImg = streetMapImg;
 				firstAppend = false;
+				createSegmentToPositionMap(sm);
 			}
 			else {
 				roundaboutImg.append(seperationLine, 'y', 0);
@@ -99,6 +101,22 @@ class VisualizationRoundabout {
 			return streetMapImg;
 		}
 
+		void createSegmentToPositionMap(StreetMap &sm) {
+			std::vector< std::vector<StreetSegment> > &streetSegments = sm.getContents();
+
+			long dimX = streetSegments.size();
+			long dimY = streetSegments[0].size();
+
+			for (long x = 0; x < dimX; ++x) {
+				for (long y = 0; y < dimY; ++y) {
+					StreetSegment *s = &streetSegments[x][y];
+					std::pair<long, long> positionPair = std::make_pair(x, y);
+					std::pair<StreetSegment*, std::pair<long, long> > newEntry = std::make_pair(s, positionPair);
+					segmentToPositionMap.insert(newEntry);
+				}
+			}
+		}
+
 		void updateSpeedHeatMap(StreetMap &sm) {
 			std::vector< std::vector<StreetSegment> > &streetSegments = sm.getContents();
 
@@ -110,7 +128,34 @@ class VisualizationRoundabout {
 					StreetSegment *s = &streetSegments[x][y];
 					if (!s->isDummy()) {
 						if (s->v != nullptr) {
-							speedCounter(x,y,0,0) = speedCounter(x,y,0,0) + s->v->currentSpeed;
+//							speedCounter(x,y,0,0) = speedCounter(x,y,0,0) + s->v->currentSpeed;
+
+							StreetSegment *currentSegment = s;
+							// go back all predecessors that are marked by the vehicle "s->v"
+							while (currentSegment->predecessors.size() > 0) {
+								StreetSegment *previousSegment = nullptr;
+
+								for (long i = 0; i < long(currentSegment->predecessors.size()); ++i) {
+									if (currentSegment->predecessors[i]->getCurrentDestination() == currentSegment) {
+										previousSegment = currentSegment->predecessors[i];
+										break;
+									}
+								}
+
+								// there exists a valid predecessor
+								if (previousSegment != nullptr && previousSegment->mark == s->v) {
+									long xCur = segmentToPositionMap[currentSegment].first;
+									long yCur = segmentToPositionMap[currentSegment].second;
+
+									speedCounter(xCur,yCur,0,0) = speedCounter(xCur,yCur,0,0) + s->v->currentSpeed;
+
+									currentSegment = previousSegment;
+								}
+								// no previous segment or wrong mark
+								else {
+									break;
+								}
+							}
 						}
 					}
 				}
@@ -128,7 +173,34 @@ class VisualizationRoundabout {
 					StreetSegment *s = &streetSegments[x][y];
 					if (!s->isDummy()) {
 						if (s->v != nullptr) {
-							occupancyCounter(x,y,0,0) = occupancyCounter(x,y,0,0) + 1;
+//							occupancyCounter(x,y,0,0) = occupancyCounter(x,y,0,0) + 1; // single code line for counting without backtracing
+
+							StreetSegment *currentSegment = s;
+							// go back all predecessors that are marked by the vehicle "s->v"
+							while (currentSegment->predecessors.size() > 0) {
+								StreetSegment *previousSegment = nullptr;
+
+								for (long i = 0; i < long(currentSegment->predecessors.size()); ++i) {
+									if (currentSegment->predecessors[i]->getCurrentDestination() == currentSegment) {
+										previousSegment = currentSegment->predecessors[i];
+										break;
+									}
+								}
+
+								// there exists a valid predecessor
+								if (previousSegment != nullptr && previousSegment->mark == s->v) {
+									long xCur = segmentToPositionMap[currentSegment].first;
+									long yCur = segmentToPositionMap[currentSegment].second;
+
+									occupancyCounter(xCur,yCur,0,0) = occupancyCounter(xCur,yCur,0,0) + 1;
+
+									currentSegment = previousSegment;
+								}
+								// no previous segment or wrong mark
+								else {
+									break;
+								}
+							}
 						}
 					}
 				}
@@ -219,6 +291,7 @@ class VisualizationRoundabout {
 		CImg<long> speedCounter;
 		CImg<long> occupancyCounter;
 		StreetMap *lastUsedStreetMap;
+		std::map<StreetSegment*, std::pair<long, long>> segmentToPositionMap;
 		bool firstAppend;
 		long iterations;
 };
