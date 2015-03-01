@@ -31,9 +31,9 @@ class SimulationMultilane {
 
 			uniform_real_distribution<double> carDistribution(0,1);
 
-			bool equalSpaced = true;
+			bool equallySpaced = true;
 
-			if (equalSpaced) {
+			if (equallySpaced) {
 				long step = 1 / carDensity;
 				long laneOffset = max(1L, step / road.getLaneCount());
 
