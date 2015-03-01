@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <set>
 #include <unordered_set>
 #include <random>
@@ -30,11 +31,28 @@ class SimulationMultilane {
 
 			uniform_real_distribution<double> carDistribution(0,1);
 
-			for (auto s = 0; s < streetLength; ++s) {
-				for (auto l = 0; l < laneCount; ++l) {
-					if (carDistribution(randomEngine) < carDensity) {
+			bool equalSpaced = true;
+
+			if (equalSpaced) {
+				long step = 1 / carDensity;
+				long laneOffset = max(1L, step / road.getLaneCount());
+
+				for (auto l = 0; l < road.getLaneCount(); ++l) {
+					for (auto s = l * laneOffset; s < road.getStreetLength(); s += step) {
 						Vehicle* v = new Vehicle(randomEngine, dallyFactorDistribution, riskFactorDistributionL2R, riskFactorDistributionR2L, maxSpeedDistribution);
+						long speed = min(v->maxSpeed, step);
+						v->currentSpeed = speed;
 						road.insertVehicle(s, l, v);
+					}
+				}
+			}
+			else {
+				for (auto s = 0; s < streetLength; ++s) {
+					for (auto l = 0; l < laneCount; ++l) {
+						if (carDistribution(randomEngine) < carDensity) {
+							Vehicle* v = new Vehicle(randomEngine, dallyFactorDistribution, riskFactorDistributionL2R, riskFactorDistributionR2L, maxSpeedDistribution);
+							road.insertVehicle(s, l, v);
+						}
 					}
 				}
 			}
