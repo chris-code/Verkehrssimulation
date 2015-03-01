@@ -79,7 +79,7 @@ class SimulationMultilane {
 		
 		void addCars() {
 			for (auto l = road.getLaneCount() - 1; l >=0; --l) {
-				if (road.getVehicle(0, l) == nullptr && road.computeDensity() < carDensity) {
+				if (road.getVehicle(0, l) == nullptr && uniform01distribution(randomEngine) < carDensity) {
 					Vehicle* v = new Vehicle(randomEngine, dallyFactorDistribution, riskFactorDistributionL2R, riskFactorDistributionR2L, maxSpeedDistribution);
 					road.insertVehicle(0, l, v);
 				}
