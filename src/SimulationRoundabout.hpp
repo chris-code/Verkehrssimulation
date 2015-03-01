@@ -3,13 +3,13 @@
 #include <deque>
 #include "MessageException.hpp"
 #include "StreetMap.hpp"
-#include "VisualizationKreisverkehr.hpp"
+#include "VisualizationRoundabout.hpp"
 
 using namespace std;
 
-class SimulationKreisverkehr {
+class SimulationRoundabout {
 	public:
-		SimulationKreisverkehr( default_random_engine &randomEngine,
+		SimulationRoundabout( default_random_engine &randomEngine,
 		                        uniform_real_distribution<double> &dallyFactorDistribution,
 		                        exponential_distribution<double> &riskFactorDistributionL2R,
 								exponential_distribution<double> &riskFactorDistributionR2L,
@@ -28,7 +28,7 @@ class SimulationKreisverkehr {
 
 			populateMap();
 
-			VisualizationKreisverkehr vis( streetMap.getContents().size(),
+			VisualizationRoundabout vis( streetMap.getContents().size(),
 			                               streetMap.getContents()[0].size() );
 			vis.appendRoundabout( streetMap );
 

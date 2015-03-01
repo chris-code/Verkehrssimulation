@@ -1,7 +1,7 @@
 #include <getopt.h>
 #include "Vehicle.hpp"
 #include "Road.hpp"
-#include "SimulationMehrspurig.hpp"
+#include "SimulationMultilane.hpp"
 
 using namespace std;
 
@@ -87,7 +87,7 @@ int main( int argc, char **argv ) {
 		}
 	}
 	
-	SimulationMehrspurig simulation( minDallyFactor, maxDallyFactor, lambdaRiskFactorL2R,
+	SimulationMultilane simulation( minDallyFactor, maxDallyFactor, lambdaRiskFactorL2R,
 	                                 lambdaRiskFactorR2L, maxSpeedMean, maxSpeedStd );
 	simulation.initialize( streetLength, laneCount, trafficDensity );
 	

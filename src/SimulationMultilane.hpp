@@ -6,13 +6,13 @@
 #include <iostream>
 #include "Road.hpp"
 #include "Vehicle.hpp"
-#include "VisualizationMehrspurig.hpp"
+#include "VisualizationMultilane.hpp"
 
 using namespace std;
 
-class SimulationMehrspurig {
+class SimulationMultilane {
 	public:
-		SimulationMehrspurig(double minDallyFactor, double maxDallyFactor, double lambdaRiskFactorL2R, double lambdaRiskFactorR2L, double maxSpeedMean, double maxSpeedStd)
+		SimulationMultilane(double minDallyFactor, double maxDallyFactor, double lambdaRiskFactorL2R, double lambdaRiskFactorR2L, double maxSpeedMean, double maxSpeedStd)
 		: road(0,0),
 		  randomEngine(chrono::system_clock::now().time_since_epoch().count()),
 		  dallyFactorDistribution(minDallyFactor, maxDallyFactor),
@@ -39,7 +39,7 @@ class SimulationMehrspurig {
 		}
 
 		void simulate(long runs) {
-			visualization = new VisualizationMehrspurig(road.getStreetLength(), road.getLaneCount());
+			visualization = new VisualizationMultilane(road.getStreetLength(), road.getLaneCount());
 
 			visualization->appendRoad(road);
 			for (long i = 0; i < runs; ++i) {
@@ -299,7 +299,7 @@ class SimulationMehrspurig {
 
 	private:
 		Road road;
-		VisualizationMehrspurig *visualization;
+		VisualizationMultilane *visualization;
 		default_random_engine randomEngine;
 		uniform_real_distribution<double> dallyFactorDistribution;
 		exponential_distribution<double> riskFactorDistributionL2R;

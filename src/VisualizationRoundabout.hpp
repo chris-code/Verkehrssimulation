@@ -8,9 +8,9 @@ using namespace cimg_library;
 
 const long MAXSPEED = 7;
 
-class VisualizationKreisverkehr {
+class VisualizationRoundabout {
 	public:
-		VisualizationKreisverkehr( long dimX, long dimY ) :
+		VisualizationRoundabout( long dimX, long dimY ) :
 			seperationLine(dimX, 1, 1, 3, 100),
 			speedCounter(dimX, dimY, 1, 1, 0),
 			occupancyCounter(dimX, dimY, 1, 1, 0) {

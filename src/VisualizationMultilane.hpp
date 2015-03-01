@@ -8,9 +8,9 @@ using namespace cimg_library;
 
 const long MAXSPEED = 7;
 
-class VisualizationMehrspurig {
+class VisualizationMultilane {
 	public:
-		VisualizationMehrspurig(long streetLength, long laneCount) :
+		VisualizationMultilane(long streetLength, long laneCount) :
 			seperationLine(streetLength, 1, 1, 3, 100),
 			speedCounter(streetLength, laneCount, 1, 1, 0),
 			occupancyCounter(streetLength, laneCount, 1, 1, 0) {

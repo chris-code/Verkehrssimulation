@@ -1,6 +1,6 @@
 #include <getopt.h>
 #include "StreetMap.hpp"
-#include "SimulationKreisverkehr.hpp"
+#include "SimulationRoundabout.hpp"
 
 using namespace std;
 
@@ -90,13 +90,13 @@ int main( int argc, char **argv ) {
 	
 	if( true ) {
 		StreetMap streetMap( randomEngine, driveUpLength );
-		SimulationKreisverkehr simulation( randomEngine, dallyFactorDistribution,
+		SimulationRoundabout simulation( randomEngine, dallyFactorDistribution,
 		                                   riskFactorDistributionL2R, riskFactorDistributionR2L,
 		                                   maxSpeedDistribution );
 		simulation.simulate( streetMap, trafficDensity, iterations );
 	} else {
 		StreetMap streetMap( roundaboutWidth, roundaboutHeight, driveUpLength, randomEngine );
-		SimulationKreisverkehr simulation( randomEngine, dallyFactorDistribution,
+		SimulationRoundabout simulation( randomEngine, dallyFactorDistribution,
 		                                   riskFactorDistributionL2R, riskFactorDistributionR2L,
 		                                   maxSpeedDistribution );
 		simulation.simulate( streetMap, trafficDensity, iterations );
