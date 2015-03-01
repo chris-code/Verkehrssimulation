@@ -11,6 +11,7 @@ class StreetSegment {
 		StreetSegment() {
 			maxSpeed = 1;
 			currentDestinationID = 0;
+			vehicleSpawnProbability = 0.25;
 			mark = nullptr;
 			v = nullptr;
 		}
@@ -57,6 +58,7 @@ class StreetSegment {
 		}
 		
 		long maxSpeed;
+		double vehicleSpawnProbability;
 		vector<StreetSegment*> predecessors;
 		
 		Vehicle *mark;

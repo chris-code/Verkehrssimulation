@@ -10,10 +10,10 @@ using namespace std;
 class SimulationRoundabout {
 	public:
 		SimulationRoundabout( default_random_engine &randomEngine,
-		                        uniform_real_distribution<double> &dallyFactorDistribution,
-		                        exponential_distribution<double> &riskFactorDistributionL2R,
-								exponential_distribution<double> &riskFactorDistributionR2L,
-		                        normal_distribution<double> &maxSpeedDistribution ) :
+		                      uniform_real_distribution<double> &dallyFactorDistribution,
+		                      exponential_distribution<double> &riskFactorDistributionL2R,
+		                      exponential_distribution<double> &riskFactorDistributionR2L,
+		                      normal_distribution<double> &maxSpeedDistribution ) :
 			randomEngine( randomEngine ),
 			dallyFactorDistribution( dallyFactorDistribution ),
 			riskFactorDistributionL2R( riskFactorDistributionL2R ),
@@ -21,83 +21,82 @@ class SimulationRoundabout {
 			maxSpeedDistribution( maxSpeedDistribution ) {
 			streetMap = nullptr;
 		}
-
+		
 		void simulate( StreetMap &streetMap, double trafficDensity, long iterations ) {
 			this->streetMap = &streetMap;
 			this->trafficDensity = trafficDensity;
-
+			
 			populateMap();
-
+			
 			VisualizationRoundabout vis( streetMap.getContents().size(),
-			                               streetMap.getContents()[0].size() );
+			                             streetMap.getContents()[0].size() );
 			vis.appendRoundabout( streetMap );
-
+			
 			for( long i = 0; i < iterations; ++i ) {
 				this->streetMap->visualize();
 				simulateStep();
 				vis.appendRoundabout( streetMap );
 			}
-
+			
 			vis.save();
-
+			
 			this->streetMap = nullptr;
 			this->trafficDensity = 0;
 		}
-
+		
 	private:
 		default_random_engine &randomEngine;
 		uniform_real_distribution<double> dallyFactorDistribution;
 		exponential_distribution<double> riskFactorDistributionL2R;
 		exponential_distribution<double> riskFactorDistributionR2L;
 		normal_distribution<double> maxSpeedDistribution;
-
+		
 		StreetMap *streetMap;
 		double trafficDensity;
-
+		
 		void simulateStep() {
 			streetMap->drawDestinationsRandomly();
 			streetMap->clearMarks();
-
+			
 			addCars();
 			accelerate();
 			checkDistances();
 			dally();
 			move();
 		}
-
+		
 		void populateMap() {
 			vector< vector<StreetSegment> > &contents = streetMap->getContents();
 			bernoulli_distribution carPlacementDistribution( trafficDensity );
-
+			
 			for( long x = 0; x < long( contents.size() ); ++x ) {
 				for( long y = 0; y < long( contents[x].size() ); ++y ) {
 					if( ! contents[x][y].isDummy() ) {
 						if( carPlacementDistribution( randomEngine ) ) {
 							contents[x][y].v = new Vehicle( randomEngine, dallyFactorDistribution,
 							                                riskFactorDistributionL2R,
-															riskFactorDistributionR2L,
+							                                riskFactorDistributionR2L,
 							                                maxSpeedDistribution );
 						}
 					}
 				}
 			}
 		}
-
+		
 		void addCars() {
 			set<StreetSegment*> &sources = streetMap->getSources();
-			double carAddProbability = trafficDensity / sources.size();
 			uniform_real_distribution<double> uniform01Distribution( 0.0, 1.0 );
-
+			
 			for( auto s = sources.begin(); s != sources.end(); ++s ) {
 				if( ( *s )->v == nullptr &&
-				        uniform01Distribution( randomEngine ) < carAddProbability ) {
+				        uniform01Distribution( randomEngine ) < ( *s )->vehicleSpawnProbability ) {
 					( *s )->v = new Vehicle( randomEngine, dallyFactorDistribution,
 					                         riskFactorDistributionL2R, riskFactorDistributionR2L,
-											 maxSpeedDistribution );
+					                         maxSpeedDistribution );
 				}
 			}
 		}
-
+		
 		void accelerate() {
 			vector< vector<StreetSegment> > &contents = streetMap->getContents();
 			for( long x = 0; x < long( contents.size() ); ++x ) {
@@ -108,11 +107,11 @@ class SimulationRoundabout {
 				}
 			}
 		}
-
+		
 		void checkDistances() {
 			vector< vector<StreetSegment> > &contents = streetMap->getContents();
 			deque<StreetSegment*> carSegments; // Segments that contain a vehiclex
-
+			
 //			Get segments that contain cars, and mark inhabited segments
 			for( long x = 0; x < long( contents.size() ); ++x ) {
 				for( long y = 0; y < long( contents[x].size() ); ++y ) {
@@ -122,17 +121,17 @@ class SimulationRoundabout {
 					}
 				}
 			}
-
+			
 //			Place markings along each Vehicle's path. Overwrite other paths according to right of way
 			for( auto startSegment = carSegments.begin(); startSegment < carSegments.end();
 			        ++startSegment ) {
 				if( ( *startSegment )->isSink() ) {
 					continue;
 				}
-
+				
 				StreetSegment *previousSegment = nullptr;
 				StreetSegment *nextSegment = *startSegment;
-
+				
 				for( long remainingSteps = ( *startSegment )->v->currentSpeed; remainingSteps > 0;
 				        --remainingSteps ) {
 					previousSegment = nextSegment;
@@ -149,11 +148,11 @@ class SimulationRoundabout {
 					if( nextSegment->isSink() ) {
 						break;
 					}
-
+					
 					remainingSteps = min( remainingSteps, nextSegment->maxSpeed );
 				}
 			}
-
+			
 //			Determine max speed according to markings
 			for( auto startSegment = carSegments.begin(); startSegment < carSegments.end();
 			        ++startSegment ) {
@@ -168,16 +167,16 @@ class SimulationRoundabout {
 						}
 						nextSegment = nextSegment->getCurrentDestination();
 					}
-
+					
 					( *startSegment )->v->currentSpeed = stepsTaken;
 				}
 			}
 		}
-
+		
 		void dally() {
 			vector< vector<StreetSegment> > &contents = streetMap->getContents();
 			uniform_real_distribution<double> uniform01distribution( 0.0, 1.0 );
-
+			
 			for( long x = 0; x < long( contents.size() ); ++x ) {
 				for( long y = 0; y < long( contents[x].size() ); ++y ) {
 					Vehicle *v = contents[x][y].v;
@@ -191,11 +190,11 @@ class SimulationRoundabout {
 				}
 			}
 		}
-
+		
 		void move() {
 			vector< vector<StreetSegment> > &contents = streetMap->getContents();
 			set<Vehicle*> processedVehicles;
-
+			
 			for( long x = 0; x < long( contents.size() ); ++x ) {
 				for( long y = 0; y < long( contents[x].size() ); ++y ) {
 					Vehicle *v = contents[x][y].v;
@@ -212,17 +211,17 @@ class SimulationRoundabout {
 								break;
 							}
 							nextSegment = nextSegment->getCurrentDestination();
-
+							
 							if( nextSegment->v != nullptr || nextSegment->mark != v ) {
 								throw MessageException( "MOVE: invalid move, segment not empty \
 								or not marked by moving car." );
 							}
 							nextSegment->v = v;
 							previousSegment->v = nullptr;
-
+							
 							v->currentSpeed = min( v->currentSpeed, nextSegment->maxSpeed );
 						}
-
+						
 						processedVehicles.insert( v );
 					}
 				}
