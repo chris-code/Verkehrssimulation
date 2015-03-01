@@ -24,34 +24,36 @@ class SimulationMultilane {
 		  uniform01distribution(0., 1.) {
 		}
 
-		void initialize(long streetLength, long laneCount, double carDensity, bool wrapAround) {
+		void initialize(long streetLength, long laneCount, double carDensity, bool wrapAround, bool fillRoad) {
 			this->trafficDensity = carDensity;
 			this->wrapAround = wrapAround;
 			road.resize(streetLength, laneCount);
 
-			uniform_real_distribution<double> carDistribution(0,1);
+			if(fillRoad) {
+				bool equallySpaced = true;
+				
+				if (equallySpaced) {
+					long step = 1.0 / carDensity;
+					long laneOffset = max(1L, step / road.getLaneCount());
 
-			bool equallySpaced = true;
-
-			if (equallySpaced) {
-				long step = 1 / carDensity;
-				long laneOffset = max(1L, step / road.getLaneCount());
-
-				for (auto l = 0; l < road.getLaneCount(); ++l) {
-					for (auto s = l * laneOffset; s < road.getStreetLength(); s += step) {
-						Vehicle* v = new Vehicle(randomEngine, dallyFactorDistribution, riskFactorDistributionL2R, riskFactorDistributionR2L, maxSpeedDistribution);
-						long speed = min(v->maxSpeed, step);
-						v->currentSpeed = speed;
-						road.insertVehicle(s, l, v);
+					for (auto l = 0; l < road.getLaneCount(); ++l) {
+						for (auto s = l * laneOffset; s < road.getStreetLength(); s += step) {
+							Vehicle* v = new Vehicle(randomEngine, dallyFactorDistribution, riskFactorDistributionL2R, riskFactorDistributionR2L, maxSpeedDistribution);
+							long speed = min(v->maxSpeed, step);
+							v->currentSpeed = speed;
+							road.insertVehicle(s, l, v);
+						}
 					}
 				}
-			}
-			else {
-				for (auto s = 0; s < streetLength; ++s) {
-					for (auto l = 0; l < laneCount; ++l) {
-						if (carDistribution(randomEngine) < carDensity) {
-							Vehicle* v = new Vehicle(randomEngine, dallyFactorDistribution, riskFactorDistributionL2R, riskFactorDistributionR2L, maxSpeedDistribution);
-							road.insertVehicle(s, l, v);
+				else {
+					uniform_real_distribution<double> carDistribution(0,1);
+					
+					for (auto s = 0; s < streetLength; ++s) {
+						for (auto l = 0; l < laneCount; ++l) {
+							if (carDistribution(randomEngine) < carDensity) {
+								Vehicle* v = new Vehicle(randomEngine, dallyFactorDistribution, riskFactorDistributionL2R, riskFactorDistributionR2L, maxSpeedDistribution);
+								road.insertVehicle(s, l, v);
+							}
 						}
 					}
 				}
