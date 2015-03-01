@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <cmath>
+#include <fstream>
 
 using namespace cimg_library;
 
@@ -17,7 +18,6 @@ class VisualizationRoundabout {
 			occupancyCounter(dimX, dimY, 1, 1, 0) {
 			firstAppend = true;
 			lastUsedStreetMap = nullptr;
-			iterations = 0;
 		}
 
 		void appendRoundabout(StreetMap &sm) {
@@ -37,8 +37,7 @@ class VisualizationRoundabout {
 
 			updateSpeedHeatMap(sm);
 			updateOccupancyHeatMap(sm);
-
-			iterations++;
+			densities.push_back(sm.computeDensity());
 		}
 
 		void show() {
@@ -52,6 +51,7 @@ class VisualizationRoundabout {
 			roundaboutImg.save_png("roundabout_image.png", 3);
 			saveSpeedHeatMap();
 			saveOccupancyHeatMap();
+			saveDensities();
 		}
 
 	private:
@@ -286,6 +286,51 @@ class VisualizationRoundabout {
 			occupancyHeatMapColored.save_png("roundabout_occupancy_heat_map.png", 3);
 		}
 
+		void saveDensities() {
+			ofstream densitiesFile("street_map_densities.txt");
+
+			double min = 1.;
+			double max = 0.;
+
+			for (long i = 0; i < long(densities.size()); ++i) {
+				densitiesFile << densities[i];
+
+				// save maximum
+				if (densities[i] > max) {
+					max = densities[i];
+				}
+
+				// save minimum
+				if (densities[i] < min) {
+					min = densities[i];
+				}
+
+				// new line
+				if (i != (long(densities.size()) - 1)) {
+					densitiesFile << "\n";
+				}
+			}
+
+			densitiesFile.close();
+
+			double deltaMinMax = max - min;
+
+			double yRangeMin = std::max(0., (min - deltaMinMax));
+			double yRangeMax = max + deltaMinMax;
+
+			ofstream plotDensitiesFile("street_map_plot_densities.txt");
+			plotDensitiesFile << "set term png size 1024,768\n";
+			plotDensitiesFile << "set output \"street_map_densities.png\"\n";
+			plotDensitiesFile << "set title \"Traffic Density Street Map\" \n";
+			plotDensitiesFile << "set xlabel \"Time (in s)\" \n";
+			plotDensitiesFile << "set ylabel \"Traffic Density\" \n";
+			plotDensitiesFile << "set yrange [" << yRangeMin << ":" << yRangeMax << "] \n";
+			plotDensitiesFile << "plot \"street_map_densities.txt\" with lines\n";
+			plotDensitiesFile.close();
+
+//			system("gnuplot street_map_plot_densities.txt");
+		}
+
 		CImg<unsigned char> roundaboutImg;
 		CImg<unsigned char> seperationLine;
 		CImg<long> speedCounter;
@@ -293,5 +338,5 @@ class VisualizationRoundabout {
 		StreetMap *lastUsedStreetMap;
 		std::map<StreetSegment*, std::pair<long, long>> segmentToPositionMap;
 		bool firstAppend;
-		long iterations;
+		std::vector<double> densities;
 };

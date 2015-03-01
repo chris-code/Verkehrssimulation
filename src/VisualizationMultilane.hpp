@@ -2,6 +2,7 @@
 
 #include "CImg.h"
 #include <cmath>
+#include <fstream>
 #include <iostream> // FIXME remove this
 
 using namespace cimg_library;
@@ -15,7 +16,6 @@ class VisualizationMultilane {
 			speedCounter(streetLength, laneCount, 1, 1, 0),
 			occupancyCounter(streetLength, laneCount, 1, 1, 0) {
 			firstAppend = true;
-			iterations = 0;
 		}
 
 		void appendRoad(Road &r) {
@@ -31,8 +31,7 @@ class VisualizationMultilane {
 
 			updateSpeedHeatMap(r);
 			updateOccupancyHeatMap(r);
-
-			iterations++;
+			densities.push_back(r.computeDensity());
 		}
 
 		void show() {
@@ -46,6 +45,7 @@ class VisualizationMultilane {
 			roadImg.save_png("multilane_image.png", 3);
 			saveSpeedHeatMap();
 			saveOccupancyHeatMap();
+			saveDensities();
 		}
 
 	private:
@@ -172,10 +172,55 @@ class VisualizationMultilane {
 			occupancyHeatMapColored.save_png("multilane_occupancy_heat_map.png", 3);
 		}
 
+		void saveDensities() {
+			ofstream densitiesFile("multilane_densities.txt");
+
+			double min = 1.;
+			double max = 0.;
+
+			for (long i = 0; i < long(densities.size()); ++i) {
+				densitiesFile << densities[i];
+
+				// save maximum
+				if (densities[i] > max) {
+					max = densities[i];
+				}
+
+				// save minimum
+				if (densities[i] < min) {
+					min = densities[i];
+				}
+
+				// new line
+				if (i != (long(densities.size()) - 1)) {
+					densitiesFile << "\n";
+				}
+			}
+
+			densitiesFile.close();
+
+			double deltaMinMax = max - min;
+
+			double yRangeMin = std::max(0., (min - deltaMinMax));
+			double yRangeMax = max + deltaMinMax;
+
+			ofstream plotDensitiesFile("multilane_plot_densities.txt");
+			plotDensitiesFile << "set term png size 1024,768\n";
+			plotDensitiesFile << "set output \"multilane_densities.png\"\n";
+			plotDensitiesFile << "set title \"Traffic Density Multilane\" \n";
+			plotDensitiesFile << "set xlabel \"Time (in s)\" \n";
+			plotDensitiesFile << "set ylabel \"Traffic Density\" \n";
+			plotDensitiesFile << "set yrange [" << yRangeMin << ":" << yRangeMax << "] \n";
+			plotDensitiesFile << "plot \"multilane_densities.txt\" with lines\n";
+			plotDensitiesFile.close();
+
+//			system("gnuplot multilane_plot_densities.txt");
+		}
+
 		CImg<unsigned char> roadImg;
 		CImg<unsigned char> seperationLine;
 		CImg<long> speedCounter;
 		CImg<long> occupancyCounter;
 		bool firstAppend;
-		long iterations;
+		std::vector<double> densities;
 };
