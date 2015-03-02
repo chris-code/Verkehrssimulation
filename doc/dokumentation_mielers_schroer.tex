@@ -76,6 +76,7 @@
 \newcommand\myref[1]{\ref{#1} (S. \pageref{#1})}
 \newcommand\myrefcomma[1]{\ref{#1}, S. \pageref{#1}}
 
+\newcommand\nsm{Nagel-Schreckenberg-Modell }
 
 \begin{document}
 
@@ -124,11 +125,27 @@
 \section{Annahmen}
 \label{sec:ansatz}
 
+Im Groben basiert unser Modell auf den Annahmen, die Kai Nagel und Michael Schreckenberg \cite{nagel-schreckenberg} für ihr Verkehrsmodell getroffen haben. Um das Modell jedoch an die Verhältnisse auf deutschen Straßen anzupassen, wurden einige Änderungen vorgenommen.
+Im Folgenden werden die unserem Modell zugrunde liegenden Annahmen aufgeführt:
+
+\begin{itemize}
+\item Es gilt weiterhin, dass eine Zelle 7,5 Meter lang ist und jede Zelle nur ein einziges Fahrzeug zur gleichen Zeit aufnehmen kann.
+\item Im klassichen \nsm gibt es die Geschwindigkeitsstufen 0 bis 5. Diese entsprechen Geschwindigkeiten von 0 km/h bis 135 km/h in 27 km/h Abschnitten. Da uns 135 km/h als Höchstgeschwindigkeit auf einer deutschen Autobahn als zu wenig erschienen, haben wir die Höchstgeschwindigkeit auf 7 erhöht, so dass Fahrzeuge nun eine Maximalgeschwindigkeit von 189 km/h erreichen können.
+\item Während im \nsm alle Fahrzeuge üblicherweise die gleiche Maximalgeschwindigkeit erreichen können, werden in unserem Modell die Maximalgeschwindigkeiten der Fahrzeuge aus einer Normalverteilung gezogen, deren Mittelwert und Standardabweichung vom Nutzer des Programms frei gewählt werden können. Falls vom Nutzer keine Varianz bei den Maximalgeschwindigkeiten gewünscht ist, kann er die Standardabweichung sehr klein wählen, so dass es sehr unwahrscheinlich wird, eine Maximalgeschwindigkeit ungleich dem Mittelwert zu erhalten. Es ist zu beachten, dass es nicht möglich ist, Fahrzeugen Maximalgeschwindigkeiten zuzuweisen, die 3 unter- oder 7 überschreiten. Dies ist dadurch begründet, dass in Deutschland nur solche Fahrzeuge eine Autobahn befahren dürfen, welche eine Höchstgeschwindigkeit von mindestens 60 km/h erreichen können. Ein Fahrzeug mit der Geschwingkeitsstufe 2 als Höchstgeschwindigkeit (= 54 km/h) würde diesen Grenzwert um 6 km/h unterschreiten.
+\item Um unterschiedliche Fahrertypen abbilden zu können, wird der Trödelfaktor eines jeden Fahrzeugs ebenfalls randomisiert bestimmt. Zu diesem Zweck wird jedoch keine Normalverteilung verwendet, sondern eine Gleichverteilung, deren Minimalwert und Maximalwert ebenfalls frei vom Nutzer festgelegt werden kann. Ist auch hier keine Varianz erwünscht, kann der Minimalwert gleich dem Maximalwert gewählt werden. Als Grenzen für den Trödelfaktor gelten nur die natürlichen Schranken 0 und 1. Zu hohe Trödelfaktoren sollten jedoch nicht verwendet werden, da das System sonst schnell zum Stillstand kommt.
+\end{itemize}
+
 \newpage
 
 \section{Umsetzung}
 \label{sec:umsetzung}
 \subsection{Autobahn}
+
+Wir haben unser Modell für die Simulation von Autobahnen strukturell für beliebig viele Spuren ausgelegt. Die in der Aufgabenstellung unterschiedenen Simulationsexperimente einer einspurigen bzw. einer zweispurigen Autobahn können also mit der gleichen Simulationssoftware durchgeführt werden. Somit wird im Folgenden die Umsetzung dieses Modells nur im Allgemeinen beschrieben, nicht jedoch für die genannten Spezialfälle.
+
+Als Repräsentation für die Autobahn dient eine $l \times s$ Matrix, wobei $l$ die Anzahl Spuren und $s$ die Anzahl der Straßensegmente angibt. Für die Simulation einer 2,25km langen Autobahn mit drei Spuren wird also eine $3 \times 300$ Matrix erzeugt. Im Wesentlichen dient diese Matrix dazu, Fahrzeuge und ihre Position auf der Autobahn zu speichern.
+
+
 \subsection{Kreisverkehr (und beliebige Straßenverläufe)}
 
 Ein dritter Teil der Aufgabenstellung bestand darin, den Verkehrsfluss eines Kreisverkehrs zu simulieren. Dies ist ein ungleich schwierigeres Problem, da es hier an einigen Stellen Verzweigungen und Zusammenführungen geben kann, bei denen Kollisionsfreiheit gewährleistet werden muss. Zwar kann man den Spurwechsel auf der mehrspurigen Straße auch als Verzweigung/Zusammenführung betrachten, allerdings weist dieser Gleichmäßigkeit über alle Zellen hinweg auf, d.h. die Regeln können einmalig, relativ zur Zellposition und den Geschwindigkeiten der Fahrzeuge festgelegt werden. Im Kreisverkehr hingegen verhalten sich einige Zellen deutlich anders als andere, beispielsweise hinsichtlich zulässiger Geschwindigkeit oder Anzahl der Richtungen, in die man sich bewegen kann. In diesem Zusammenhang müssen auch Vorfahrtsregeln beachtet werden. Darüber hinaus haben Ereignisse in einer Zelle (z.B. die Entscheidung, eine Ausfahrt zu nehmen) Auswirkungen auf die Handlungsmöglichkeiten der Autos in den umliegenden Zellen. Diese Anforderungen machen einen erheblich dynamischeres Vorgehen bei der Berechnung der Bewegungen der Fahrzeuge erforderlich. Eine Lösung muss also folgende Anforderungen erfüllen:
