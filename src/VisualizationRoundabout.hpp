@@ -128,7 +128,7 @@ class VisualizationRoundabout {
 					StreetSegment *s = &streetSegments[x][y];
 					if (!s->isDummy()) {
 						if (s->v != nullptr) {
-//							speedCounter(x,y,0,0) = speedCounter(x,y,0,0) + s->v->currentSpeed;
+							speedCounter(x,y,0,0) = speedCounter(x,y,0,0) + s->v->currentSpeed;
 
 							StreetSegment *currentSegment = s;
 
@@ -148,8 +148,8 @@ class VisualizationRoundabout {
 
 								// there exists a valid predecessor
 								if (previousSegment != nullptr && previousSegment->mark == s->v) {
-									long xCur = segmentToPositionMap[currentSegment].first;
-									long yCur = segmentToPositionMap[currentSegment].second;
+									long xPrev = segmentToPositionMap[previousSegment].first;
+									long yPrev = segmentToPositionMap[previousSegment].second;
 
 									long deltaSpeed = s->v->currentSpeed;
 
@@ -157,7 +157,7 @@ class VisualizationRoundabout {
 										deltaSpeed = distance;
 									}
 
-									speedCounter(xCur,yCur,0,0) = speedCounter(xCur,yCur,0,0) + deltaSpeed;
+									speedCounter(xPrev,yPrev,0,0) = speedCounter(xPrev,yPrev,0,0) + deltaSpeed;
 
 									currentSegment = previousSegment;
 								}
@@ -183,7 +183,7 @@ class VisualizationRoundabout {
 					StreetSegment *s = &streetSegments[x][y];
 					if (!s->isDummy()) {
 						if (s->v != nullptr) {
-//							occupancyCounter(x,y,0,0) = occupancyCounter(x,y,0,0) + 1; // single code line for counting without backtracing
+							occupancyCounter(x,y,0,0) = occupancyCounter(x,y,0,0) + 1;
 
 							StreetSegment *currentSegment = s;
 							// go back all predecessors that are marked by the vehicle "s->v"
@@ -199,10 +199,10 @@ class VisualizationRoundabout {
 
 								// there exists a valid predecessor
 								if (previousSegment != nullptr && previousSegment->mark == s->v) {
-									long xCur = segmentToPositionMap[currentSegment].first;
-									long yCur = segmentToPositionMap[currentSegment].second;
+									long xPrev = segmentToPositionMap[previousSegment].first;
+									long yPrev = segmentToPositionMap[previousSegment].second;
 
-									occupancyCounter(xCur,yCur,0,0) = occupancyCounter(xCur,yCur,0,0) + 1;
+									occupancyCounter(xPrev,yPrev,0,0) = occupancyCounter(xPrev,yPrev,0,0) + 1;
 
 									currentSegment = previousSegment;
 								}
