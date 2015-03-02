@@ -42,7 +42,7 @@ class VisualizationMultilane {
 		}
 
 		void save() {
-			roadImg.save_png("multilane_image.png", 3);
+			roadImg.save_png("output/multilane_image.png", 3);
 			saveSpeedHeatMap();
 			saveOccupancyHeatMap();
 			saveDensities();
@@ -143,7 +143,7 @@ class VisualizationMultilane {
 				}
 			}
 
-			speedHeatMapColored.save_png("multilane_speed_heat_map.png", 3);
+			speedHeatMapColored.save_png("output/multilane_speed_heat_map.png", 3);
 		}
 
 		void saveOccupancyHeatMap() {
@@ -169,11 +169,11 @@ class VisualizationMultilane {
 				}
 			}
 
-			occupancyHeatMapColored.save_png("multilane_occupancy_heat_map.png", 3);
+			occupancyHeatMapColored.save_png("output/multilane_occupancy_heat_map.png", 3);
 		}
 
 		void saveDensities() {
-			ofstream densitiesFile("multilane_densities.txt");
+			ofstream densitiesFile("output/multilane_densities.txt");
 
 			double min = 1.;
 			double max = 0.;
@@ -205,14 +205,14 @@ class VisualizationMultilane {
 			double yRangeMin = std::max(0., (min - deltaMinMax));
 			double yRangeMax = max + deltaMinMax;
 
-			ofstream plotDensitiesFile("multilane_plot_densities.txt");
+			ofstream plotDensitiesFile("bin/multilane_plot_densities.txt");
 			plotDensitiesFile << "set term png size 1024,768\n";
-			plotDensitiesFile << "set output \"multilane_densities.png\"\n";
+			plotDensitiesFile << "set output \"output/multilane_densities.png\"\n";
 			plotDensitiesFile << "set title \"Traffic Density Multilane\" \n";
 			plotDensitiesFile << "set xlabel \"Time (in s)\" \n";
 			plotDensitiesFile << "set ylabel \"Traffic Density\" \n";
 			plotDensitiesFile << "set yrange [" << yRangeMin << ":" << yRangeMax << "] \n";
-			plotDensitiesFile << "plot \"multilane_densities.txt\" with lines\n";
+			plotDensitiesFile << "plot \"output/multilane_densities.txt\" with lines\n";
 			plotDensitiesFile.close();
 
 //			system("gnuplot multilane_plot_densities.txt");

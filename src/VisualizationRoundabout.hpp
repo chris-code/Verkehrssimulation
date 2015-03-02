@@ -48,7 +48,7 @@ class VisualizationRoundabout {
 		}
 
 		void save() {
-			roundaboutImg.save_png("roundabout_image.png", 3);
+			roundaboutImg.save_png("output/roundabout_image.png", 3);
 			saveSpeedHeatMap();
 			saveOccupancyHeatMap();
 			saveDensities();
@@ -258,7 +258,7 @@ class VisualizationRoundabout {
 				}
 			}
 
-			speedHeatMapColored.save_png("roundabout_speed_heat_map.png", 3);
+			speedHeatMapColored.save_png("output/roundabout_speed_heat_map.png", 3);
 		}
 
 		void saveOccupancyHeatMap() {
@@ -293,11 +293,11 @@ class VisualizationRoundabout {
 				}
 			}
 
-			occupancyHeatMapColored.save_png("roundabout_occupancy_heat_map.png", 3);
+			occupancyHeatMapColored.save_png("output/roundabout_occupancy_heat_map.png", 3);
 		}
 
 		void saveDensities() {
-			ofstream densitiesFile("street_map_densities.txt");
+			ofstream densitiesFile("output/street_map_densities.txt");
 
 			double min = 1.;
 			double max = 0.;
@@ -329,14 +329,14 @@ class VisualizationRoundabout {
 			double yRangeMin = std::max(0., (min - deltaMinMax));
 			double yRangeMax = max + deltaMinMax;
 
-			ofstream plotDensitiesFile("street_map_plot_densities.txt");
+			ofstream plotDensitiesFile("bin/street_map_plot_densities.txt");
 			plotDensitiesFile << "set term png size 1024,768\n";
-			plotDensitiesFile << "set output \"street_map_densities.png\"\n";
+			plotDensitiesFile << "set output \"output/street_map_densities.png\"\n";
 			plotDensitiesFile << "set title \"Traffic Density Street Map\" \n";
 			plotDensitiesFile << "set xlabel \"Time (in s)\" \n";
 			plotDensitiesFile << "set ylabel \"Traffic Density\" \n";
 			plotDensitiesFile << "set yrange [" << yRangeMin << ":" << yRangeMax << "] \n";
-			plotDensitiesFile << "plot \"street_map_densities.txt\" with lines\n";
+			plotDensitiesFile << "plot \"output/street_map_densities.txt\" with lines\n";
 			plotDensitiesFile.close();
 
 //			system("gnuplot street_map_plot_densities.txt");
