@@ -21,12 +21,14 @@ int main( int argc, char **argv ) {
 	
 	bool wrapAround = false;
 	bool fillRoad = false;
+	bool equallySpaced = false;
 	
 	struct option options[] = {
 		{"iterations", required_argument, nullptr, 'i'},
 		
 		{"wrap-around", no_argument, nullptr, 'w'},
 		{"pre-fill-road", no_argument, nullptr, 'p'},
+		{"equally-spaced", no_argument, nullptr, 'e'},
 		{"street-length", required_argument, nullptr, 'x'},
 		{"lanes", required_argument, nullptr, 'y'},
 		{"traffic-density", required_argument, nullptr, 't'},
@@ -42,7 +44,7 @@ int main( int argc, char **argv ) {
 	};
 	
 	char option;
-	while( ( option = getopt_long( argc, argv, "i:wpx:y:t:d:D:r:R:s:S:", options, nullptr ) )
+	while( ( option = getopt_long( argc, argv, "i:wpex:y:t:d:D:r:R:s:S:", options, nullptr ) )
 	        != -1 ) {
 		switch( option ) {
 			case 'i':
@@ -51,6 +53,9 @@ int main( int argc, char **argv ) {
 				
 			case 'p':
 				fillRoad = true;
+				break;
+			case 'e':
+				equallySpaced = true;
 				break;
 			case 'w':
 				wrapAround = true;
@@ -102,7 +107,7 @@ int main( int argc, char **argv ) {
 	SimulationMultilane simulation( minDallyFactor, maxDallyFactor,
 	                                lambdaRiskFactorL2R, lambdaRiskFactorR2L, maxSpeedMean,
 	                                maxSpeedStd );
-	simulation.initialize( streetLength, laneCount, trafficDensity, wrapAround, fillRoad );
+	simulation.initialize( streetLength, laneCount, trafficDensity, wrapAround, fillRoad, equallySpaced );
 	
 	simulation.simulate( iterations );
 	

@@ -24,14 +24,12 @@ class SimulationMultilane {
 		  uniform01distribution(0., 1.) {
 		}
 
-		void initialize(long streetLength, long laneCount, double carDensity, bool wrapAround, bool fillRoad) {
+		void initialize(long streetLength, long laneCount, double carDensity, bool wrapAround, bool fillRoad, bool equallySpaced ) {
 			this->trafficDensity = carDensity;
 			this->wrapAround = wrapAround;
 			road.resize(streetLength, laneCount);
 
 			if(fillRoad) {
-				bool equallySpaced = true;
-				
 				if (equallySpaced) {
 					long step = 1.0 / carDensity;
 					long laneOffset = max(1L, step / road.getLaneCount());
