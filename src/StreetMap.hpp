@@ -7,6 +7,7 @@
 #include <iostream> //TODO remove this
 #include "MessageException.hpp"
 #include "StreetSegment.hpp"
+#include "Vehicle.hpp"
 
 using namespace std;
 
@@ -30,10 +31,11 @@ class StreetMap {
 			}
 		}
 		
-		void clearMarks() {
+		void clearMarks( Vehicle *v = nullptr ) {
 			for( long x = 0; x < dimX; ++x ) {
 				for( long y = 0; y < dimY; ++y ) {
-					contents[x][y].mark = nullptr;
+					if( v == nullptr || v == contents[x][y].mark )
+						contents[x][y].mark = nullptr;
 				}
 			}
 		}
@@ -321,10 +323,10 @@ class StreetMap {
 		void visualize() {
 			for( long y = 0; y < dimY; ++y ) {
 				for( long x = 0; x < dimX; ++x ) {
-					if( ! contents[x][y].isDummy() ) {
-						cout << contents[x][y].maxSpeed;
-						continue;
-					}
+//					if( ! contents[x][y].isDummy() ) {
+//						cout << contents[x][y].maxSpeed;
+//						continue;
+//					}
 					if( contents[x][y].v != nullptr ) {
 						cout << contents[x][y].v->currentSpeed;
 					} else if( contents[x][y].isSource() ) {

@@ -162,22 +162,39 @@ Strukturell behalten wir das Layout eines Grids bei, in dem die Zellen der Simul
 
 Zunächst betrachten wir die Anforderung der Kollisionsfreiheit. Es soll, analog zum Nagel-Schreckenberg Modell \cite{nagel-schreckenberg} erreicht werden, dass in keinem Simulationsschritt eine Zelle von mehr als einem Auto befahren wird. Ein einfacher Weg dies zu erreichen besteht darin, alle Fahrzeuge sequenziell durchzugehen und für jedes die Zellen, die es abfahren möchte zu markieren. Hier geht man nur soweit, wie das Auto mit seiner aktuellen Geschwindigkeit fahren kann. Dabei wird das Markieren gestoppt, sobald eine Zelle erreicht wird, die bereits von einem anderen Auto markiert wurde. Nachdem alle Fahrzeuge ihren Weg markiert haben, wird für jedes die Anzahl der Markierungen gezählt und seine Geschwindigkeit auf diese Zahl gedeckelt.
 
-Bei diesem Ansatz ergibt sich allerdings das Problem, dass Vorfahrtsregeln missachtet werden. Wird zuerst ein Fahrzeug bewegt, dass dann von einer Nebenstraße aus in eine Hauptstraße einbiegt und dort Zellen markiert, blockiert es dort möglicherweise ein Vorfahrt habendes Fahrzeug. Es gibt keine Möglichkeit präemtiv zu bestimmen, welches Fahrzeug Vorfahrt haben wird. Das kann man unter Anderem daran sehen, dass die Vorfahrts-Relation nicht transitiv ist, weswegen keine Ordungsrelation auf den Fahrzeugen etabliert werden kann. Daher muss es eine Möglichkeit geben, Markierungen zu überschreiben. Der Ansatz wird also so erweitert, dass ein Fahrzeug nur dann mit dem Markieren aufhört, wenn es an einer Zusammenführung auf eine Markierung trifft, ohne an der Zusammenführung Vorfahrt gehabt zu haben. Hat es Vorfahrt, überschreibt es die Markierungen einfach. Die Vorfahrt wird über die Reihenfolge der Vorgängerverweise einer Zelle bestimmt, ist also eine lokale Eigenschaft. Externe Informationen sind nicht erforderlich. Da die Geschwindigkeit der Fahrzeuge erst berechnet wird nachdem alle Autos abgearbeitet wurden, lassen sich mit dieser Methode Vorfahrtsregeln berücksichtigen. Die Kollisionsfreiheit bleibt dabei erhalten.
+Bei diesem Ansatz ergibt sich allerdings das Problem, dass Vorfahrtsregeln missachtet werden. Wird zuerst ein Fahrzeug bewegt, dass dann von einer Nebenstraße aus in eine Hauptstraße eingibt und dort Zellen markiert, blockiert es dort möglicherweise ein Vorfahrt habendes Fahrzeug. Es gibt keine Möglichkeit präemtiv zu bestimmen, welches Fahrzeug Vorfahrt haben wird. Das kann man unter Anderem daran sehen, dass die Vorfahrts-Relation nicht transitiv ist (vgl. Abb. \ref{fig:rightOfWayNotTransitive}), weswegen keine Ordungsrelation auf den Fahrzeugen etabliert werden kann. Daher muss es eine Möglichkeit geben, Markierungen zu überschreiben. Der Ansatz wird also so erweitert, dass ein Fahrzeug nur dann mit dem Markieren aufhört, wenn es an einer Zusammenführung auf eine Markierung trifft, ohne an der Zusammenführung Vorfahrt gehabt zu haben. Hat es Vorfahrt, überschreibt es die Markierungen einfach. Die Vorfahrt wird über die Reihenfolge der Vorgängerverweise einer Zelle bestimmt, ist also eine lokale Eigenschaft. Externe Informationen sind nicht erforderlich. Da die Geschwindigkeit der Fahrzeuge erst berechnet wird nachdem alle Autos abgearbeitet wurden, lassen sich mit dieser Methode Vorfahrtsregeln berücksichtigen. Die Kollisionsfreiheit bleibt dabei erhalten.
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=6cm]{img/rightOfWay}
+	\caption{Vorfahrt ist nicht transitiv: d hat Vorfahrt vor c hat Vorfahrt vor b hat Vorfahrt vor a hat Vorfahrt vor d}
+	\label{fig:rightOfWayNotTransitive}
+\end{figure}
 
 Ein Problem beim Überschreiben ist jedoch, dass 'Stummel' vorheriger Markierungen übrig bleiben können. Daher müssen, wenn eine Markierung eines Fahrzeugs entfernt wird, alle Markierungen des Fahrzeugs entfernt werden. Später sind dann die Markierungen des Fahrzeuges neu zu bestimmen.
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=8cm]{img/stubs}
+	\caption{Möglichkeit von Stummeln: Links: A markiert zunächst 4 Felder. Dann rechts: B hat vorfahrt, markiert dabei 3 Felder und überschreibt Markierungen von A. Übberreste der Markierungen von A behindern nun C, der eigentlich fahren könnte}
+	\label{fig:rightOfWayNotTransitive}
+\end{figure}
 
 Zuletzt muss noch die Anforderung des Einhaltens von Geschwindigkeitsbegrenzungen erfüllt werden. Dazu wird jede Zelle mit einer Maximalgeschwindigkeit versehen. Betritt ein Fahrzeug eine Zelle, wird die maximale Anzahl an Zellen, die es darüber hinaus noch markieren kann auf die Maximalgeschwindigkeit der Zelle gedeckelt. Somit ist gewährleistet, dass kein Fahrzeug an keiner Zelle die zulässige Geschwindigkeit überschreitet.
 
-Diese Überlegungen führen zu folgendem Algorithmus:
-\lstinputlisting[numbers=right]{src/streetMapAlgorithm}
-wobei r die verbleibenden Schritte des Autos runterzählt. Damit haben wir einen Algorithmus kreiert, der beliebige Verkehrsnetze kollisionsfrei unter Berücksichtigung von Vorfahrtsregeln und Geschwindigkeitsbegrenzungen simulieren kann. Im Kontrast zur mehrspurigen Simulation oben kann dieses Verfahren zwar ebenfalls mit mehreren Spuren umgehen, das Rechtsfahrgebot und das Rechtsüberholverbot müssten aber separat implementiert werden.
+Diese Überlegungen führen zu folgendem Markierungsalgorithmus:
+\lstinputlisting[numbers=right]{src/streetMapMarkAlgorithm}
+wobei r die verbleibenden Schritte des Autos runterzählt. Ob ein Fahrzeug an einer Zusammenführung Vorfahrt hat, ergibt sich wie oben beschrieben aus der Reihenfolge der Vorgängerverweise. Um die Implementierung zu vereinfachen beschränken wir uns auf Zusammenführungen mit zwei Vorgängern.
+
+Nachdem die Markierungen entsprechend gesetzt wurden müssen im Anschluss daran aus ihnen die tatsächlichen Fahrdistanzen für die einzelnen Fahrzeuge berechnet werden. Dazu kann man in jedem Fahrzeug starten und seine Wunschstrecke solange ablaufen, wie man dabei nur vom Fahrzeug markierte Zellen betritt. Hierbei zählt man eine Variable hoch, die am Ende die Geschwindigkeit des Fahrzeuges angibt. Dies geschieht folgendermaßen:
+\lstinputlisting[numbers=right]{src/streetMapDistAlgorithm}
+
+Damit haben wir einen Algorithmus erreicht, der beliebige Verkehrsnetze kollisionsfrei unter Berücksichtigung von Vorfahrtsregeln und Geschwindigkeitsbegrenzungen simulieren kann. Im Kontrast zur mehrspurigen Simulation oben kann dieses Verfahren zwar ebenfalls mit mehreren Spuren umgehen, das Rechtsfahrgebot und das Rechtsüberholverbot müssten aber separat implementiert werden. Bis auf das modifizierte Verfahren zur Bestimmung der maximalen Fahrdistanz können die Regeln des Nagel-Schreckenberg Modells \cite{nagel-schreckenberg} übernommen werden. Es werden also zunächst alle Fahrzeuge beschleunigt, dann die Distanzen wie oben beschrieben geprüft, anschließend getrödelt und am Ende die Fahrzeuge bewegt.
 
 Eine schöne Eigenschaft dieser Herangehensweise ist, dass wir ohne zusätzlichen Aufwand Quellen und Senken von Fahrzeugen erzeugen können. Als Quelle wird schlicht jede Zelle definiert, die zwar Nachfolger, aber keine Vorgänger hat. Analog ist jede Zelle eine Senke, die Vorgänger, aber keine Nachfolger hat. Jeder Zelle kann darüber hinaus eine Autoerzeugungswahrscheinlichkeit zugeordnet werden, mit der in der Zelle pro Simulationsschritt ein neues Auto entsteht, sofern sie leer ist. Ein Auto, was eine Senke überfährt, wird hingegen entfernt.
 
 Nun bleibt noch die Frage zu klären, wie an einer Verzweigung die Entscheidung zu treffen ist, in welche Richtung ein Fahrzeug fahren soll (vgl. Zeile 7). Konzeptionell wäre es möglich, jedem neu hinzugefügten Fahrzeug ein Ziel zuzuweisen und einen (randomisierten) Pfadfindungsalgorithmus zu nutzen, um die Entscheidungen an Verzweigungen zu treffen. Da Fahrzeuge in der Regel ein festes Ziel haben, wäre dies der realistischste Ansatz. Zur Vereinfachung der Implementierung entscheiden wir uns allerdings dafür, die Entscheidung an jeder Verzweigung zufällig zu treffen, wobei für jede Nachfolgerzelle individuelle Wahrscheinlichkeiten festgelegt werden können. Da wir nur sehr einfache Straßennetze mit wenigen Verzweigungen (die insbesondere nicht verschachtelt sind) betrachten, erachten wir das als eine ausreichend gute Annäherung. Für komplexere Szenarien werden allerdings komplexere Entscheidungssysteme notwendig.
 
-%TODO: Nicht-transitivität der Vorfahrtsrelation illustrieren
-%TODO: Problem: wenn wir markierungen überschreiben, können 'Stummel' überbleiben, die andere Fahrzeuge blockieren.
+%TODO: 'Stummel' beim Überschreiben illustrieren
+%TODO: Problem: wenn wir markierungen überschreiben, können 'Stummel' überbleiben, die andere Fahrzeuge blockieren. Illustrieren
 
 \newpage
 

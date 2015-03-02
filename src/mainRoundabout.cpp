@@ -91,14 +91,14 @@ int main( int argc, char **argv ) {
 	if( true ) {
 		StreetMap streetMap( randomEngine, driveUpLength );
 		SimulationRoundabout simulation( randomEngine, dallyFactorDistribution,
-		                                   riskFactorDistributionL2R, riskFactorDistributionR2L,
-		                                   maxSpeedDistribution );
+		                                 riskFactorDistributionL2R, riskFactorDistributionR2L,
+		                                 maxSpeedDistribution );
 		simulation.simulate( streetMap, trafficDensity, iterations );
 	} else {
 		StreetMap streetMap( roundaboutWidth, roundaboutHeight, driveUpLength, randomEngine );
 		SimulationRoundabout simulation( randomEngine, dallyFactorDistribution,
-		                                   riskFactorDistributionL2R, riskFactorDistributionR2L,
-		                                   maxSpeedDistribution );
+		                                 riskFactorDistributionL2R, riskFactorDistributionR2L,
+		                                 maxSpeedDistribution );
 		simulation.simulate( streetMap, trafficDensity, iterations );
 	}
 	
