@@ -193,7 +193,6 @@ Eine schöne Eigenschaft dieser Herangehensweise ist, dass wir ohne zusätzliche
 
 Nun bleibt noch die Frage zu klären, wie an einer Verzweigung die Entscheidung zu treffen ist, in welche Richtung ein Fahrzeug fahren soll (vgl. Zeile 7). Konzeptionell wäre es möglich, jedem neu hinzugefügten Fahrzeug ein Ziel zuzuweisen und einen (randomisierten) Pfadfindungsalgorithmus zu nutzen, um die Entscheidungen an Verzweigungen zu treffen. Da Fahrzeuge in der Regel ein festes Ziel haben, wäre dies der realistischste Ansatz. Zur Vereinfachung der Implementierung entscheiden wir uns allerdings dafür, die Entscheidung an jeder Verzweigung zufällig zu treffen, wobei für jede Nachfolgerzelle individuelle Wahrscheinlichkeiten festgelegt werden können. Da wir nur sehr einfache Straßennetze mit wenigen Verzweigungen (die insbesondere nicht verschachtelt sind) betrachten, erachten wir das als eine ausreichend gute Annäherung. Für komplexere Szenarien werden allerdings komplexere Entscheidungssysteme notwendig.
 
-%TODO: 'Stummel' beim Überschreiben illustrieren
 %TODO: Problem: wenn wir markierungen überschreiben, können 'Stummel' überbleiben, die andere Fahrzeuge blockieren. Illustrieren
 
 \newpage

@@ -6,9 +6,8 @@ for all car in V:
 
 	while r != 0:
 		cell <- next cell car would move to
-		if cell not marked by car:
+		if cell not marked by this car:
 			r = 0
 		else:
 			r = r-1
 			new_r = new_r+1
-			move car to cell
