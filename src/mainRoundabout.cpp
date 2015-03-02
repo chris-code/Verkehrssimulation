@@ -9,7 +9,7 @@ int main( int argc, char **argv ) {
 	
 	long roundaboutWidth = 8;
 	long roundaboutHeight = 6;
-	long driveUpLength = 10;
+	long driveUpLength = 20;
 	double trafficDensity = 0.1;
 	
 	double minDallyFactor = 0.;
