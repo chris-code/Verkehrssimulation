@@ -109,68 +109,99 @@ class SimulationRoundabout {
 			}
 		}
 		
+		StreetSegment * findSegmentWithVehicle( Vehicle *v ) {
+			vector< vector<StreetSegment> > &contents = streetMap->getContents();
+			for( long x = 0; x < long( contents.size() ); ++x ) {
+				for( long y = 0; y < long( contents[x].size() ); ++y ) {
+					if( contents[x][y].v == v ) {
+						return &( contents[x][y] );
+					}
+				}
+			}
+			throw MessageException( "No segment with this car!" );
+		}
+		
 		void checkDistances() {
 			vector< vector<StreetSegment> > &contents = streetMap->getContents();
-			deque<StreetSegment*> carSegments; // Segments that contain a vehiclex
 			
-//			Get segments that contain cars, and mark inhabited segments
+//			Get segments that contain cars
+			deque<StreetSegment*> segmentsWithCars;
 			for( long x = 0; x < long( contents.size() ); ++x ) {
 				for( long y = 0; y < long( contents[x].size() ); ++y ) {
 					if( contents[x][y].v != nullptr ) {
-						contents[x][y].mark = contents[x][y].v;
-						carSegments.push_back( &( contents[x][y] ) );
+						segmentsWithCars.push_back( &( contents[x][y] ) );
 					}
 				}
 			}
 			
-//			Place markings along each Vehicle's path. Overwrite other paths according to right of way
-			for( auto startSegment = carSegments.begin(); startSegment < carSegments.end();
-			        ++startSegment ) {
-				if( ( *startSegment )->isSink() ) {
-					continue;
-				}
+//			Place markings along each Vehicle's path. Overwrite markigns according to right of way
+			while( ! segmentsWithCars.empty() ) {
+				StreetSegment *previousSegment = segmentsWithCars.front();
+				Vehicle *v = previousSegment->v;
+				segmentsWithCars.pop_front();
 				
-				StreetSegment *previousSegment = nullptr;
-				StreetSegment *nextSegment = *startSegment;
-				
-				for( long remainingSteps = ( *startSegment )->v->currentSpeed; remainingSteps > 0;
-				        --remainingSteps ) {
-					previousSegment = nextSegment;
-					nextSegment = nextSegment->getCurrentDestination();
-					if( nextSegment->v != nullptr ) { // We ran into a car
-						break;
-					}
-					if( nextSegment->mark != nullptr ) { // No vehicle, but someone was here before
-						if( nextSegment->predecessors[0] != previousSegment ) { // No right of way
-							break;
-						}
-					}
-					nextSegment->mark = ( *startSegment )->v;
-					if( nextSegment->isSink() ) {
+				long remainingSteps = min( previousSegment->v->currentSpeed,
+				                           previousSegment->maxSpeed );
+				while( remainingSteps != 0 ) {
+					if( previousSegment->isSink() ) {
 						break;
 					}
 					
+					StreetSegment *nextSegment = previousSegment->getCurrentDestination();
+					--remainingSteps;
 					remainingSteps = min( remainingSteps, nextSegment->maxSpeed );
+					if( nextSegment->v != nullptr ) {
+						break;
+					}
+					
+					if( nextSegment->mark != nullptr ) {
+						if( nextSegment->predecessors[0] != previousSegment ) {
+							remainingSteps = 0;
+						} else {
+							segmentsWithCars.push_back( findSegmentWithVehicle( nextSegment->mark ) );
+							streetMap->clearMarks( nextSegment->mark );
+							nextSegment->mark = v;
+						}
+					} else {
+						nextSegment->mark = v;
+					}
+					
+					previousSegment = nextSegment;
 				}
 			}
 			
 //			Determine max speed according to markings
-			for( auto startSegment = carSegments.begin(); startSegment < carSegments.end();
-			        ++startSegment ) {
-				if( !( *startSegment )->isSink() ) {
-					StreetSegment *nextSegment = ( *startSegment )->getCurrentDestination();
-					long stepsTaken = 0;
-					while( nextSegment->mark == ( *startSegment )->v ) {
-						++stepsTaken;
-						if( nextSegment->isSink() ) {
-							stepsTaken = ( *startSegment )->v->currentSpeed;
-							break;
-						}
-						nextSegment = nextSegment->getCurrentDestination();
+			for( long x = 0; x < long( contents.size() ); ++x ) {
+				for( long y = 0; y < long( contents[x].size() ); ++y ) {
+					if( contents[x][y].v != nullptr ) {
+						segmentsWithCars.push_back( &( contents[x][y] ) );
+					}
+				}
+			}
+			
+			while( ! segmentsWithCars.empty() ) {
+				StreetSegment *currentSegment = segmentsWithCars.front();
+				Vehicle *v = currentSegment->v;
+				segmentsWithCars.pop_front();
+				
+				long remainingSteps = v->currentSpeed;
+				long newSpeed = 0;
+				while( remainingSteps != 0 ) {
+					if( currentSegment->isSink() ) {
+						++newSpeed;
+						break;
 					}
 					
-					( *startSegment )->v->currentSpeed = stepsTaken;
+					currentSegment = currentSegment->getCurrentDestination();
+					if( currentSegment->mark != v ) {
+						remainingSteps = 0;
+					} else {
+						--remainingSteps;
+						++newSpeed;
+					}
 				}
+				
+				v->currentSpeed = newSpeed;
 			}
 		}
 		
