@@ -130,6 +130,7 @@ class SimulationRoundabout {
 				for( long y = 0; y < long( contents[x].size() ); ++y ) {
 					if( contents[x][y].v != nullptr ) {
 						segmentsWithCars.push_back( &( contents[x][y] ) );
+//						contents[x][y].mark = contents[x][y].v;
 					}
 				}
 			}
