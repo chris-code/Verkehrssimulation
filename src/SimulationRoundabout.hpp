@@ -125,14 +125,7 @@ class SimulationRoundabout {
 			vector< vector<StreetSegment> > &contents = streetMap->getContents();
 			
 //			Get segments that contain cars
-			deque<StreetSegment*> segmentsWithCars;
-			for( long x = 0; x < long( contents.size() ); ++x ) {
-				for( long y = 0; y < long( contents[x].size() ); ++y ) {
-					if( contents[x][y].v != nullptr ) {
-						segmentsWithCars.push_back( &( contents[x][y] ) );
-					}
-				}
-			}
+			deque<StreetSegment*> segmentsWithCars = streetMap->getSegmentsWithCars();
 			
 //			Place markings along each Vehicle's path. Overwrite markigns according to right of way
 			while( ! segmentsWithCars.empty() ) {

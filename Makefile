@@ -7,16 +7,16 @@ INCLUDES=
 LIBS=-lpthread -lX11
 
 #PROGRAMS=einspurig mehrspurig kreisverkehr
-PROGRAMS=multilane roundabout
+PROGRAMS=bin/multilane bin/roundabout
 
 all:$(PROGRAMS)
 .PHONY:$(PROGRAMS)
 
 #einspurig:
 #	$(CC) $(CFLAGS) src/mainEinspurig.cpp -o $@ $(INCLUDES) $(LIBS) $(OPTFLAGS)
-multilane:
+bin/multilane:
 	$(CC) $(CFLAGS) src/mainMultilane.cpp -o $@ $(INCLUDES) $(LIBS) $(OPTFLAGS)
-roundabout:
+bin/roundabout:
 	$(CC) $(CFLAGS) src/mainRoundabout.cpp -o $@ $(INCLUDES) $(LIBS) $(OPTFLAGS)
 
 clean:

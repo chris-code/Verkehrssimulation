@@ -9,7 +9,7 @@ int main( int argc, char **argv ) {
 	
 	long roundaboutWidth = 8;
 	long roundaboutHeight = 6;
-	long driveUpLength = 10;
+	long driveUpLength = 20;
 	double trafficDensity = 0.1;
 	
 	double minDallyFactor = 0.;
@@ -88,7 +88,7 @@ int main( int argc, char **argv ) {
 	exponential_distribution<double> riskFactorDistributionR2L( lambdaRiskFactorR2L );
 	normal_distribution<double> maxSpeedDistribution( maxSpeedMean, maxSpeedStd );
 	
-	if( true ) {
+	if( false ) {
 		StreetMap streetMap( randomEngine, driveUpLength );
 		SimulationRoundabout simulation( randomEngine, dallyFactorDistribution,
 		                                 riskFactorDistributionL2R, riskFactorDistributionR2L,

@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <set>
+#include <deque>
 #include <chrono>
 #include <random>
 #include <iostream> //TODO remove this
@@ -323,10 +324,6 @@ class StreetMap {
 		void visualize() {
 			for( long y = 0; y < dimY; ++y ) {
 				for( long x = 0; x < dimX; ++x ) {
-//					if( ! contents[x][y].isDummy() ) {
-//						cout << contents[x][y].maxSpeed;
-//						continue;
-//					}
 					if( contents[x][y].v != nullptr ) {
 						cout << contents[x][y].v->currentSpeed;
 					} else if( contents[x][y].isSource() ) {
@@ -341,6 +338,18 @@ class StreetMap {
 				}
 				cout << endl;
 			}
+		}
+		
+		deque<StreetSegment*> getSegmentsWithCars() {
+			deque<StreetSegment*> segmentsWithCars;
+			for( long x = 0; x < long( contents.size() ); ++x ) {
+				for( long y = 0; y < long( contents[x].size() ); ++y ) {
+					if( contents[x][y].v != nullptr ) {
+						segmentsWithCars.push_back( &( contents[x][y] ) );
+					}
+				}
+			}
+			return segmentsWithCars;
 		}
 		
 		set<StreetSegment*> &getSources() {

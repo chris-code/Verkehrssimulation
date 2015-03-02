@@ -47,7 +47,7 @@
 \onehalfspacing
 \setlength\parindent{0pt}
 
-\everymath{\displaystyle}
+%\everymath{\displaystyle}
 
 \allowdisplaybreaks
 
@@ -117,11 +117,11 @@
 
 \newpage
 
+
 \section{Einleitung}
 \label{sec:einleitung}
 
 \newpage
-
 \section{Annahmen}
 \label{sec:ansatz}
 
@@ -165,10 +165,11 @@ Da die Exponentialverteilung nach rechts nicht begrenzt ist, wir jedoch die Begr
 \end{itemize}
 
 \newpage
-
 \section{Umsetzung}
 \label{sec:umsetzung}
+
 \subsection{Autobahn}
+\label{subsec:umsetzung-autobahn}
 
 Wir haben unser Modell für die Simulation von Autobahnen strukturell für beliebig viele Spuren ausgelegt. Die in der Aufgabenstellung unterschiedenen Simulationsexperimente einer einspurigen bzw. einer zweispurigen Autobahn können also mit der gleichen Simulationssoftware durchgeführt werden. Somit wird im Folgenden die Umsetzung dieses Modells nur im Allgemeinen beschrieben, nicht jedoch für die genannten Spezialfälle.
 
@@ -188,6 +189,7 @@ Im \nsm wird davon ausgegangen, dass die Autobahn periodische Randbedingen hat. 
 \newpage
 
 \subsection{Kreisverkehr (und beliebige Straßenverläufe)}
+\label{subsec:umsetzung-kreisverkehr}
 
 Ein dritter Teil der Aufgabenstellung bestand darin, den Verkehrsfluss eines Kreisverkehrs zu simulieren. Dies ist ein ungleich schwierigeres Problem, da es hier an einigen Stellen Verzweigungen und Zusammenführungen geben kann, bei denen Kollisionsfreiheit gewährleistet werden muss. Zwar kann man den Spurwechsel auf der mehrspurigen Straße auch als Verzweigung/Zusammenführung betrachten, allerdings weist dieser Gleichmäßigkeit über alle Zellen hinweg auf, d.h. die Regeln können einmalig, relativ zur Zellposition und den Geschwindigkeiten der Fahrzeuge festgelegt werden. Im Kreisverkehr hingegen verhalten sich einige Zellen deutlich anders als andere, beispielsweise hinsichtlich zulässiger Geschwindigkeit oder Anzahl der Richtungen, in die man sich bewegen kann. In diesem Zusammenhang müssen auch Vorfahrtsregeln beachtet werden. Darüber hinaus haben Ereignisse in einer Zelle (z.B. die Entscheidung, eine Ausfahrt zu nehmen) Auswirkungen auf die Handlungsmöglichkeiten der Autos in den umliegenden Zellen. Diese Anforderungen machen einen erheblich dynamischeres Vorgehen bei der Berechnung der Bewegungen der Fahrzeuge erforderlich. Eine Lösung muss also folgende Anforderungen erfüllen:
 
@@ -234,19 +236,31 @@ Eine schöne Eigenschaft dieser Herangehensweise ist, dass wir ohne zusätzliche
 
 Nun bleibt noch die Frage zu klären, wie an einer Verzweigung die Entscheidung zu treffen ist, in welche Richtung ein Fahrzeug fahren soll (vgl. Zeile 7). Konzeptionell wäre es möglich, jedem neu hinzugefügten Fahrzeug ein Ziel zuzuweisen und einen (randomisierten) Pfadfindungsalgorithmus zu nutzen, um die Entscheidungen an Verzweigungen zu treffen. Da Fahrzeuge in der Regel ein festes Ziel haben, wäre dies der realistischste Ansatz. Zur Vereinfachung der Implementierung entscheiden wir uns allerdings dafür, die Entscheidung an jeder Verzweigung zufällig zu treffen, wobei für jede Nachfolgerzelle individuelle Wahrscheinlichkeiten festgelegt werden können. Da wir nur sehr einfache Straßennetze mit wenigen Verzweigungen (die insbesondere nicht verschachtelt sind) betrachten, erachten wir das als eine ausreichend gute Annäherung. Für komplexere Szenarien werden allerdings komplexere Entscheidungssysteme notwendig.
 
-%TODO: 'Stummel' beim Überschreiben illustrieren
 %TODO: Problem: wenn wir markierungen überschreiben, können 'Stummel' überbleiben, die andere Fahrzeuge blockieren. Illustrieren
 
 \subsection{Visualisierung}
 \label{subsec:visualisierung}
 
 \newpage
-
 \section{Ergebnisse}
 \label{sec:ergebnisse}
+\subsection{Einspurige Straße}
+\subsection{Mehrspurige Straße}
+\subsection{Kreisverkehr}
+Bei der Simulation des Verkehrsflusses an einem Kresverkehr gibt es Verzweigungen und Zusammenführungen, wobei Vorfahrtsregeln und Geschwindigkeitsbegrenzungen zu beachten sind. Daher wird das in Abschnitt \ref{subsec:umsetzung-kreisverkehr} entwickelte Verfahren benutzt. Simuliert wird ein Kreisverkehr mit \texttt{8 Zellen Breite} und \texttt{6 Zellen Höhe}, es handelt sich also näherungsweise um ein Rechteck mit \texttt{60m} Breite und \texttt{45m} Höhe, da wir weiterhin von einer Zellenlänge von $7.5m$ ausgehen. Zum Kreisverkehr führen \texttt{3 Zubringerstraßen bzw. Ausfahrten} die von links, rechts und unten kommen, dementsprechend gibt es \texttt{3 Quellen} und \texttt{3 Senken}. An der Oberseite befinden sich keine Abzweigungen, der Kreisverkehr weist also eine Asymmetrie auf. Die Länge der Zu- und Abfahrten kann variiert werden. Wir entschließen uns dazu, sie auf \texttt{20 Zellen} zu setzen. Zusätzlich gilt die Forderung, dass Fahrzeuge nur mit einer Geschwindigkeit von \texttt{einer Zelle pro Sekunde} in den Kreisverkehr einfahren dürfen, was einer Realgeschwindigkeit von $27km/h$ entspricht. Aufgrund der Proportionen des Kreisverkehrs erscheint es uns auch angemessen, die Geschwindigkeit innerhalb des Kreisverkehrs auf diesen Wert zu beschränken. Da wir von einer Landstraße ausgehen setzen wir das Limit für die Zu- und Abfahrten auf \texttt{4 Zellen/Sekunde}, was $108km/h$ entspricht. Damit ergibt sich die in Abbildung  zu sehende schematische Darstellung der Straßenkarte.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=8cm]{img/roundaboutSmall}
+	\caption{Möglichkeit von Stummeln: Kreisverkehr mit eingetragenen Höchstgeschwindigkeiten}
+	\label{fig:roundaboutSmall}
+\end{figure}
+
+Schließlich müssen wir noch die Wahrscheinlichkeit, den Kreisverkehr an jeder der Verzweigungen zu verlassen definieren. Diese wird auf \texttt{1/3} gesetzt, was dazu führt dass die Wahrscheinlichkeit, die erste oder die zweite Ausfahrt zu nehmen näherungsweise gleich ist, bei der dritten Ausfahrt (wo das Fahrzeug hergekommen ist), aber signifikant geringer.
+
+\subsection{Autobahnkreuz}
 
 \newpage
-
 \section{Fazit}
 \label{sec:fazit}
 
@@ -254,7 +268,6 @@ Nun bleibt noch die Frage zu klären, wie an einer Verzweigung die Entscheidung 
 In Kapitel \myref{sec:einleitung} steht Shit. In Foobar (\myrefcomma{sec:ansatz}) bla
 
 \newpage
-
 \addcontentsline{toc}{section}{Literatur}
 \bibliography{ref}{}
 \bibliographystyle{alpha}
