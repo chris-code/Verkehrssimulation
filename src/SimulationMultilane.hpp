@@ -16,12 +16,15 @@ class SimulationMultilane {
 	public:
 		SimulationMultilane(double minDallyFactor, double maxDallyFactor, double lambdaRiskFactorL2R, double lambdaRiskFactorR2L, double maxSpeedMean, double maxSpeedStd)
 		: road(0,0),
+		  visualization(nullptr),
 		  randomEngine(chrono::system_clock::now().time_since_epoch().count()),
 		  dallyFactorDistribution(minDallyFactor, maxDallyFactor),
 		  riskFactorDistributionL2R(lambdaRiskFactorL2R),
 		  riskFactorDistributionR2L(lambdaRiskFactorR2L),
 		  maxSpeedDistribution(maxSpeedMean, maxSpeedStd),
-		  uniform01distribution(0., 1.) {
+		  uniform01distribution(0., 1.),
+		  trafficDensity(0.0),
+		  wrapAround(false) {
 		}
 
 		void initialize(long streetLength, long laneCount, double carDensity, bool wrapAround, bool fillRoad) {
@@ -61,6 +64,9 @@ class SimulationMultilane {
 		}
 
 		void simulate(long runs) {
+			if(visualization != nullptr) {
+				delete visualization;
+			}
 			visualization = new VisualizationMultilane(road.getStreetLength(), road.getLaneCount());
 
 			visualization->appendRoad(road);
@@ -73,6 +79,7 @@ class SimulationMultilane {
 			visualization->save();
 
 			delete visualization;
+			visualization = nullptr;
 		}
 
 		void update() {
