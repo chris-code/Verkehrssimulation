@@ -29,6 +29,7 @@
 \usepackage{comment}
 \usepackage{xcolor}
 \usepackage{colortbl}
+\usepackage[parfill]{parskip}
 
 \usepackage{fancyhdr}
 \pagestyle{fancy}
@@ -184,7 +185,31 @@ Als Repräsentation für die Autobahn dient eine $l \times s$ Matrix, wobei $l$ 
 
 Im \nsm wird davon ausgegangen, dass die Autobahn periodische Randbedingen hat. Das heißt, dass Fahrzeuge, die die Autobahn rechts verlassen, auf der linken Seite wieder auf die Autobahn auffahren. Da wir keinen Grund darin gesehen haben, die Autobahn zyklisch aufzubauen, haben wir die Simulation zunächst so implementiert, dass stets auf der linken Seite neue Fahrzeuge erzeugt werden und diese bei Verlassen des rechten Randes wieder vernichtet werden. Da wir jedoch festgestellt haben, dass es bei dieser Implementierung schwierig ist, die Verkehrsdichte hoch zu halten, wurde auch eine Implementierung mit periodischen Randbedingungen umgesetzt. Die Entscheidung über die Periodizität der Autobahn wird dem Nutzer des Programms überlassen.
 
+Bevor die Simulation gestartet werden kann, muss die Autobahn initialisiert werden. Dabei können wahlweise Fahrzeuge auf der Autobahn platziert werden oder nicht. Bei periodischen Randbedingungen werden während der Simualtion keine neuen Fahrzeuge erzeugt, hier ist es also hochgradig sinnvoll bei der Initailiserung Fahrzeuge auf der Autobahn zu platzieren. Diese gehen während der Simulation nicht verloren. Ohne periodische Randbedingungen werden in jedem Simulationsschritt mit einer gewissen Wahrscheinlichkeit neue Fahrzeuge erzeugt. In der Initialisierung Fahrzeuge zu erzeugen, ist in diesem Fall nicht notwendig, aber dennoch möglich.
+Um Staus zu vermeiden, die aus einer ungünstigen Initialbelegung hervorgehen, kann der Nutzer entscheiden, ob er die Fahrzeuge zufällig auf der Autobahn verteilen möchte oder ob diese äquidistant platziert werden sollen. Ausschlaggebend für die Anzahl der erzeugten Fahrzeuge ist die vom Nutzer festgelegte Verkehrsdichte (engl. \emph{traffic density}). Diese kann Werte zwischen 0 und 1 annehmen, wobei der Wert 0 bedeutet, dass überhaupt keine Fahrzeuge auf der Fahrbahn vorhanden sind, während der Wert 1 bedeutet, dass in jeder einzelnen Zelle ein Fahrzeug steht. Falls die Fahrzeuge äquidistant auf der Fahrbahn platziert werden, wird aus der Verkehrsdichte und der Länge der Autobahn der Abstand zwischen den einzelnen Fahrzeugen berechnet. Die Geschwindigkeit des Fahrzeugs wird gesetzt auf das Minimum aus seiner Maximalgeschwindigkeit und dem Abstand zum nächsten vorausfahrenden Fahrzeug. Werden die Fahrzeuge hingegen zufällig auf der Autobahn platziert, wird über alle Zellen der Autobahn iteriert und mit der Wahrscheinlichkeit $p =$ \emph{Verkehrsdichte} ein Fahrzeug mit beliebiger Geschwindigkeit zwischen 0 und seiner Maximalgeschwindigkeit erzeugt.
 
+Nachdem die Autobahn initialisiert wurde, wird der Simulationsschritt in einer Schleife ausgeführt. Die einzelnen Teilschritte eines Simulationsschritts werden im Folgenden detailiert behandelt.
+
+
+\subsubsection{Neue Fahrzeuge hinzufügen}
+\label{subsubsec:neueFahrzeuge}
+
+Neue Fahrzeuge werden nur dann hinzugefügt, wenn keine periodischen Randbedingungen gelten. 
+
+\subsubsection{Beschleunigen}
+\label{subsubsec:beschleunigen}
+
+\subsubsection{Fahrstreifen wechseln}
+\label{subsubsec:fahrstreifenWechseln}
+
+\subsubsection{Abstände prüfen}
+\label{subsubsec:abstaendePruefen}
+
+\subsubsection{Trödeln}
+\label{subsubsec:troedeln}
+
+\subsubsection{Fahrzeuge bewegen}
+\label{subsubsec:fahrzeugeBewegen}
 
 \newpage
 
