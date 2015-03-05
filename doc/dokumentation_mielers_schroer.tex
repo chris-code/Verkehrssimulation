@@ -126,8 +126,8 @@
 \section{Annahmen}
 \label{sec:ansatz}
 
-Im Groben basiert unser Modell auf den Annahmen, die Kai Nagel und Michael Schreckenberg \cite{nagel-schreckenberg} für ihr Verkehrsmodell getroffen haben. Um das Modell jedoch an die Verhältnisse auf deutschen Straßen anzupassen, wurden einige Änderungen vorgenommen.
-Im Folgenden werden die unserem Modell zugrunde liegenden Annahmen aufgeführt:
+Im Groben basiert unser Modell auf den Annahmen, die Kai Nagel und Michael Schreckenberg \cite{nagel-schreckenberg} für ihr STCA-Verkehrsmodell (STCA = Standard Zellular-Automat) getroffen haben. Um das Modell jedoch an die Verhältnisse auf deutschen Straßen anzupassen, wurden einige Änderungen vorgenommen.
+Im Folgenden werden die unserem Modell zugrunde liegenden Annahmen aufgeführt:\\
 
 \begin{itemize}
 \item Es gilt weiterhin, dass eine Zelle 7,5 Meter lang ist und jede Zelle nur ein einziges Fahrzeug zur gleichen Zeit aufnehmen kann.
@@ -183,9 +183,12 @@ Als Repräsentation für die Autobahn dient eine $l \times s$ Matrix, wobei $l$ 
 	\label{fig:twoLaneRoad}
 \end{figure}
 
-Im \nsm wird davon ausgegangen, dass die Autobahn periodische Randbedingen hat. Das heißt, dass Fahrzeuge, die die Autobahn rechts verlassen, auf der linken Seite wieder auf die Autobahn auffahren. Da wir keinen Grund darin gesehen haben, die Autobahn zyklisch aufzubauen, haben wir die Simulation zunächst so implementiert, dass stets auf der linken Seite neue Fahrzeuge erzeugt werden und diese bei Verlassen des rechten Randes wieder vernichtet werden. Da wir jedoch festgestellt haben, dass es bei dieser Implementierung schwierig ist, die Verkehrsdichte hoch zu halten, wurde auch eine Implementierung mit periodischen Randbedingungen umgesetzt. Die Entscheidung über die Periodizität der Autobahn wird dem Nutzer des Programms überlassen.
+Im \nsm wird davon ausgegangen, dass die Autobahn periodische Randbedingen hat. Das heißt, dass Fahrzeuge, die die Autobahn rechts verlassen, auf der linken Seite wieder auf die Autobahn auffahren. Da wir keinen Grund darin gesehen haben, die Autobahn zyklisch aufzubauen, haben wir die Simulation zunächst so implementiert, dass stets auf der linken Seite neue Fahrzeuge erzeugt werden und diese bei Verlassen des rechten Randes wieder vernichtet werden. Da wir jedoch festgestellt haben, dass es bei dieser Implementierung schwierig ist, die Verkehrsdichte auf dem gewünschten Niveau zu halten, wurde zusätzlich eine Implementierung mit periodischen Randbedingungen umgesetzt. Die Entscheidung über die Periodizität der Autobahn wird dem Nutzer des Programms überlassen.
 
-Bevor die Simulation gestartet werden kann, muss die Autobahn initialisiert werden. Dabei können wahlweise Fahrzeuge auf der Autobahn platziert werden oder nicht. Bei periodischen Randbedingungen werden während der Simualtion keine neuen Fahrzeuge erzeugt, hier ist es also hochgradig sinnvoll bei der Initailiserung Fahrzeuge auf der Autobahn zu platzieren. Diese gehen während der Simulation nicht verloren. Ohne periodische Randbedingungen werden in jedem Simulationsschritt mit einer gewissen Wahrscheinlichkeit neue Fahrzeuge erzeugt. In der Initialisierung Fahrzeuge zu erzeugen, ist in diesem Fall nicht notwendig, aber dennoch möglich.
+\subsubsection{Initialisierung}
+\label{subsubsec:initialisierung}
+
+Bevor die Simulation gestartet werden kann, muss die Autobahn initialisiert werden. Dem Nutzer obliegt die Entscheidung, ob dabei Fahrzeuge auf der Autobahn platziert werden sollen oder nicht. Bei periodischen Randbedingungen werden während der Simulation keine neuen Fahrzeuge erzeugt, hier ist es also hochgradig sinnvoll bei der Initialisierung Fahrzeuge auf der Autobahn zu platzieren. Diese gehen während der Simulation nicht verloren. Ohne periodische Randbedingungen werden in jedem Simulationsschritt mit einer gewissen Wahrscheinlichkeit neue Fahrzeuge erzeugt. In der Initialisierung Fahrzeuge zu erzeugen, ist in diesem Fall nicht notwendig, aber dennoch möglich.
 Um Staus zu vermeiden, die aus einer ungünstigen Initialbelegung hervorgehen, kann der Nutzer entscheiden, ob er die Fahrzeuge zufällig auf der Autobahn verteilen möchte oder ob diese äquidistant platziert werden sollen. Ausschlaggebend für die Anzahl der erzeugten Fahrzeuge ist die vom Nutzer festgelegte Verkehrsdichte (engl. \emph{traffic density}). Diese kann Werte zwischen 0 und 1 annehmen, wobei der Wert 0 bedeutet, dass überhaupt keine Fahrzeuge auf der Fahrbahn vorhanden sind, während der Wert 1 bedeutet, dass in jeder einzelnen Zelle ein Fahrzeug steht. Falls die Fahrzeuge äquidistant auf der Fahrbahn platziert werden, wird aus der Verkehrsdichte und der Länge der Autobahn der Abstand zwischen den einzelnen Fahrzeugen berechnet. Die Geschwindigkeit des Fahrzeugs wird gesetzt auf das Minimum aus seiner Maximalgeschwindigkeit und dem Abstand zum nächsten vorausfahrenden Fahrzeug. Werden die Fahrzeuge hingegen zufällig auf der Autobahn platziert, wird über alle Zellen der Autobahn iteriert und mit der Wahrscheinlichkeit $p =$ \emph{Verkehrsdichte} ein Fahrzeug mit beliebiger Geschwindigkeit zwischen 0 und seiner Maximalgeschwindigkeit erzeugt.
 
 Nachdem die Autobahn initialisiert wurde, wird der Simulationsschritt in einer Schleife ausgeführt. Die einzelnen Teilschritte eines Simulationsschritts werden im Folgenden detailiert behandelt.
@@ -194,16 +197,28 @@ Nachdem die Autobahn initialisiert wurde, wird der Simulationsschritt in einer S
 \subsubsection{Neue Fahrzeuge hinzufügen}
 \label{subsubsec:neueFahrzeuge}
 
-Neue Fahrzeuge werden nur dann hinzugefügt, wenn keine periodischen Randbedingungen gelten. 
+Falls die Simulation ohne periodische Randbedingungen durchgeführt wird, ist es sinnvoll, nach und nach neue Fahrzeuge zu erzeugen, da nach einiger Zeit alle bei der Initialisierung erzeugten Fahrzeuge die Autobahn am rechten Rand verlassen. Bei der Erzeugung neuer Fahrzeuge wird in jedem Simulationsschritt geprüft, ob die aktuelle Verkehrsdichte auf der Autobahn geringer ist als die bei der Initialisierung angegebene Wunschverkehrsdichte. Ist dies der Fall, wird beginnend mit der rechtesten Spur über die ersten Zellen aller Spuren der Autobahn iteriert und in jede freie Zelle ein Fahrzeug eingefügt, bis die gewünschte Verkehrsdichte erreicht ist oder alle Spuren abgearbeitet wurden. 
 
 \subsubsection{Beschleunigen}
 \label{subsubsec:beschleunigen}
 
+Die Regeln für die Beschleunigung sind unverändert geblieben. Falls ein Fahrzeug seine individuelle Maximalgeschwindigkeit noch nicht erreicht hat, wird seine Geschwindigkeit um eine Stufe erhöht.
+
 \subsubsection{Fahrstreifen wechseln}
 \label{subsubsec:fahrstreifenWechseln}
 
+Bei den Regeln für den Fahrstreifenwechsel haben wir uns an den im Anhang von \cite{mehrspurig} aufgeführten \emph{\q{STCA-Regeln für den Fahrstreifenwechsel auf mehrstreifigen Richtungsfahrbahnen}} orientiert. Gemäß diesen Regeln hat ein Fahrzeug dann den Wunsch auf die Spur links von ihm zu wechseln, falls auf der linken Spur mindestens so viel Platz wie auf der rechten Spur ist und der Abstand zum nächsten auf seiner Spur vorausfahrenden Fahrzeug kleiner ist, als die Strecke, die das betrachtete Fahrzeug mit seiner Maximalgeschwindigkeit zurücklegen könnte. Falls die Geschwindigkeit des nächsten nachfolgenden Fahrzeugs auf der linken Spur kleiner als der Abstand zwischen betrachtetem und nachfolgendem Fahrzeug ist, wird der Fahrstreifenwechsel tatsächlich vollzogen.
+
+Ein Wechsel auf die nächste rechtsgelegene Spur wird angestoßen, wenn ein linksfahrendes Fahrzeug einen sehr großen Abstand zu seinem Vordermann hat. Ist dieser größer als die Maximalgeschwindigkeit des betrachteten Fahrzeugs und ist auf der rechten Spur mindestens so viel Platz wie auf der linken, gibt es keinen Grund, wieso das Fahrzeug auf der linken Spur bleiben sollte, da es auf beiden Spuren mit seiner Maximalgeschwindigkeit weiterfahren kann. Es folgt somit dem Rechtsfahrgebot und zieht auf die rechte Spur herüber, falls die Geschwindigkeit des nächsten dort nachfolgenden Fahrzeuges kleiner als der Abstand zwischen rechts nachfolgendem und betrachtetem Fahrzeug ist.
+
+Zusätzlich kann der Fall eintreten, dass ein Fahrzeug ohne Rücksicht auf Abstände den Fahrstreifen wechseln möchte. In diesem Fall wird ausschließlich darauf geachtet, dass auf der Zielspur die Zelle frei ist, in die gewechselt werden soll. Die Wahrscheinlichkeit eines solchen Risikofahrstreifenwechsels wird durch die Risikofaktoren des betrachteten Fahrzeuges definiert. In jedem Simulationsschritt wird eine Zufallszahl zwischen 0 und 1 gezogen, ist diese kleiner als der entsprechende Risikofaktor, wird der entsprechende Fahrstreifenwechsel durchgeführt.
+
+Da unser System grundsätzlich für beliebig viele Spuren ausgelegt ist, bleibt noch zu klären, ob zuerst versucht werden soll, von rechts nach links zu wechseln, oder ob zuerst versucht werden soll, von links nach rechts zu wechseln. Da Fahrzeuge zum einen bestrebt sind, das Rechtsfahrgebot einzuhalten, aber sie andererseits auch stets versuchen, möglichst schnell vorwärts zu kommen, wird in jedem Simulationsschritt zufällig entschieden, welcher Wechsel zuerst versucht werden soll. Scheitert der zuerst versuchte, wird der verbleibende Wechsel ausprobiert.
+
 \subsubsection{Abstände prüfen}
 \label{subsubsec:abstaendePruefen}
+
+Die Regeln für die Überprüfung der Abstande basieren ebenfalls auf den erweiterten STCA-Regeln. Ist die aktuelle Geschwindigkeit eines Fahrzeuges größer als der Abstand zum nächsten vorausfahrenden Fahrzeug es zulässt, wird die Geschwindigkeit so reduziert, dass keine Auffahrunfälle auftreten können. Als vorausfahrende Fahrzeuge werden all jene Fahrzeuge definiert, welche entweder auf der gleichen Spur wie das betrachtete Fahrzeug fahren oder auf einer der Spuren links davon. \textcolor{red}{Diesen Teil des STCA Regelwerks kritisieren wir, da es so nicht möglich ist, dass zwei Fahrzeuge mit gleicher Geschwindigkeit auf zwei Fahrstreifen nebeneinander her fahren. Fahren zwei Fahrzeuge direkt nebeneinander, muss das rechte Fahrzeug seine Geschwindigkeit auf 0 reduzieren, um Auffahrunfälle unmöglich zu machen. Realistischer wäre eventuell die Begrenzung der Geschwindigkeit des rechts fahrenden Fahrzeugs auf die Geschwindigkeit des links fahrenden Fahrzeugs.}
 
 \subsubsection{Trödeln}
 \label{subsubsec:troedeln}
@@ -281,7 +296,7 @@ Bei der Simulation des Verkehrsflusses an einem Kresverkehr gibt es Verzweigunge
 	\label{fig:roundaboutSmall}
 \end{figure}
 
-Schließlich müssen wir noch die Wahrscheinlichkeit, den Kreisverkehr an jeder der Verzweigungen zu verlassen, definieren. Diese wird auf \texttt{1/3} gesetzt, was dazu führt, dass die Wahrscheinlichkeit, die erste oder die zweite Ausfahrt zu nehmen näherungsweise gleich ist, bei der dritten Ausfahrt (wo das Fahrzeug hergekommen ist), aber signifikant geringer.
+Schließlich müssen wir noch die Wahrscheinlichkeit, den Kreisverkehr an jeder der Verzweigungen zu verlassen, definieren. Diese wird auf \texttt{1/3} gesetzt, was dazu führt, dass die Wahrscheinlichkeit, die erste oder die zweite Ausfahrt zu nehmen näherungsweise gleich ist, bei der dritten Ausfahrt (wo das Fahrzeug hergekommen ist) aber signifikant geringer.
 
 Mit diesen Parametern lässt sich beobachten, dass sich ab einer \texttt{car generation rate von etwa 1/4} Rückstaus auf dem Zufahrten bilden. Die car generation rate ist dabei die Wahrscheinlichkeit, mit der an jeder der Quellen unabhängig voneinander ein Fahrzeug hinzugefügt wird. Da wir 3 Quellen haben bedeutet dies, dass in jedem Simulationsschritt im Schnitt $3/4$ Autos den Simulationsbereich betreten. Für niedrigere Werte bilden sich keine Rückstaus, für höhere sind sie nahezu garantiert.
 
@@ -310,8 +325,8 @@ Das Verhalten des Systems über die Zeit zeigt die Abbildung \ref{fig:roundabout
 \section{Fazit}
 \label{sec:fazit}
 
-\blindtext asdf \cite{mehrspurig}\\
-In Kapitel \myref{sec:einleitung} steht Shit. In Foobar (\myrefcomma{sec:ansatz}) bla
+%\blindtext asdf \cite{mehrspurig}\\
+%In Kapitel \myref{sec:einleitung} steht Shit. In Foobar (\myrefcomma{sec:ansatz}) bla
 
 \newpage
 \addcontentsline{toc}{section}{Literatur}
