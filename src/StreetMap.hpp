@@ -16,12 +16,26 @@ class StreetMap {
 	public:
 		StreetMap( default_random_engine &randomEngine, long driveUpLength ) :
 			randomEngine( randomEngine ) {
+			dimX = 0;
+			dimY = 0;
 			buildTrumpetInterchange( driveUpLength );
 		}
 		StreetMap( long roundaboutWidth, long roundaboutHeight, long driveUpLength,
 		           default_random_engine &randomEngine ) :
 			randomEngine( randomEngine ) {
+			dimX = 0;
+			dimY = 0;
 			buildRoundabout( roundaboutWidth, roundaboutHeight, driveUpLength );
+		}
+		virtual ~StreetMap() {
+			for( long x = 0; x < dimX; ++x ) {
+				for( long y = 0; y < dimY; ++y ) {
+					if( contents[x][y].v != nullptr ) {
+						delete contents[x][y].v;
+						contents[x][y].v = nullptr;
+					}
+				}
+			}
 		}
 		
 		void drawDestinationsRandomly() {
@@ -44,12 +58,21 @@ class StreetMap {
 		void buildRoundabout( long roundaboutWidth, long roundaboutHeight, long driveUpLength ) {
 			long buffer = 3;
 			long driveUpSpeed = 4;
+			
+			for( long x = 0; x < dimX; ++x ) {
+				for( long y = 0; y < dimY; ++y ) {
+					if( contents[x][y].v != nullptr ) {
+						delete contents[x][y].v;
+						contents[x][y].v = nullptr;
+					}
+				}
+			}
+
 			dimX = ( driveUpLength + buffer ) * 2 + roundaboutWidth;
 			dimY = ( driveUpLength + buffer ) * 1 + roundaboutHeight + buffer;
-			
 			contents.resize( dimX );
 			for( long x = 0; x < dimX; ++x ) {
-				contents[x].clear(); // Make sure we don't reuse segments (-> avoid broken pointers)
+				contents[x].clear(); // Make sure we don't reuse segments
 				contents[x].resize( dimY );
 			}
 			
@@ -145,11 +168,21 @@ class StreetMap {
 			long interchangeHeight = 37;
 			long lowerLeftLoopSize = 18;
 			long lowerRightLoopSize = lowerLeftLoopSize;
+			
+			for( long x = 0; x < dimX; ++x ) {
+				for( long y = 0; y < dimY; ++y ) {
+					if( contents[x][y].v != nullptr ) {
+						delete contents[x][y].v;
+						contents[x][y].v = nullptr;
+					}
+				}
+			}
+
 			dimX = ( driveUpLength + buffer ) * 2 + interchangeWidth;
 			dimY = buffer * 2 + driveUpLength + interchangeHeight;
 			contents.resize( dimX );
 			for( long x = 0; x < dimX; ++x ) {
-				contents[x].clear(); // Make sure we don't reuse segments (-> avoid broken pointers)
+				contents[x].clear(); // Make sure we don't reuse segments
 				contents[x].resize( dimY );
 			}
 			

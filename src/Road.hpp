@@ -11,6 +11,9 @@ class Road {
 		Road(long streetLength, long laneCount) {
 			resize(streetLength, laneCount);
 		}
+		virtual ~Road() {
+			clear();
+		}
 
 		long getStreetLength() {
 			return streetLength;

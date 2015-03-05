@@ -25,16 +25,14 @@ class SimulationRoundabout {
 		
 		void simulate( StreetMap &streetMap, double trafficDensity, long iterations ) {
 			this->streetMap = &streetMap;
-			this->trafficDensity = trafficDensity;
-			
-			populateMap();
+			populateMap( trafficDensity );
 			
 			VisualizationRoundabout vis( streetMap.getContents().size(),
 			                             streetMap.getContents()[0].size() );
 			vis.appendRoundabout( streetMap );
 			
 			for( long i = 0; i < iterations; ++i ) {
-				this->streetMap->visualize();
+//				this->streetMap->visualize();
 				simulateStep();
 				vis.appendRoundabout( streetMap );
 			}
@@ -42,7 +40,6 @@ class SimulationRoundabout {
 			vis.save();
 			
 			this->streetMap = nullptr;
-			this->trafficDensity = 0;
 		}
 		
 	private:
@@ -53,7 +50,6 @@ class SimulationRoundabout {
 		normal_distribution<double> maxSpeedDistribution;
 		
 		StreetMap *streetMap;
-		double trafficDensity;
 		
 		void simulateStep() {
 			streetMap->drawDestinationsRandomly();
@@ -66,7 +62,7 @@ class SimulationRoundabout {
 			move();
 		}
 		
-		void populateMap() {
+		void populateMap( double trafficDensity ) {
 			vector< vector<StreetSegment> > &contents = streetMap->getContents();
 			bernoulli_distribution carPlacementDistribution( trafficDensity );
 			
@@ -224,11 +220,10 @@ class SimulationRoundabout {
 				for( long y = 0; y < long( contents[x].size() ); ++y ) {
 					Vehicle *v = contents[x][y].v;
 					if( v != nullptr && processedVehicles.count( v ) == 0 ) {
-						StreetSegment *previousSegment = nullptr;
 						StreetSegment *nextSegment = &( contents[x][y] );
 						for( long remainingSteps = v->currentSpeed; remainingSteps > 0;
 						        --remainingSteps ) {
-							previousSegment = nextSegment;
+							StreetSegment *previousSegment = nextSegment;
 							if( previousSegment->isSink() ) {
 //								Previous segment was sink and we are moving one further. Remove car.
 								delete previousSegment->v;
