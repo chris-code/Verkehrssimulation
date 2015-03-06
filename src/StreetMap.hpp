@@ -57,6 +57,7 @@ class StreetMap {
 		
 		void buildRoundabout( long roundaboutWidth, long roundaboutHeight, long driveUpLength ) {
 			long buffer = 3;
+			long roundaboutSpeed = 1;
 			long driveUpSpeed = 4;
 			
 			for( long x = 0; x < dimX; ++x ) {
@@ -67,7 +68,7 @@ class StreetMap {
 					}
 				}
 			}
-
+			
 			dimX = ( driveUpLength + buffer ) * 2 + roundaboutWidth;
 			dimY = ( driveUpLength + buffer ) * 1 + roundaboutHeight + buffer;
 			contents.resize( dimX );
@@ -78,87 +79,65 @@ class StreetMap {
 			
 //			Build roundabout
 			long leftBorder = driveUpLength + buffer + 1;
-			long upperBorder = buffer + 1;
+			long upperBorder = buffer;
 			long rightBorder = leftBorder + roundaboutWidth - 1;
 			long lowerBorder = upperBorder + roundaboutHeight - 1;
-			for( long x = leftBorder; x < rightBorder; ++x ) {
-				contents[x][upperBorder].addPredecessor( & ( contents[x + 1][upperBorder] ) );
-			}
-			for( long x = rightBorder; x > leftBorder; --x ) {
-				contents[x][lowerBorder].addPredecessor( &( contents[x - 1][lowerBorder] ) );
-			}
-			for( long y = upperBorder; y < lowerBorder; ++y ) {
-				contents[rightBorder][y].addPredecessor( &( contents[rightBorder][y + 1] ) );
-			}
-			for( long y = lowerBorder; y > upperBorder; --y ) {
-				contents[leftBorder][y].addPredecessor( &( contents[leftBorder][y - 1] ) );
-			}
-			
-//			Build left drive up
+			buildPredPointersInLine( leftBorder, upperBorder, rightBorder, upperBorder,
+			                         roundaboutSpeed );
+			buildPredPointersInLine( rightBorder, upperBorder, rightBorder, lowerBorder,
+			                         roundaboutSpeed );
+			buildPredPointersInLine( rightBorder, lowerBorder, leftBorder, lowerBorder,
+			                         roundaboutSpeed );
+			buildPredPointersInLine( leftBorder, lowerBorder, leftBorder, upperBorder,
+			                         roundaboutSpeed );
+			                         
+//			Build left drive-up
 			long leftDriveUpStart = leftBorder - driveUpLength;
 			long leftDriveUpLower = upperBorder + roundaboutHeight / 2;
 			long leftDriveUpUpper = leftDriveUpLower - 1;
-			for( long x = leftDriveUpStart; x < leftBorder; ++x ) {
-				contents[x][leftDriveUpUpper].addPredecessor(
-				    & ( contents[x + 1][leftDriveUpUpper] ) );
-				contents[x][leftDriveUpLower].addPredecessor(
-				    & ( contents[x - 1][leftDriveUpLower] ) );
-				    
-				contents[x][leftDriveUpUpper].maxSpeed = driveUpSpeed;
-				contents[x][leftDriveUpLower].maxSpeed = driveUpSpeed;
-			}
-			contents[leftBorder][leftDriveUpLower].addPredecessor(
-			    &( contents[leftBorder - 1][leftDriveUpLower] ) );
-			contents[leftDriveUpStart - 1][leftDriveUpLower].maxSpeed = driveUpSpeed;
-			contents[leftBorder - 1][leftDriveUpLower].maxSpeed = 1;
+			buildPredPointersInLine( leftDriveUpStart, leftDriveUpUpper, leftBorder,
+			                         leftDriveUpUpper, driveUpSpeed );
+			buildPredPointersInLine( leftBorder, leftDriveUpLower, leftDriveUpStart,
+			                         leftDriveUpLower, driveUpSpeed );
+			contents[leftBorder][leftDriveUpLower].maxSpeed = roundaboutSpeed;
+			contents[leftBorder - 1][leftDriveUpLower].maxSpeed = roundaboutSpeed;
+			contents[leftDriveUpStart][leftDriveUpLower].maxSpeed = driveUpSpeed;
 			
-//			Build right drive up
+//			Build right drive-up
 			long rightDriveUpStart = rightBorder + driveUpLength;
 			long rightDriveUpLower = upperBorder + roundaboutHeight / 2;
 			long rightDriveUpUpper = rightDriveUpLower - 1;
-			for( long x = rightDriveUpStart; x > rightBorder; --x ) {
-				contents[x][rightDriveUpUpper].addPredecessor(
-				    &( contents[x + 1][rightDriveUpUpper] ) );
-				contents[x][rightDriveUpLower].addPredecessor(
-				    &( contents[x - 1][rightDriveUpLower] ) );
-				    
-				contents[x][rightDriveUpUpper].maxSpeed = driveUpSpeed;
-				contents[x][rightDriveUpLower].maxSpeed = driveUpSpeed;
-			}
-			contents[rightBorder][rightDriveUpUpper].addPredecessor(
-			    &( contents[rightBorder + 1][rightDriveUpUpper] ) );
-			contents[rightDriveUpStart + 1][rightDriveUpUpper].maxSpeed = driveUpSpeed;
-			contents[rightBorder + 1][rightDriveUpUpper].maxSpeed = 1;
+			buildPredPointersInLine( rightBorder, rightDriveUpUpper, rightDriveUpStart,
+			                         rightDriveUpUpper, driveUpSpeed );
+			buildPredPointersInLine( rightDriveUpStart, rightDriveUpLower, rightBorder,
+			                         rightDriveUpLower, driveUpSpeed );
+			contents[rightBorder][rightDriveUpUpper].maxSpeed = roundaboutSpeed;
+			contents[rightBorder + 1][rightDriveUpUpper].maxSpeed = roundaboutSpeed;
+			contents[rightDriveUpStart][rightDriveUpUpper].maxSpeed = driveUpSpeed;
 			
-//			Build lower drive up
+//			Build lower drive-up
 			long lowerDriveUpStart = lowerBorder + driveUpLength;
 			long lowerDriveUpRight = leftBorder + roundaboutWidth / 2;
 			long lowerDriveUpLeft = lowerDriveUpRight - 1;
-			for( long y = lowerDriveUpStart; y > lowerBorder; --y ) {
-				contents[lowerDriveUpLeft][y].addPredecessor(
-				    &( contents[lowerDriveUpLeft][y - 1] ) );
-				contents[lowerDriveUpRight][y].addPredecessor(
-				    &( contents[lowerDriveUpRight][y + 1] ) );
-				    
-				contents[lowerDriveUpLeft][y].maxSpeed = driveUpSpeed;
-				contents[lowerDriveUpRight][y].maxSpeed = driveUpSpeed;
-			}
-			contents[lowerDriveUpRight][lowerBorder].addPredecessor(
-			    &( contents[lowerDriveUpRight][lowerBorder + 1] ) );
-			contents[lowerDriveUpRight][lowerDriveUpStart + 1].maxSpeed = driveUpSpeed;
-			contents[lowerDriveUpRight][lowerBorder + 1].maxSpeed = 1;
+			buildPredPointersInLine( lowerDriveUpLeft, lowerDriveUpStart, lowerDriveUpLeft,
+			                         lowerBorder, driveUpSpeed );
+			buildPredPointersInLine( lowerDriveUpRight, lowerBorder, lowerDriveUpRight,
+			                         lowerDriveUpStart, driveUpSpeed );
+			contents[lowerDriveUpRight][lowerBorder].maxSpeed = roundaboutSpeed;
+			contents[lowerDriveUpRight][lowerBorder + 1].maxSpeed = roundaboutSpeed;
+			contents[lowerDriveUpRight][lowerDriveUpStart].maxSpeed = driveUpSpeed;
+			
+//			Generate other info from the current state
+			buildDestinationPointers();
+			determineSourcesAndSinks();
 			
 //			Set weights
 			contents[leftBorder][leftDriveUpUpper].setDestinationWeight(
 			    &( contents[leftBorder][leftDriveUpUpper + 1] ), 2.0 );
 			contents[rightBorder][rightDriveUpLower].setDestinationWeight(
-			    &( contents[rightBorder][rightDriveUpLower + 1] ), 2.0 );
+			    &( contents[rightBorder][rightDriveUpLower - 1] ), 2.0 );
 			contents[lowerDriveUpLeft][lowerBorder].setDestinationWeight(
 			    &( contents[lowerDriveUpLeft + 1][lowerBorder] ), 2.0 );
-			    
-//			Generate other info from the current state
-			buildDestinationPointers();
-			determineSourcesAndSinks();
 		}
 		
 //		Warning: You are about to enter the most repulsive piece of code you will ever read
@@ -177,7 +156,7 @@ class StreetMap {
 					}
 				}
 			}
-
+			
 			dimX = ( driveUpLength + buffer ) * 2 + interchangeWidth;
 			dimY = buffer * 2 + driveUpLength + interchangeHeight;
 			contents.resize( dimX );
@@ -357,6 +336,10 @@ class StreetMap {
 		void visualize() {
 			for( long y = 0; y < dimY; ++y ) {
 				for( long x = 0; x < dimX; ++x ) {
+//					if( ! contents[x][y].isDummy() ) {
+//						cout << contents[x][y].maxSpeed;
+//						continue;
+//					}
 					if( contents[x][y].v != nullptr ) {
 						cout << contents[x][y].v->currentSpeed;
 					} else if( contents[x][y].isSource() ) {
@@ -402,6 +385,44 @@ class StreetMap {
 		vector<vector<StreetSegment>> contents;
 		set<StreetSegment*> sources;
 		set<StreetSegment*> sinks;
+		
+//		Builds a line of predecessor pointers that point in the direction from (startX,startY) to
+//		(stopX,stopY).
+//		(startX,startY) is the first cell to receive such a pointer, and (stopX,stopY) is the first
+//		cell not to receive one.
+//		maxSpeed is set for exactly those cells that get pred pointers
+		void buildPredPointersInLine( long startX, long startY, long stopX, long stopY,
+		                              long maxSpeed ) {
+			if( startX == stopX ) { // vertical
+				long x = startX;
+				if( startY < stopY ) { // downwards
+					for( long y = startY; y < stopY; ++y ) {
+						contents[x][y].addPredecessor( &( contents[x][y + 1] ) );
+						contents[x][y].maxSpeed = maxSpeed;
+					}
+				} else { // upwarsd
+					for( long y = startY; y > stopY; --y ) {
+						contents[x][y].addPredecessor( &( contents[x][y - 1] ) );
+						contents[x][y].maxSpeed = maxSpeed;
+					}
+				}
+			} else if( startY == stopY ) { // horizontal
+				long y = startY;
+				if( startX < stopX ) { // to the right
+					for( long x = startX; x < stopX; ++x ) {
+						contents[x][y].addPredecessor( &( contents[x + 1][y] ) );
+						contents[x][y].maxSpeed = maxSpeed;
+					}
+				} else { // to the left
+					for( long x = startX; x > stopX; --x ) {
+						contents[x][y].addPredecessor( &( contents[x - 1][y] ) );
+						contents[x][y].maxSpeed = maxSpeed;
+					}
+				}
+			} else { // no direction can be infered from the start-stop coordinates
+				throw MessageException( "buildPredPointersInLine: start and stop not aligned" );
+			}
+		}
 		
 		void buildDestinationPointers() {
 			for( long x = 0; x < dimX; ++x ) {

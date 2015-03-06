@@ -5,7 +5,7 @@
 using namespace std;
 
 int main( int argc, char **argv ) {
-	long iterations = 50;
+	long iterations = 500;
 	
 	long roundaboutWidth = 8;
 	long roundaboutHeight = 6;

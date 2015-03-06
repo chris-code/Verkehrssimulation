@@ -11,7 +11,7 @@ class StreetSegment {
 		StreetSegment() {
 			maxSpeed = 1;
 			currentDestinationID = 0;
-			vehicleSpawnProbability = 0.25;
+			vehicleSpawnProbability = 0.15;
 			mark = nullptr;
 			v = nullptr;
 		}
@@ -41,8 +41,10 @@ class StreetSegment {
 			for( long i = 0; i < long( destinations.size() ); ++i ) {
 				if( destinations[i] == dest ) {
 					destinationWeights[i] = weight;
+					return;
 				}
 			}
+			throw MessageException( "setDestinationWeight: destination not in destination list!" );
 		}
 		
 		bool isDummy() {
