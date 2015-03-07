@@ -104,6 +104,11 @@ int main( int argc, char **argv ) {
 		}
 	}
 	
+	if (minDallyFactor > maxDallyFactor || minDallyFactor < 0. || maxDallyFactor < 0.) {
+				cerr << "Please choose values between 0 and 1 for the minimal and maximal dally factor." << endl
+					 <<	"The maximal dally factor must not be smaller than the minimal dally factor!" << endl;
+	}
+
 	SimulationMultilane simulation( minDallyFactor, maxDallyFactor,
 	                                lambdaRiskFactorL2R, lambdaRiskFactorR2L, maxSpeedMean,
 	                                maxSpeedStd );
