@@ -299,7 +299,7 @@ Nun bleibt noch die Frage zu klären, wie an einer Verzweigung die Entscheidung 
 \subsection{Einspurige Straße}
 \subsection{Mehrspurige Straße}
 \subsection{Kreisverkehr}
-Bei der Simulation des Verkehrsflusses an einem Kresverkehr gibt es Verzweigungen und Zusammenführungen, wobei Vorfahrtsregeln und Geschwindigkeitsbegrenzungen zu beachten sind. Daher wird das in Abschnitt \ref{subsec:umsetzung-kreisverkehr} entwickelte Verfahren benutzt. Simuliert wird ein Kreisverkehr mit \texttt{8 Zellen Breite} und \texttt{6 Zellen Höhe}, es handelt sich also näherungsweise um ein Rechteck mit \texttt{60m} Breite und \texttt{45m} Höhe, da wir weiterhin von einer Zellenlänge von $7.5m$ ausgehen. Zum Kreisverkehr führen \texttt{3 Zubringerstraßen bzw. Ausfahrten} die von links, rechts und unten kommen, dementsprechend gibt es \texttt{3 Quellen} und \texttt{3 Senken}. An der Oberseite befinden sich keine Abzweigungen, der Kreisverkehr weist also eine Asymmetrie auf. Die Länge der Zu- und Abfahrten kann variiert werden. Wir entschließen uns dazu, sie auf \texttt{20 Zellen} zu setzen. Zusätzlich gilt die Forderung, dass Fahrzeuge nur mit einer Geschwindigkeit von \texttt{einer Zelle pro Sekunde} in den Kreisverkehr einfahren dürfen, was einer Realgeschwindigkeit von $27km/h$ entspricht. Aufgrund der Proportionen des Kreisverkehrs erscheint es uns auch angemessen, die Geschwindigkeit innerhalb des Kreisverkehrs auf diesen Wert zu beschränken. Da wir von einer Landstraße ausgehen setzen wir das Limit für die Zu- und Abfahrten auf \texttt{4 Zellen/Sekunde}, was $108km/h$ entspricht. Damit ergibt sich die in Abbildung \ref{fig:roundaboutSmall} zu sehenden schematische Darstellung der Straßenkarte.
+Bei der Simulation des Verkehrsflusses an einem Kreisverkehr gibt es Verzweigungen und Zusammenführungen, wobei Vorfahrtsregeln und Geschwindigkeitsbegrenzungen zu beachten sind. Daher wird das in Abschnitt \ref{subsec:umsetzung-kreisverkehr} entwickelte Verfahren benutzt. Simuliert wird ein Kreisverkehr mit \texttt{8 Zellen Breite} und \texttt{6 Zellen Höhe}, es handelt sich also näherungsweise um ein Rechteck mit \texttt{60m} Breite und \texttt{45m} Höhe, da wir weiterhin von einer Zellenlänge von $7.5m$ ausgehen. Zum Kreisverkehr führen \texttt{3 Zubringerstraßen bzw. Ausfahrten} die von links, rechts und unten kommen, dementsprechend gibt es \texttt{3 Quellen} und \texttt{3 Senken}. An der Oberseite befinden sich keine Abzweigungen, der Kreisverkehr weist also eine Asymmetrie auf. Die Länge der Zu- und Abfahrten kann variiert werden. Wir entschließen uns dazu, sie auf \texttt{20 Zellen} zu setzen. Zusätzlich gilt die Forderung, dass Fahrzeuge nur mit einer Geschwindigkeit von \texttt{einer Zelle pro Sekunde} in den Kreisverkehr einfahren dürfen, was einer Realgeschwindigkeit von $27km/h$ entspricht. Aufgrund der Proportionen des Kreisverkehrs erscheint es uns auch angemessen, die Geschwindigkeit innerhalb des Kreisverkehrs auf diesen Wert zu beschränken. Da wir von einer Landstraße ausgehen setzen wir das Limit für die Zu- und Abfahrten auf \texttt{4 Zellen/Sekunde}, was $108km/h$ entspricht. Damit ergibt sich die in Abbildung \ref{fig:roundaboutSmall} zu sehenden schematische Darstellung der Straßenkarte.
 
 \begin{figure}[h!]
 	\centering
@@ -310,47 +310,47 @@ Bei der Simulation des Verkehrsflusses an einem Kresverkehr gibt es Verzweigunge
 
 Schließlich müssen wir noch die Wahrscheinlichkeit, den Kreisverkehr an jeder der Verzweigungen zu verlassen, definieren. Diese wird auf \texttt{1/3} gesetzt, was dazu führt, dass die Wahrscheinlichkeit, die erste oder die zweite Ausfahrt zu nehmen näherungsweise gleich ist, bei der dritten Ausfahrt (wo das Fahrzeug hergekommen ist) aber signifikant geringer.
 
-Mit diesen Parametern lässt sich beobachten, dass sich ab einer \texttt{car generation rate von etwa 1/4} Rückstaus auf dem Zufahrten bilden. Die car generation rate ist dabei die Wahrscheinlichkeit, mit der an jeder der Quellen unabhängig voneinander ein Fahrzeug hinzugefügt wird. Da wir 3 Quellen haben bedeutet dies, dass in jedem Simulationsschritt im Schnitt $3/4$ Autos den Simulationsbereich betreten. Für niedrigere Werte bilden sich keine Rückstaus, für höhere sind sie nahezu garantiert.
+Mit diesen Parametern lässt sich beobachten, dass sich ab einer \texttt{car generation rate von etwa 0.15} Rückstaus auf dem Zufahrten bilden die mal wachsen, mal schrumpfen. Die car generation rate ist dabei die Wahrscheinlichkeit, mit der an jeder der Quellen unabhängig voneinander ein Fahrzeug hinzugefügt wird. Da wir 3 Quellen haben bedeutet dies, dass in jedem Simulationsschritt im Schnitt $0.45$ Autos den Simulationsbereich betreten. Für niedrigere Werte bilden sich keine Rückstaus, für höhere sind sie nahezu garantiert und wachsen stetig.
 
-Dazu wollen wir uns exemplarisch die Ergebnisse für eine Erzeugungsrate von $0.15$ ansehen, wobei in jeder Runde in etwa $3 \cdot 0.15 = 0.45$ Fahrzeuge die Simulation betreten, also etwa ein Auto in jedem zweiten Simulationsschritt. Abbildung \ref{fig:roundabout015} zeigt einen typischen Zustand des Kreisverkehrs nach 500 Iterationen.
+Dazu wollen wir uns exemplarisch die Ergebnisse für eine Erzeugungsrate von $0.10$ ansehen, wobei in jeder Runde in etwa $3 \cdot 0.10 = 0.30$ Fahrzeuge die Simulation betreten, also etwa ein Auto in jedem dritten Simulationsschritt. Abbildung \ref{fig:roundabout010} zeigt einen typischen Zustand des Kreisverkehrs nach 500 Iterationen.
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=\textwidth]{img/roundabout_015}
-	\caption{Erzeugungsrate 0.15. Links: Kreisverkehr nach 500 Iterationen, Mitte: Belegungshäufigkeit, Rechts: Durchschnittsgeschwindigkeit}
-	\label{fig:roundabout015}
+	\includegraphics[width=\textwidth]{img/roundabout_010}
+	\caption{Erzeugungsrate 0.10. Links: Kreisverkehr nach 500 Iterationen, Mitte: Belegungshäufigkeit, Rechts: Durchschnittsgeschwindigkeit}
+	\label{fig:roundabout010}
 \end{figure}
 
 Man kann beobachten, dass im Kreisverkehr selbst die Dichte etwas höher ist als an den Auf- und Abfahrten, es ist aber noch genügend Platz für ankommende Autos, die ebenfalls in den Kreisverkehr wollen. Im mittleren Bild sieht man die Belegungshäufigkeit der einzelnen Zellen, und es wird deutlich dass der Kreisverkehr die am intensivsten genutzte Region ist. Dies ist naheliegend, da alle Fahrzeuge diese Region passieren müssen, jede Zufahrtsstraße aber nur von einem Drittel der Autos genutzt wird. Die Durchschnittsgeschwindigkeit in jeder Zelle lässt sich dem rechten Bildteil entnehmen, wobei man sieht dass auf den Zufahrtsstraßen die Durchschnittsgeschwindigkeit der Maximalgeschwindigkeit 4 entspricht. Vom Kreisverkehr bzw. den Quellen weg wird auf diesen Wert beschleunigt. Bei der Anfahrt auf den Kreisverkehr kann es zuweilen vorkommen, dass man auf eine Einfahrmöglichkeit warten muss, weswegen sich die Geschwindigkeit graduell verlangsamt je näher man kommt.
 
-Das Verhalten des Systems über die Zeit zeigt die Abbildung \ref{fig:roundabout015density}, in der die Verkehrsdichte gegen die Zeit in Simulationsschritten abgetragen ist. Sie ist deutlichen Schwankungen unterworfen, die sich aus dem Herausfahren von Fahrzeugen und dem zufälligen Neuerzeugen ergeben. Sie bleibt aber etwa mit 0.14 nach oben beschränkt, was zeigt dass der Verkehr flüssig fahren kann.
+Das Verhalten des Systems über die Zeit zeigt die Abbildung \ref{fig:roundabout010density}, in der die Verkehrsdichte gegen die Zeit in Simulationsschritten abgetragen ist. Sie ist merklichen Schwankungen unterworfen, die sich aus dem Herausfahren von Fahrzeugen und dem zufälligen Neuerzeugen ergeben. Sie bleibt aber etwa mit 0.14 nach oben beschränkt, was zeigt dass der Verkehr flüssig fahren kann.
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=\textwidth]{img/roundabout_015_densities}
-	\caption{Dichte im Kreisverkehr über 500 iterationen bei Erzeugungsrate 0.15}
-	\label{fig:roundabout015density}
+	\includegraphics[width=\textwidth]{img/roundabout_010_densities}
+	\caption{Dichte im Kreisverkehr über 500 iterationen bei Erzeugungsrate 0.10}
+	\label{fig:roundabout010density}
 \end{figure}
 
-Erhöhen wir die Erzeugungsrate auf 0.35, so zeigt sich ein anderes Bild. Es betreten nun in jedem Simulationsschritt im Mittel etwa $3 \cdot 0.35 = 1.05$ Fahrzeuge, also etwas mehr als eines, die Simulation. Die dazugehörigen Messwertbilder sind in Abbildung \ref{fig:roundabout035} zu sehen und unterscheiden sich deutlich von denen für eine Erzeugungsrate von 0.15.
+Erhöhen wir die Erzeugungsrate auf 0.20, so zeigt sich ein anderes Bild. Es betreten nun in jedem Simulationsschritt im Mittel etwa $3 \cdot 0.20 = 0.60$ Fahrzeuge, also etwas mehr als ein halbes, die Simulation. Die dazugehörigen Messwertbilder sind in Abbildung \ref{fig:roundabout020} zu sehen und unterscheiden sich deutlich von denen für eine Erzeugungsrate von 0.10.
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=\textwidth]{img/roundabout_035}
-	\caption{Erzeugungsrate 0.35. Links: Kreisverkehr nach 500 Iterationen, Mitte: Belegungshäufigkeit, Rechts: Durchschnittsgeschwindigkeit}
-	\label{fig:roundabout035}
+	\includegraphics[width=\textwidth]{img/roundabout_020}
+	\caption{Erzeugungsrate 0.20. Links: Kreisverkehr nach 500 Iterationen, Mitte: Belegungshäufigkeit, Rechts: Durchschnittsgeschwindigkeit}
+	\label{fig:roundabout020}
 \end{figure}
 
 Zunächst fällt auf dass der Kreisverkehr komplett gefüllt ist. Da sich die Fahrzeuge im Kreis alle mit Geschwindigkeit 1 bewegen und Vorfahrt haben sind in jeder Runde alle Felder belegt. Da auf den Zufahrtsstraßen aber weiterhin Fahrzeuge ankommen bildet sich hier ein Rückstau, der Stellenweise Lücken aufweist wo Autos einem in den Kreis eingefahrenen nachrücken. Dies zeigt sich auch an der Belegungshäufigkeit der Zellen, die auf den Zufahrtsstraßen nun wesentlich höhere Werte annimmt. Wo vormals eine in etwa gleiche Nutzung von Zu- und Abfahrtsstraßen zu sehen war tritt nun eine starke Diskrepanz auf, wobei die Auslastung im Kreisverkehr weiterhin hoch ist. Die Durchschnittsgeschwindigkeiten sind dementsprechend geringer. Wärend innerhalb des Kreisverkehrs aufgrund der Vorfahrt eine Zelle vor jedem Fahrzeug frei bleibt und des dementsprechend nicht zu systematischen Staus kommt stehen die Fahrzeuge auf den Zufahrtsstraßen über weite Teile der Strecke und müssen warten, bis der Vorderste in den Kreisverkehr einfahren kann. Fahrzeuge, die die Abfahrtsstraßen erreichen können ungehindert beschleunigen, da sie in der Regel keine Autos vor sich haben.
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=\textwidth]{img/roundabout_035_densities}
-	\caption{Dichte im Kreisverkehr über 500 iterationen bei Erzeugungsrate 0.35}
-	\label{fig:roundabout035density}
+	\includegraphics[width=\textwidth]{img/roundabout_020_densities}
+	\caption{Dichte im Kreisverkehr über 500 iterationen bei Erzeugungsrate 0.20}
+	\label{fig:roundabout020density}
 \end{figure}
 
-Der Verlauf der Verkehrsdichte zu diesem Durchlauf ist in Abbildung \ref{fig:roundabout035density} dargestellt. Zu Beginn der Simulation befinden sich nur wenige Fahrzeuge auf der Strecke, dieser Wert steigt allerdings durch die ankommenden Fahrzeuge kontinuierlich, bis er sich um eine Dichte von etwa $0.4$ einpendelt. Dies entspicht dem Zeitpunkt, ab dem aus Platzgründen keine Fahrzeuge mehr an den Quellen generiert werden können bis ein Fahrzeug den Kreisverkehr verlässt und andere nachrücken können.
+Der Verlauf der Verkehrsdichte zu diesem Durchlauf ist in Abbildung \ref{fig:roundabout020density} dargestellt. Zu Beginn der Simulation befinden sich nur wenige Fahrzeuge auf der Strecke, dieser Wert steigt allerdings durch die ankommenden Fahrzeuge kontinuierlich, und erreicht dabei eine Dichte von etwa $0.4$. Dies entspicht dem Zeitpunkt, ab dem aus Platzgründen keine Fahrzeuge mehr an den Quellen generiert werden können bis ein Fahrzeug den Kreisverkehr verlässt und andere nachrücken können.
 
 \subsection{Autobahnkreuz}
 
