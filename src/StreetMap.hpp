@@ -269,7 +269,7 @@ class StreetMap {
 			buildPredPointersInLine( s, n, 3 );
 			
 //			Build tunnel next to the intersection
-			pair<long, long> tunnelLeftLower( bfkruyX + 5, ghijklY - 2 );
+			pair<long, long> tunnelLeftLower( bfkruyX + 5, ghijklY - 4 );
 			pair<long, long> tunnelLeftUpper( bfkruyX + 5, tunnelLeftLower.second - 5 );
 			pair<long, long> tunnelRightLower( tunnelLeftLower.first + 3, tunnelLeftLower.second );
 			pair<long, long> tunnelRightUpper( tunnelRightLower.first, tunnelRightLower.second - 5 );
@@ -316,8 +316,10 @@ class StreetMap {
 			for( long y = 0; y < dimY; ++y ) {
 				for( long x = 0; x < dimX; ++x ) {
 					if( ! contents[x][y].isDummy() ) {
-						cout << contents[x][y].maxSpeed;
+						cout << contents[x][y].maxSpeed << " ";
 						continue;
+					} else {
+						cout << " ";
 					}
 					if( contents[x][y].v != nullptr ) {
 						cout << contents[x][y].v->currentSpeed;

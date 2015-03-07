@@ -136,62 +136,15 @@
 
 \newpage
 \section{Annahmen}
-\label{sec:annahmen}
+\label{sec:ansatz}
 
-Im Groben basiert unser Modell auf den Annahmen, die Kai Nagel und Michael Schreckenberg \cite{nagel-schreckenberg} für ihr STCA-Verkehrsmodell (STCA = Standard Zellular-Automat) getroffen haben. Um das Modell an die Realität deutscher Straßenverhältnisse anzupassen, wurden jedoch einige Änderungen vorgenommen.
-Im Folgenden werden die unserem Modell zugrunde liegenden Annahmen aufgeführt:%\\
-
-%\begin{comment}
-
-\subsection{Zellbreite und Geschwindigkeiten}
-
-Es gilt weiterhin, dass eine Zelle 7,5 Meter lang ist und jede Zelle nur ein einziges Fahrzeug zur gleichen Zeit aufnehmen kann.
-
-Im klassichen \nsm gibt es die Geschwindigkeitsstufen 0 bis 5. Diese entsprechen Geschwindigkeiten von 0 $km/h$ bis 135 $km/h$ in 27 $km/h$ Abständen. Da uns 135 $km/h$ als Höchstgeschwindigkeit auf einer deutschen Autobahn zu wenig erschienen, haben wir die Höchstgeschwindigkeit auf 7 erhöht, so dass Fahrzeuge nun eine Maximalgeschwindigkeit von 189 $km/h$ erreichen können.
-
-Während im \nsm alle Fahrzeuge üblicherweise die gleiche Maximalgeschwindigkeit erreichen können, werden in unserem Modell die Maximalgeschwindigkeiten der Fahrzeuge aus einer Normalverteilung gezogen, deren Mittelwert und Standardabweichung vom Nutzer des Programms frei gewählt werden können. Wir halten dieses Szenario für realistischer, da in der Realität unterschiedliche Fahrzeugtypen unterschiedliche Maximalgeschwindigkeiten erreichen können. Falls vom Nutzer keine Varianz bei den Maximalgeschwindigkeiten gewünscht ist, kann er die Standardabweichung sehr klein wählen, so dass es sehr unwahrscheinlich wird, eine Maximalgeschwindigkeit ungleich dem Mittelwert zu erhalten. Es ist zu beachten, dass es nicht möglich ist, auf diese Weise Fahrzeugen Maximalgeschwindigkeiten zuzuweisen, die 3 unter- oder 7 überschreiten. Dies ist dadurch begründet, dass in Deutschland nur solche Fahrzeuge eine Autobahn befahren dürfen, welche eine Höchstgeschwindigkeit von mindestens 60 $km/h$ erreichen können. Ein Fahrzeug mit der Geschwingkeitsstufe 2 als Höchstgeschwindigkeit (= 54 $km/h$) würde diesen Grenzwert um 6 $km/h$ unterschreiten.
-
-\subsection{Individuelles Fahrverhalten}
-
-Um das Fahrverhalten unterschiedlicher Fahrertypen abbilden zu können, wird der Trödelfaktor eines jeden Fahrzeugs randomisiert bestimmt. Zu diesem Zweck wird jedoch keine Normalverteilung verwendet, sondern eine Gleichverteilung, deren Minimalwert und Maximalwert ebenfalls frei vom Nutzer festgelegt werden können. Ist keine Varianz erwünscht, kann durch Gleichsetzung von Minimalwert und Maximalwert ein konstanter Trödelfaktor definiert werden. Als Grenzen für den Minimalwert und Maximalwert gelten nur die natürlichen Schranken 0 und 1. Zu hohe Trödelfaktoren sollten jedoch nicht verwendet werden, da das System sonst schnell zum Stillstand kommt.
-
-Über eine individuelle Maximalgeschwindigkeit und einen individuellen Trödelfaktor hinaus hat in unserem Modell jedes Fahrzeug zwei individuelle Risikofaktoren. Diese dienen auf der Autobahn als Wahrscheinlichkeit dafür, dass ein Fahrzeug ohne Rücksicht auf Abstände auf die Spur links bzw. rechts von ihm wechselt. Es ist notwendig zwei Risikofaktoren zu verwenden, da Fahrer je nach individuellem Fahrverhalten oft dazu neigen, tendenziell nach links oder tendenziell nach rechts zu fahren. Ein Fahrer, der möglichst schnell vorwärts kommen möchte, hätte beispielsweise einen deutlich höheren Risikofaktor für den Wechsel nach links als für den Wechsel nach rechts. Bei Fahrern, die auf das Rechtsfahrgebot achten oder sich unsicher auf der Autobahn fühlen, verhält es sich eher anders herum.\\
-Da wir annehmen, dass die Mehrheit der Fahrer eher rücksichtsvoll ist und eher wenig Fahrer riskante Fahrmanöver unternehmen, verwenden wir für die Ermittlung der Riskofaktoren Exponentialverteilungen. Die linke Seite der folgenden Abbildung zeigt die Dichtefunktion einer möglichen Exponentialverteilung für den Risikofaktor L2R (Wechsel von links nach rechts). Auf der rechten Seite ist die Dichtefunktion einer möglichen Exponentialverteilung für den Risikofaktor R2L abgebildet (Wechsel von rechts nach links).
-
-\begin{figure}[h!]
-	\centering
-	\begin{tikzpicture}[xscale=4, yscale=0.3]
-		\def\LAMBDA{12}
-		\draw[->] (-0.1,0) -- (1.1,0) node[right] {L2R};
-		\draw[->] (0,-0.1) --(0,15) node[above] {Exp($\lambda$ = \LAMBDA)};
-		\foreach \x in {0.2,0.4,0.6,0.8,1} {
-			\draw[shift={(\x,0)},color=black] (0pt,8pt) -- (0pt,-8pt) node[below] {\x};
-		}
-		\draw[domain=0:1,samples=800,variable=\x,blue] plot ({\x},{\LAMBDA * exp(- \LAMBDA * \x)});
-	\end{tikzpicture}
-	\begin{tikzpicture}[xscale=4, yscale=0.3]
-		\def\LAMBDA{8}		
-		\draw[->] (-0.1,0) -- (1.1,0) node[right] {R2L};
-		\draw[->] (0,-0.1) --(0,15) node[above] {Exp($\lambda$ = \LAMBDA)};
-		\foreach \x in {0.2,0.4,0.6,0.8,1} {
-			\draw[shift={(\x,0)},color=black] (0pt,8pt) -- (0pt,-8pt) node[below] {\x};
-		}
-		\draw[domain=0:1,samples=800,variable=\x,blue] plot ({\x},{\LAMBDA * exp(- \LAMBDA * \x)});
-	\end{tikzpicture}
-	\caption{Dichtefunktionen der Risikofaktor-Verteilungen}
-	\label{fig:riskFactorDistributions}
-\end{figure}
-
-Da die Exponentialverteilung nach rechts nicht begrenzt ist, wir jedoch die Begrenzung des Risikofaktors für sinnvoll halten, wird der Risikofaktor auf das 0.97-Fraktil der Verteilung gesetzt, falls genau dieses Fraktil überschritten wird. In der linken Verteilung mit $\lambda = 12$ beträgt der maximal zulässige Wert also ungefähr 0.2922, während er in der rechten Verteilung mit $\lambda = 8$ etwa 0.4383 beträgt. In diesem Szenario wären die Fahrer im Durchschnitt also eher dazu bereit, ohne Rücksicht auf die Abstände von rechts nach links zu wechseln als umgekehrt. Anders als bei den anderen Werten ist hier die Definition exakter Werte für die Risikofaktoren durch geschickte Parameterwahl nicht möglich. An dieser Stelle wäre also eine Anpassung des Programmes notwendig.
-
-
-%\end{comment}
-\begin{comment}
+Im Groben basiert unser Modell auf den Annahmen, die Kai Nagel und Michael Schreckenberg \cite{nagel-schreckenberg} für ihr STCA-Verkehrsmodell (STCA = Standard Zellular-Automat) getroffen haben. Um das Modell jedoch an die Verhältnisse auf deutschen Straßen anzupassen, wurden einige Änderungen vorgenommen.
+Im Folgenden werden die unserem Modell zugrunde liegenden Annahmen aufgeführt:\\
 
 \begin{itemize}
 \item Es gilt weiterhin, dass eine Zelle 7,5 Meter lang ist und jede Zelle nur ein einziges Fahrzeug zur gleichen Zeit aufnehmen kann.
-\item Im klassichen \nsm gibt es die Geschwindigkeitsstufen 0 bis 5. Diese entsprechen Geschwindigkeiten von 0 $km/h$ bis 135 $km/h$ in 27 $km/h$ Abständen. Da uns 135 $km/h$ als Höchstgeschwindigkeit auf einer deutschen Autobahn zu wenig erschienen, haben wir die Höchstgeschwindigkeit auf 7 erhöht, so dass Fahrzeuge nun eine Maximalgeschwindigkeit von 189 $km/h$ erreichen können.
-\item Während im \nsm alle Fahrzeuge üblicherweise die gleiche Maximalgeschwindigkeit erreichen können, werden in unserem Modell die Maximalgeschwindigkeiten der Fahrzeuge aus einer Normalverteilung gezogen, deren Mittelwert und Standardabweichung vom Nutzer des Programms frei gewählt werden können. Wir halten dieses Szenario für realistischer, da in der Realität unterschiedliche Fahrzeugtypen unterschiedliche Maximalgeschwindigkeiten erreichen können. Falls vom Nutzer keine Varianz bei den Maximalgeschwindigkeiten gewünscht ist, kann er die Standardabweichung sehr klein wählen, so dass es sehr unwahrscheinlich wird, eine Maximalgeschwindigkeit ungleich dem Mittelwert zu erhalten. Es ist zu beachten, dass es nicht möglich ist, auf diese Weise Fahrzeugen Maximalgeschwindigkeiten zuzuweisen, die 3 unter- oder 7 überschreiten. Dies ist dadurch begründet, dass in Deutschland nur solche Fahrzeuge eine Autobahn befahren dürfen, welche eine Höchstgeschwindigkeit von mindestens 60 $km/h$ erreichen können. Ein Fahrzeug mit der Geschwingkeitsstufe 2 als Höchstgeschwindigkeit (= 54 $km/h$) würde diesen Grenzwert um 6 $km/h$ unterschreiten.
+\item Im klassichen \nsm gibt es die Geschwindigkeitsstufen 0 bis 5. Diese entsprechen Geschwindigkeiten von 0 km/h bis 135 km/h in 27 km/h Abständen. Da uns 135 km/h als Höchstgeschwindigkeit auf einer deutschen Autobahn zu wenig erschienen, haben wir die Höchstgeschwindigkeit auf 7 erhöht, so dass Fahrzeuge nun eine Maximalgeschwindigkeit von 189 km/h erreichen können.
+\item Während im \nsm alle Fahrzeuge üblicherweise die gleiche Maximalgeschwindigkeit erreichen können, werden in unserem Modell die Maximalgeschwindigkeiten der Fahrzeuge aus einer Normalverteilung gezogen, deren Mittelwert und Standardabweichung vom Nutzer des Programms frei gewählt werden können. Wir halten dieses Szenario für realistischer, da in der Realität unterschiedliche Fahrzeugtypen unterschiedliche Maximalgeschwindigkeiten erreichen können. Falls vom Nutzer keine Varianz bei den Maximalgeschwindigkeiten gewünscht ist, kann er die Standardabweichung sehr klein wählen, so dass es sehr unwahrscheinlich wird, eine Maximalgeschwindigkeit ungleich dem Mittelwert zu erhalten. Es ist zu beachten, dass es nicht möglich ist, auf diese Weise Fahrzeugen Maximalgeschwindigkeiten zuzuweisen, die 3 unter- oder 7 überschreiten. Dies ist dadurch begründet, dass in Deutschland nur solche Fahrzeuge eine Autobahn befahren dürfen, welche eine Höchstgeschwindigkeit von mindestens 60 km/h erreichen können. Ein Fahrzeug mit der Geschwingkeitsstufe 2 als Höchstgeschwindigkeit (= 54 km/h) würde diesen Grenzwert um 6 km/h unterschreiten.
 \item Um das Fahrverhalten unterschiedlicher Fahrertypen abbilden zu können, wird der Trödelfaktor eines jeden Fahrzeugs randomisiert bestimmt. Zu diesem Zweck wird jedoch keine Normalverteilung verwendet, sondern eine Gleichverteilung, deren Minimalwert und Maximalwert ebenfalls frei vom Nutzer festgelegt werden können. Ist keine Varianz erwünscht, kann durch Gleichsetzung von Minimalwert und Maximalwert ein konstanter Trödelfaktor definiert werden. Als Grenzen für den Minimalwert und Maximalwert gelten nur die natürlichen Schranken 0 und 1. Zu hohe Trödelfaktoren sollten jedoch nicht verwendet werden, da das System sonst schnell zum Stillstand kommt.
 \item Über eine individuelle Maximalgeschwindigkeit und einen individuellen Trödelfaktor hinaus hat in unserem Modell jedes Fahrzeug zwei individuelle Risikofaktoren. Diese dienen auf der Autobahn als Wahrscheinlichkeit dafür, dass ein Fahrzeug ohne Rücksicht auf Abstände auf die Spur links bzw. rechts von ihm wechselt. Es ist notwendig zwei Risikofaktoren zu verwenden, da Fahrer je nach individuellem Fahrverhalten oft dazu neigen, tendenziell nach links oder tendenziell nach rechts zu fahren. Ein Fahrer, der möglichst schnell vorwärts kommen möchte, hätte beispielsweise einen deutlich höheren Risikofaktor für den Wechsel nach links als für den Wechsel nach rechts. Bei Fahrern, die auf das Rechtsfahrgebot achten oder sich unsicher auf der Autobahn fühlen, verhält es sich eher anders herum.\\
 Da wir annehmen, dass die Mehrheit der Fahrer eher rücksichtsvoll ist und eher wenig Fahrer riskante Fahrmanöver unternehmen, verwenden wir für die Ermittlung der Riskofaktoren Exponentialverteilungen. Die linke Seite der folgenden Abbildung zeigt die Dichtefunktion einer möglichen Exponentialverteilung für den Risikofaktor L2R (Wechsel von links nach rechts). Auf der rechten Seite ist die Dichtefunktion einer möglichen Exponentialverteilung für den Risikofaktor R2L abgebildet (Wechsel von rechts nach links).
@@ -223,8 +176,6 @@ Da wir annehmen, dass die Mehrheit der Fahrer eher rücksichtsvoll ist und eher 
 Da die Exponentialverteilung nach rechts nicht begrenzt ist, wir jedoch die Begrenzung des Risikofaktors für sinnvoll halten, wird der Risikofaktor auf das 0.97-Fraktil der Verteilung gesetzt, falls genau dieses Fraktil überschritten wird. In der linken Verteilung mit $\lambda = 12$ beträgt der maximal zulässige Wert also ungefähr 0.2922, während er in der rechten Verteilung mit $\lambda = 8$ etwa 0.4383 beträgt. In diesem Szenario wären die Fahrer im Durchschnitt also eher dazu bereit, ohne Rücksicht auf die Abstände von rechts nach links zu wechseln als umgekehrt. Anders als bei den anderen Werten ist hier die Definition exakter Werte für die Risikofaktoren durch geschickte Parameterwahl nicht möglich. An dieser Stelle wäre also eine Änderung des Programmes notwendig.
 
 \end{itemize}
-
-\end{comment}
 
 \newpage
 \section{Umsetzung}
@@ -258,12 +209,12 @@ Nachdem die Autobahn initialisiert wurde, wird der Simulationsschritt in einer S
 \subsubsection{Neue Fahrzeuge hinzufügen}
 \label{subsubsec:neueFahrzeuge}
 
-Falls die Simulation ohne periodische Randbedingungen durchgeführt wird, ist es sinnvoll, nach und nach neue Fahrzeuge zu erzeugen, da nach einiger Zeit alle bei der Initialisierung erzeugten Fahrzeuge die Autobahn am rechten Rand verlassen. Bei der Erzeugung neuer Fahrzeuge wird in jedem Simulationsschritt geprüft, ob die aktuelle Verkehrsdichte auf der Autobahn geringer ist als die bei der Initialisierung angegebene Wunschverkehrsdichte. Ist dies der Fall, wird beginnend mit der rechtesten Spur über alle Spuren der Autobahn iteriert und genau dann ein Fahrzeug in die erste Zelle der Spur eingefügt, wenn die Zelle leer ist und die gewünschte Verkehrtsdichte noch nicht erreicht ist.
+Falls die Simulation ohne periodische Randbedingungen durchgeführt wird, ist es sinnvoll, nach und nach neue Fahrzeuge zu erzeugen, da nach einiger Zeit alle bei der Initialisierung erzeugten Fahrzeuge die Autobahn am rechten Rand verlassen. Bei der Erzeugung neuer Fahrzeuge wird in jedem Simulationsschritt geprüft, ob die aktuelle Verkehrsdichte auf der Autobahn geringer ist als die bei der Initialisierung angegebene Wunschverkehrsdichte. Ist dies der Fall, wird beginnend mit der rechtesten Spur über die ersten Zellen aller Spuren der Autobahn iteriert und in jede freie Zelle ein Fahrzeug eingefügt, bis die gewünschte Verkehrsdichte erreicht ist oder alle Spuren abgearbeitet wurden. 
 
 \subsubsection{Beschleunigen}
 \label{subsubsec:beschleunigen}
 
-Die Regeln für die Beschleunigung sind unverändert geblieben. Falls ein Fahrzeug seine individuelle Maximalgeschwindigkeit noch nicht erreicht hat, wird seine Geschwindigkeit um exakt eine Stufe erhöht.
+Die Regeln für die Beschleunigung sind unverändert geblieben. Falls ein Fahrzeug seine individuelle Maximalgeschwindigkeit noch nicht erreicht hat, wird seine Geschwindigkeit um eine Stufe erhöht.
 
 \subsubsection{Fahrstreifen wechseln}
 \label{subsubsec:fahrstreifenWechseln}
@@ -274,7 +225,7 @@ Ein Wechsel auf die nächste rechtsgelegene Spur wird angestoßen, wenn ein link
 
 Zusätzlich kann der Fall eintreten, dass ein Fahrzeug ohne Rücksicht auf Abstände den Fahrstreifen wechseln möchte. In diesem Fall wird ausschließlich darauf geachtet, dass auf der Zielspur die Zelle frei ist, in die gewechselt werden soll. Die Wahrscheinlichkeit eines solchen Risikofahrstreifenwechsels wird durch die Risikofaktoren des betrachteten Fahrzeuges definiert. In jedem Simulationsschritt wird eine Zufallszahl zwischen 0 und 1 gezogen, ist diese kleiner als der entsprechende Risikofaktor, wird der entsprechende Fahrstreifenwechsel durchgeführt.
 
-Da unser System grundsätzlich für beliebig viele Spuren ausgelegt ist, bleibt noch zu klären, ob zuerst versucht werden soll, von rechts nach links zu wechseln, oder ob zuerst versucht werden soll, von links nach rechts zu wechseln. Da Fahrzeuge zum einen bestrebt sind, das Rechtsfahrgebot einzuhalten, aber sie andererseits auch stets versuchen, möglichst schnell vorwärts zu kommen, wird in jedem Simulationsschritt zufällig entschieden, welcher Wechsel zuerst versucht werden soll. Scheitert der zuerst versuchte Wechsel, wird der verbleibende Wechsel ausprobiert.
+Da unser System grundsätzlich für beliebig viele Spuren ausgelegt ist, bleibt noch zu klären, ob zuerst versucht werden soll, von rechts nach links zu wechseln, oder ob zuerst versucht werden soll, von links nach rechts zu wechseln. Da Fahrzeuge zum einen bestrebt sind, das Rechtsfahrgebot einzuhalten, aber sie andererseits auch stets versuchen, möglichst schnell vorwärts zu kommen, wird in jedem Simulationsschritt zufällig entschieden, welcher Wechsel zuerst versucht werden soll. Scheitert der zuerst versuchte, wird der verbleibende Wechsel ausprobiert.
 
 \subsubsection{Abstände prüfen}
 \label{subsubsec:abstaendePruefen}
@@ -284,12 +235,8 @@ Die Regeln für die Überprüfung der Abstande basieren ebenfalls auf den erweit
 \subsubsection{Trödeln}
 \label{subsubsec:troedeln}
 
-Wie bereits in Kapitel \ref{sec:annahmen} erläutert, wird individuell für jedes Fahrzeug der Trödelfaktor aus einer Gleichverteilung gezogen. Die Gleichverteilung wird durch den Nutzer durch Bestimmung eines Minimalwertes und eines Maximalwertes definiert. Beide Werte dürfen nicht kleiner als 0 sein und der Minimalwert darf nicht größer als der Maximalwert sein. Die Gleichsetzung beider Werte ist aufgrund der oben dargelegten Annahmen jedoch explizit möglich. In jedem Simulationsschritt wird nach dem Prüfen der Abstände eine Zufallszahl aus dem Intervall von 0 bis 1 gezogen. Falls diese Zufallszahl kleiner als der Trödelfaktor des gegenwärtig betrachteten Fahrzeuges ist, wird dessen Geschwindigkeit um genau eine Stufe reduziert. Mit Ausnahme der variierenden Trödelfaktoren handelt es sich also um die gleichen Regeln wie im STCA-Modell.
-
 \subsubsection{Fahrzeuge bewegen}
 \label{subsubsec:fahrzeugeBewegen}
-
-Im letzten Schritt müssen die Fahrzeuge noch entsprechend ihrer Geschwindigkeit bewegt werden. Da durch nach der vorangegangenen Prüfung der Abstände Kollisionen unmöglich sind, genügt es, die Fahrzeuge ihrer Geschwindigkeitsstufe entsprechend viele Zellen nach rechts zu bewegen. Falls ein Fahrzeug über den rechten Rand der Autobahn hinaus bewegt werden soll, wird im Falle von periodischen Randbedingungen das Fahrzeug in der entsprechenden Zelle am linken Rand eingefügt. Falls sich der Nutzer gegen die Periodizität der Ränder entschieden hat, erfolgt naheliegenderweise die Löschung der Fahrzeuge. 
 
 \newpage
 
@@ -405,7 +352,15 @@ Zunächst fällt auf dass der Kreisverkehr komplett gefüllt ist. Da sich die Fa
 
 Der Verlauf der Verkehrsdichte zu diesem Durchlauf ist in Abbildung \ref{fig:roundabout020density} dargestellt. Zu Beginn der Simulation befinden sich nur wenige Fahrzeuge auf der Strecke, dieser Wert steigt allerdings durch die ankommenden Fahrzeuge kontinuierlich, und erreicht dabei eine Dichte von etwa $0.4$. Dies entspicht dem Zeitpunkt, ab dem aus Platzgründen keine Fahrzeuge mehr an den Quellen generiert werden können bis ein Fahrzeug den Kreisverkehr verlässt und andere nachrücken können.
 
-\subsection{Autobahnkreuz}
+\subsection{Autobahndreieck}
+Ein Vorzug des entwickelten Algorithmus ist seine allgemeingültigkeit. Er lässt sich ohne problemspezifische Anpassungen auf beliebige Straßennetze anwenden, sogar auf nicht-planare. Daher sind wir ebenfalls in der Lage, den Verkehrsfluss an einem Autobahndreieck zu simulieren, wobei wir uns für die Bauform \q{Trompete} mit Linksführung entscheiden.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=8cm]{img/interchangeTrumpetSpeedLimits}
+	\caption{Autobahndreieck. Links: Schematische Darstellung \cite{wiki:trumpetInterchange}, Rechts: Umsetzung mit Maximalgeschwindigkeiten}
+	\label{fig:interchangeTrumpet}
+\end{figure}
 
 \newpage
 \section{Fazit}
