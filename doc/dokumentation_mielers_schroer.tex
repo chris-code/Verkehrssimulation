@@ -238,7 +238,7 @@ Die Regeln für die Überprüfung der Abstande basieren ebenfalls auf den erweit
 \subsubsection{Fahrzeuge bewegen}
 \label{subsubsec:fahrzeugeBewegen}
 
-\newpage
+Im letzten Schritt müssen die Fahrzeuge noch entsprechend ihrer Geschwindigkeit bewegt werden. Da durch nach der vorangegangenen Prüfung der Abstände Kollisionen unmöglich sind, genügt es, die Fahrzeuge ihrer Geschwindigkeitsstufe entsprechend viele Zellen nach rechts zu bewegen. Falls ein Fahrzeug über den rechten Rand der Autobahn hinaus bewegt werden soll, wird im Falle von periodischen Randbedingungen das Fahrzeug in der entsprechenden Zelle am linken Rand eingefügt. Falls sich der Nutzer gegen die Periodizität der Ränder entschieden hat, erfolgt naheliegenderweise die Löschung der Fahrzeuge. 
 
 \subsection{Kreisverkehr (und beliebige Straßenverläufe)}
 \label{subsec:umsetzung-kreisverkehr}
@@ -279,7 +279,8 @@ Diese Überlegungen führen zu folgendem Markierungsalgorithmus:
 \lstinputlisting{src/streetMapMarkAlgorithm}
 wobei r die verbleibenden Schritte des Autos runterzählt. Ob ein Fahrzeug an einer Zusammenführung Vorfahrt hat, ergibt sich wie oben beschrieben aus der Reihenfolge der Vorgängerverweise. Um die Implementierung zu vereinfachen beschränken wir uns auf Zusammenführungen mit zwei Vorgängern.
 
-Nachdem die Markierungen entsprechend gesetzt wurden müssen im Anschluss daran aus ihnen die tatsächlichen Fahrdistanzen für die einzelnen Fahrzeuge berechnet werden. Dazu kann man in jedem Fahrzeug starten und seine Wunschstrecke solange ablaufen, wie man dabei nur vom Fahrzeug markierte Zellen betritt. Hierbei zählt man eine Variable hoch, die am Ende die Geschwindigkeit des Fahrzeuges angibt. Dies geschieht folgendermaßen:
+Nachdem die Markierungen entsprechend gesetzt wurden müssen im Anschluss daran aus ihnen die tatsächlichen Fahrdistanzen für die einzelnen Fahrzeuge berechnet werden. Dazu kann man in jedem Fahrzeug starten und seine Wunschstrecke solange ablaufen, wie man dabei nur vom Fahrzeug markierte Zellen betritt. Hierbei zählt man eine Variable hoch, die am Ende die Geschwindigkeit des Fahrzeuges angibt. Dies geschieht folgendermaßen:\\
+
 \lstinputlisting{src/streetMapDistAlgorithm}
 
 Damit haben wir einen Algorithmus erreicht, der beliebige Verkehrsnetze kollisionsfrei unter Berücksichtigung von Vorfahrtsregeln und Geschwindigkeitsbegrenzungen simulieren kann. Im Kontrast zur mehrspurigen Simulation oben kann dieses Verfahren zwar ebenfalls mit mehreren Spuren umgehen, das Rechtsfahrgebot und das Rechtsüberholverbot müssten aber separat implementiert werden. Bis auf das modifizierte Verfahren zur Bestimmung der maximalen Fahrdistanz können die Regeln des Nagel-Schreckenberg Modells \cite{nagel-schreckenberg} übernommen werden. Es werden also zunächst alle Fahrzeuge beschleunigt, dann die Distanzen wie oben beschrieben geprüft, anschließend getrödelt und am Ende die Fahrzeuge bewegt.
@@ -292,6 +293,64 @@ Nun bleibt noch die Frage zu klären, wie an einer Verzweigung die Entscheidung 
 
 \subsection{Visualisierung}
 \label{subsec:visualisierung}
+
+Zur Visualisierung der Simulation werden im Anschluss an diese vier unterschiedlichen Zwecken dienende Grafiken
+erzeugt. Die erste Grafik zeigt von jedem Simulationsschritt eine Momentaufnahme der gegenwärtigen Verkehrsituation, die zweite Grafik stellt eine Geschwindigkeits-Heat-Map dar und die dritte Grafik repräsentiert eine Belegungs-Heat-Map. Die vierte Grafik zeigt die Verkehrsdichte zu jedem einzelnen Simulationsschritt. Für die Autobahn und beliebige Straßenverläufe wie den Kreisverkehr gibt es bei der Visualisierung konzeptionell keine Unterschiede. Daher wird die Visualisierung an dieser Stelle nur einmal für beide Simulationsmodelle erläutert, auch wenn wegen einiger Programmierdetails zwei unterschiedliche Implementierungen vonnöten waren.
+
+\subsubsection{Momentaufnahme}
+\label{subsubsec:momentaufnahme}
+
+Nach jedem Simulationsschritt wird eine Momentaufnahme der aktuellen Verkehrssituation gemacht. Dazu wird zunächst eine komplett schwarze Grafik erzeugt, welche genau die Dimensionen der Straßenkarte hat. Anschließend wird über die Straßenkarte iteriert und die Visualisierungsgrafik an jeder Stelle, an der ein Fahrzeug steht, entsprechend der Geschwindigkeit des Fahrzeuges eingefärbt. Dabei steht die Farbe Dunkelrot für ein stehendes Fahrzeug und die Farbe Weiß für ein mit der globalen Maximalgeschwindigkeit 7 = 189 $km/h$ fahrendes Fahrzeug. Nach jedem Simulationsschritt wird die aktuelle Momentaufnahme an die bisherigen Momentaufnahmen angefügt. Da die Momentaufnahmen des Kreisverkehrs über mehrere Simulationsschritte hinweg horizontal deutlich zu viel Platz beanspruchen würde, werden im Folgenden die Momentaufnahmen einer zweispurigen Autobahn über zehn Simulationsschritte hinweg dargestellt.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[height=2.91cm]{img/vis_multilane_2_lanes}
+	\caption{Momentaufnahmen von zehn Simulationsschritten (Ausschnitt)}
+	\label{fig:momentaufnameMultilane}
+\end{figure}
+
+Für Simulationen mit vielen Spuren und über viele Simulationsschritte hinweg kann ein solches Bild natürlich sehr sehr hoch werden. Die zwei nachfolgenden Visualisierungarten benötigen deutlich weniger Platz.
+
+\subsubsection{Geschwindigkeits-Heat-Map}
+\label{subsubsec:speedmap}
+
+Eine zweite Möglichkeit der Visualisierung stellt die Geschwindigkeits-Heat-Map dar. Diese Grafik veranschaulicht, mit welcher Geschwindigkeit sich Fahrzeuge im Durchschnitt über die einzelnen Zellen bewegt haben. Dazu wird nach jedem Simulationsschritt für jedes Fahrzeug ermittelt, welche Zellen es mit welcher Geschwindigkeit passiert hat.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[height=4cm]{img/vis_roundabout_speed_heat_map}
+	\caption{Geschwindigkeits-Heat-Map eines Kreisverkehrs}
+	\label{fig:speedMapRoundabout}
+\end{figure}
+
+Die Farben in der Geschwindigkeits-Heat-Map sind genau so zu interpretieren wie bei den Momentaufnahmen. Ist eine Zelle schwarz, ist dort während der gesamten Simulation nicht ein einziges Fahrzeug entlang gefahren. Bei einer weißen Zelle hatten alle Fahrzeuge, die diese Zelle passiert haben, Geschwindigkeit 7. Eine graue Zelle bedeutet, dass sich an entsprechender Stelle keine befahrbare Straße befindet bzw. die Zelle unerreichbar ist. Im gegebenen Beispiel in Abbildung \ref{fig:speedMapRoundabout} ist deutlich ersichtlich, dass die Geschwindigkeit im Kreisverkehr geringer als auf den Zubringern ist.
+
+\subsubsection{Belegungs-Heat-Map}
+\label{subsubsec:occupancymap}
+
+Die Belegungs-Heat-Map verfolgt ein ähnliches Konzept wie die Geschwindigkeits-Heat-Map. Der Unterschied liegt darin, dass bei der Belegungs-Heat-Map nur berücksichtigt wird, ob sich ein Fahrzeug in einem Simulationsschritt über eine Zelle bewegt hat. Es ist nicht von Relevanz, mit welcher Geschwindigkeit dies geschehen ist. Auf diese Weise können wir elegant ermitteln, wie stark die unterschiedlichen Bereiche eines Straßennetzes über die gesamte Simulation hinweg frequentiert waren.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[height=4cm]{img/vis_roundabout_occupancy_heat_map}
+	\caption{Belegungs-Heat-Map eines Kreisverkehrs}
+	\label{fig:occupancyMapRoundabout}
+\end{figure}
+
+Bei der Belegungs-Heat-Map verhält es sich mit den Farben ein wenig anders als sonst. Während eine schwarze Zelle anzeigt, dass sich in dieser Zelle zu keinem Zeitpunkt ein Fahrzeug befand, bedeutet eine weiße Zelle, dass in jedem einzelnen Simulationsschritt ein Fahrzeug in der Zelle anzutreffen war. Hier sind die Farben also nur indirekt mit den Geschwindigkeiten in Verbindung zu bringen.
+
+\subsubsection{Verkehrsdichte}
+\label{subsubsec:verkehrsdichte}
+
+Bei einer Simulation mit periodischen Randbedingungen ist die Verkehrsdichte konstant. Ohne periodische Randbedingungen kann die Verkehrsdichte über die Simulationszeit hinweg jedoch durchaus aufschlussreich sein. Daher wird nach der Simulation eine Grafik erzeugt, die zu jedem Simulationsschritt die dazugehörige Verkehrsdichte anzeigt.
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=15cm,height=5.58cm]{img/vis_street_map_densities}
+	\caption{Belegungs-Heat-Map eines Kreisverkehrs}
+	\label{fig:occupancyMapRoundabout}
+\end{figure}
+
+
 
 \newpage
 \section{Ergebnisse}
@@ -366,10 +425,13 @@ Ein Vorzug des entwickelten Algorithmus ist seine allgemeingültigkeit. Er läss
 \section{Fazit}
 \label{sec:fazit}
 
+\blindtext
+\blindtext
+\blindtext
+
 %\blindtext asdf \cite{mehrspurig}\\
 %In Kapitel \myref{sec:einleitung} steht Shit. In Foobar (\myrefcomma{sec:ansatz}) bla
 
-\newpage
 \addcontentsline{toc}{section}{Literatur}
 \bibliography{ref}{}
 \bibliographystyle{alpha}

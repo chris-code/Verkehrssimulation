@@ -34,13 +34,13 @@ class SimulationMultilane {
 
 			if(fillRoad) {
 				if (equallySpaced) {
-					long step = 1.0 / carDensity;
+					long step = round(1.0 / carDensity);
 					long laneOffset = max(1L, step / road.getLaneCount());
 
 					for (auto l = 0; l < road.getLaneCount(); ++l) {
 						for (auto s = l * laneOffset; s < road.getStreetLength(); s += step) {
 							Vehicle* v = new Vehicle(randomEngine, dallyFactorDistribution, riskFactorDistributionL2R, riskFactorDistributionR2L, maxSpeedDistribution);
-							long speed = min(v->maxSpeed, step);
+							long speed = min(v->maxSpeed, step - 1);
 							v->currentSpeed = speed;
 							road.insertVehicle(s, l, v);
 						}
@@ -110,6 +110,7 @@ class SimulationMultilane {
 			for (auto l = road.getLaneCount() - 1; l >=0; --l) {
 				if (road.getVehicle(0, l) == nullptr && road.computeDensity() < trafficDensity) {
 					Vehicle* v = new Vehicle(randomEngine, dallyFactorDistribution, riskFactorDistributionL2R, riskFactorDistributionR2L, maxSpeedDistribution);
+//					v->currentSpeed = v->maxSpeed;
 					road.insertVehicle(0, l, v);
 				}
 			}
