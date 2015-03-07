@@ -270,7 +270,7 @@ class VisualizationRoundabout {
 			long minValue = occupancyCounter.min();
 			long maxValue = 765;
 			if (!relative) {
-				maxValue = (occupancyCounter.max() / iterations) * 765;
+				maxValue = long((double(occupancyCounter.max()) / double(iterations)) * 765.);
 			}
 
 			CImg<long> occupancyHeatMapNormalized = occupancyCounter.get_normalize(minValue, maxValue);
