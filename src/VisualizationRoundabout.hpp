@@ -18,6 +18,7 @@ class VisualizationRoundabout {
 			occupancyCounter(dimX, dimY, 1, 1, 0) {
 			firstAppend = true;
 			lastUsedStreetMap = nullptr;
+			iterations = 0;
 		}
 
 		void appendRoundabout(StreetMap &sm) {
@@ -38,6 +39,7 @@ class VisualizationRoundabout {
 			updateSpeedHeatMap(sm);
 			updateOccupancyHeatMap(sm);
 			densities.push_back(sm.computeDensity());
+			iterations++;
 		}
 
 		void show() {
@@ -50,7 +52,8 @@ class VisualizationRoundabout {
 		void save() {
 			roundaboutImg.save_png("output/roundabout_image.png", 3);
 			saveSpeedHeatMap();
-			saveOccupancyHeatMap();
+			saveOccupancyHeatMap(true);
+			saveOccupancyHeatMap(false);
 			saveDensities();
 		}
 
@@ -261,11 +264,14 @@ class VisualizationRoundabout {
 			speedHeatMapColored.save_png("output/roundabout_speed_heat_map.png", 3);
 		}
 
-		void saveOccupancyHeatMap() {
+		void saveOccupancyHeatMap(bool relative) {
 			CImg<unsigned char> occupancyHeatMapColored(occupancyCounter.width(), occupancyCounter.height(), 1, 3);
 
 			long minValue = occupancyCounter.min();
 			long maxValue = 765;
+			if (!relative) {
+				long maxValue = (occupancyCounter.max() / iterations) * 765;
+			}
 
 			CImg<long> occupancyHeatMapNormalized = occupancyCounter.get_normalize(minValue, maxValue);
 
@@ -350,4 +356,5 @@ class VisualizationRoundabout {
 		std::map<StreetSegment*, std::pair<long, long>> segmentToPositionMap;
 		bool firstAppend;
 		std::vector<double> densities;
+		long iterations;
 };
