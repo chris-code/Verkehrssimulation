@@ -140,14 +140,26 @@ class StreetMap {
 			    &( contents[lowerDriveUpLeft + 1][lowerBorder] ), 2.0 );
 		}
 		
-//		Warning: You are about to enter the most repulsive piece of code you will ever read
+		/*
+		 *      A-----------B
+		 *      |           |
+		 *      |    C---D  |
+		 *      |    |   |  |
+		 *      |    |   |  |
+		 *      |    |   E  F
+		 *      |    |
+		 * G----H----I---J--K-------------L
+		 * M----N--------------------O----P
+		 *      |                    |
+		 *      |        Q  R        |
+		 *      |        |  |        |
+		 *      |        |  |        |
+		 *      S--------T  U--------V
+		 *               |  |
+		 *               |  |
+		 *               X  Y
+		 */
 		void buildTrumpetInterchange( long driveUpLength ) {
-			long buffer = 3;
-			long interchangeWidth = 52;
-			long interchangeHeight = 37;
-			long lowerLeftLoopSize = 18;
-			long lowerRightLoopSize = lowerLeftLoopSize;
-			
 			for( long x = 0; x < dimX; ++x ) {
 				for( long y = 0; y < dimY; ++y ) {
 					if( contents[x][y].v != nullptr ) {
@@ -157,14 +169,20 @@ class StreetMap {
 				}
 			}
 			
-			dimX = ( driveUpLength + buffer ) * 2 + interchangeWidth;
-			dimY = buffer * 2 + driveUpLength + interchangeHeight;
+			long buffer = 3;
+			long lowerLoopSize = 18;
+			long upperInnerLoopSize = 10;
+			long upperOuterLoopHeight = 15;
+			
+			long interchangeWidth = 2 * lowerLoopSize + 2;
+			long interchangeHeight = lowerLoopSize + upperOuterLoopHeight + 2;
+			dimX = interchangeWidth + 2 * driveUpLength + 2 * buffer;
+			dimY = interchangeHeight + driveUpLength + 2 * buffer;
 			contents.resize( dimX );
 			for( long x = 0; x < dimX; ++x ) {
 				contents[x].clear(); // Make sure we don't reuse segments
 				contents[x].resize( dimY );
 			}
-			
 //			Set default speed
 			for( long x = 0; x < dimX; ++x ) {
 				for( long y = 0; y < dimY; ++y ) {
@@ -172,143 +190,104 @@ class StreetMap {
 				}
 			}
 			
-//			Build horizontal streets of the interchange
-			long upperLoopLargeHeight = 15;
-			long upperLoopLargeWidth = 22;
-			long upperLaneY = upperLoopLargeHeight + buffer;
-			long lowerLaneY = upperLaneY + 3;
-			long horizontalLanesXstart = driveUpLength + buffer;
-			for( long x = horizontalLanesXstart; x < horizontalLanesXstart + interchangeWidth;
-			        ++x ) {
-				contents[x][upperLaneY].addPredecessor( &( contents[x + 1][upperLaneY] ) );
-				contents[x][lowerLaneY].addPredecessor( &( contents[x - 1][lowerLaneY] ) );
+			long dejqtxX = buffer + driveUpLength + lowerLoopSize;
+			long ciX = dejqtxX - upperInnerLoopSize;
+			long ahnsX = dejqtxX - lowerLoopSize;
+			long gmX = ahnsX - driveUpLength;
+			long bfkruyX = dejqtxX + 3;
+			long ovX = bfkruyX + lowerLoopSize;
+			long lpX = ovX + driveUpLength;
+			
+			long ghijklY = buffer + upperOuterLoopHeight;
+			long abY = ghijklY - upperOuterLoopHeight;
+			long cdY = ghijklY - upperInnerLoopSize;
+			long efY = ghijklY - 2;
+			long mnopY = ghijklY + 3;
+			long qrY = mnopY + 2;
+			long stuvY = mnopY + lowerLoopSize;
+			long xyY = stuvY + driveUpLength;
+			
+			pair<long, long> a( ahnsX, abY );
+			pair<long, long> b( bfkruyX, abY );
+			pair<long, long> c( ciX, cdY );
+			pair<long, long> d( dejqtxX, cdY );
+			pair<long, long> e( dejqtxX, efY );
+			pair<long, long> f( bfkruyX, efY );
+			pair<long, long> g( gmX, ghijklY );
+			pair<long, long> h( ahnsX, ghijklY );
+			pair<long, long> i( ciX, ghijklY );
+			pair<long, long> j( dejqtxX, ghijklY );
+			pair<long, long> k( bfkruyX, ghijklY );
+			pair<long, long> l( lpX, ghijklY );
+			pair<long, long> m( gmX, mnopY );
+			pair<long, long> n( ahnsX, mnopY );
+			pair<long, long> o( ovX, mnopY );
+			pair<long, long> p( lpX, mnopY );
+			pair<long, long> q( dejqtxX, qrY );
+			pair<long, long> r( bfkruyX, qrY );
+			pair<long, long> s( ahnsX, stuvY );
+			pair<long, long> t( dejqtxX, stuvY );
+			pair<long, long> u( bfkruyX, stuvY );
+			pair<long, long> v( ovX, stuvY );
+			pair<long, long> x( dejqtxX, xyY );
+			pair<long, long> y( bfkruyX, xyY );
+			
+//			Vertical main streets
+			buildPredPointersInLine( g, l, 4 );
+			buildPredPointersInLine( p, m, 4 );
+			
+//			Horizontal main streets
+			buildPredPointersInLine( r, y, 3 );
+			buildPredPointersInLine( x, q, 3 );
+			buildPredPointersInLine( b, f, 3 );
+			buildPredPointersInLine( e, d, 2 );
+			for( long yPos = stuvY + 5; yPos <= xyY; ++yPos ) {
+				contents[dejqtxX][yPos].maxSpeed = 4;
+				contents[bfkruyX][yPos].maxSpeed = 4;
 			}
 			
-//			Build left drive ups
-			long driveUpLeftStart = buffer;
-			for( long x = driveUpLeftStart; x < horizontalLanesXstart; ++x ) {
-				contents[x][upperLaneY].addPredecessor( &( contents[x + 1][upperLaneY] ) );
-				contents[x][lowerLaneY].addPredecessor( &( contents[x - 1][lowerLaneY] ) );
+//			Horizontal parts of upper loops
+			buildPredPointersInLine( a, b, 3 );
+			buildPredPointersInLine( d, c, 2 );
+			
+//			Vertical parts of upper loops
+			buildPredPointersInLine( h , a, 3 );
+			buildPredPointersInLine( c, i, 2 );
+			contents[h.first][h.second].maxSpeed = 4;
+			for( long yPos = ghijklY - 5; yPos < ghijklY; ++yPos ) {
+				contents[ciX][yPos].maxSpeed = 3;
+				contents[dejqtxX][yPos].maxSpeed = 3;
 			}
 			
-//			Build right drive ups
-			long driveUpRightEnd = 2 * driveUpLength + interchangeWidth;
-			for( long x = horizontalLanesXstart + interchangeWidth; x < driveUpRightEnd; ++x ) {
-				contents[x][upperLaneY].addPredecessor( &( contents[x + 1][upperLaneY] ) );
-				contents[x][lowerLaneY].addPredecessor( &( contents[x - 1][lowerLaneY] ) );
-			}
+//			Lower right loop
+			buildPredPointersInLine( o, v, 3 );
+			buildPredPointersInLine( v, u, 3 );
+			contents[o.first][o.second].maxSpeed = 4;
 			
-//			Build vertical streets of interchange
-			long leftLaneX = interchangeWidth / 2 - 2 + ( driveUpLength + buffer );
-			long rightLaneX = leftLaneX + 3;
-			long driveUpLowerEnd = interchangeHeight + buffer + driveUpLength;
-			for( long y = lowerLaneY + 3; y < driveUpLowerEnd; ++y ) {
-				contents[leftLaneX][y].addPredecessor( &( contents[leftLaneX][y - 1] ) );
-				contents[rightLaneX][y].addPredecessor( &( contents[rightLaneX][y + 1] ) );
-				if( y < lowerLaneY + lowerLeftLoopSize + 6 ) {
-					contents[leftLaneX][y].maxSpeed = 3;
-					contents[rightLaneX][y].maxSpeed = 3;
-				}
-			}
-			long hOffset = 10;
-			long vOffset = - 10;
-			for( long y = lowerLaneY - 5; y < lowerLaneY + 3; ++y ) {
-				contents[leftLaneX + hOffset][y + vOffset].addPredecessor(
-				    &( contents[leftLaneX + hOffset][y - 1 + vOffset] ) );
-				contents[rightLaneX + hOffset][y + vOffset].addPredecessor(
-				    &( contents[rightLaneX + hOffset][y + 1 + vOffset] ) );
-				contents[leftLaneX + hOffset][y + vOffset].maxSpeed = 3;
-				contents[rightLaneX + hOffset][y + vOffset].maxSpeed = 3;
-			}
-			contents[leftLaneX + hOffset][lowerLaneY - 5 - 1 + vOffset].addPredecessor(
-			    &( contents[leftLaneX][lowerLaneY - 6] ) );
-			contents[leftLaneX + hOffset][lowerLaneY - 5 - 1 + vOffset].maxSpeed = 3;
-			contents[leftLaneX][lowerLaneY + 2].addPredecessor(
-			    &( contents[leftLaneX + hOffset][lowerLaneY + 2 + vOffset] ) );
-			contents[leftLaneX][lowerLaneY + 2].maxSpeed = 3;
-			contents[rightLaneX][lowerLaneY - 5].addPredecessor(
-			    &( contents[rightLaneX + hOffset][lowerLaneY - 5 + vOffset] ) );
-			contents[rightLaneX][lowerLaneY - 5].maxSpeed = 3;
-			contents[rightLaneX + hOffset][lowerLaneY + 3 + vOffset].addPredecessor(
-			    &( contents[rightLaneX][lowerLaneY + 3] ) );
-			contents[rightLaneX + hOffset][lowerLaneY + 3 + vOffset].maxSpeed = 3;
-			for( long y = buffer; y < lowerLaneY - 5; ++y ) {
-				if( y > buffer + 5 ) {
-					contents[leftLaneX][y].addPredecessor( &( contents[leftLaneX][y - 1] ) );
-					if( y > buffer + 8 ) {
-						contents[leftLaneX][y].maxSpeed = 3;
-					} else {
-						contents[leftLaneX][y].maxSpeed = 2;
-					}
-				}
-				contents[rightLaneX][y].addPredecessor( &( contents[rightLaneX][y + 1] ) );
-				contents[rightLaneX][y].maxSpeed = 3;
-			}
+//			Lower left loop
+			buildPredPointersInLine( t, s, 3 );
+			buildPredPointersInLine( s, n, 3 );
 			
-//			Build horizontal segments of upper outer loop
-			long upperOuterLoopStartX = rightLaneX - upperLoopLargeWidth + 1;
-			for( long x = upperOuterLoopStartX; x < rightLaneX; ++x ) {
-				contents[x][buffer].addPredecessor( &( contents[x + 1][buffer] ) );
-				contents[x][buffer].maxSpeed = 3;
-			}
-//			Build vertical segments of upper outer loop
-			for( long y = buffer + 1; y <= upperLaneY; ++y ) {
-				contents[upperOuterLoopStartX][y].addPredecessor(
-				    &( contents[upperOuterLoopStartX][y - 1] ) );
-				if( y < upperLaneY ) {
-					contents[upperOuterLoopStartX][y].maxSpeed = 3;
-				}
-			}
+//			Build tunnel next to the intersection
+			pair<long, long> tunnelLeftLower( bfkruyX + 5, ghijklY - 2 );
+			pair<long, long> tunnelLeftUpper( bfkruyX + 5, tunnelLeftLower.second - 5 );
+			pair<long, long> tunnelRightLower( tunnelLeftLower.first + 3, tunnelLeftLower.second );
+			pair<long, long> tunnelRightUpper( tunnelRightLower.first, tunnelRightLower.second - 5 );
+			buildPredPointersInLine( tunnelLeftLower, tunnelLeftUpper, 3 );
+			buildPredPointersInLine( tunnelRightUpper, tunnelRightLower, 3 );
 			
-//			Build horizontal segments of upper inner loop
-			long upperLoopSmallWidth = 10;
-			long upperInnerLoopStartX = leftLaneX - upperLoopSmallWidth + 1;
-			for( long x = upperInnerLoopStartX; x <= leftLaneX; ++x ) {
-				contents[x][buffer + 5].addPredecessor( &( contents[x - 1][buffer + 5] ) );
-				contents[x][buffer + 5].maxSpeed = 2;
-			}
-//			Build vertical segments of upper inner loop
-			for( long y = buffer + 5; y < upperLaneY; ++y ) {
-				contents[upperInnerLoopStartX - 1][y].addPredecessor(
-				    &( contents[upperInnerLoopStartX - 1][y + 1] ) );
-				if( y < buffer + 9 ) {
-					contents[upperInnerLoopStartX - 1][y].maxSpeed = 2;
-				} else {
-					contents[upperInnerLoopStartX - 1][y].maxSpeed = 3;
-				}
-			}
-			
-//			Build lower left loop
-			long lowerLeftLoopHorizY = lowerLaneY + lowerLeftLoopSize;
-			long lowerLeftLoopVertX = leftLaneX - lowerLeftLoopSize;
-			for( long x = lowerLeftLoopVertX + 1; x <= leftLaneX; ++x ) {
-				contents[x][lowerLeftLoopHorizY].addPredecessor(
-				    &( contents[x - 1][lowerLeftLoopHorizY] ) );
-				if( x < leftLaneX ) {
-					contents[x][lowerLeftLoopHorizY].maxSpeed = 3;
-				}
-			}
-			for( long y = lowerLaneY + 1; y <= lowerLeftLoopHorizY; ++y ) {
-				contents[lowerLeftLoopVertX][y].addPredecessor(
-				    &( contents[lowerLeftLoopVertX][y - 1] ) );
-				contents[lowerLeftLoopVertX][y].maxSpeed = 3;
-			}
-			
-//			Build lower right loop
-			long lowerRightLoopHorizY = lowerLaneY + lowerRightLoopSize;
-			long lowerRightLoopVertX = rightLaneX + lowerRightLoopSize;
-			for( long x = rightLaneX + 1; x <= lowerRightLoopVertX; ++x ) {
-				contents[x][lowerRightLoopHorizY].addPredecessor(
-				    &( contents[x - 1][lowerRightLoopHorizY] ) );
-				contents[x][lowerRightLoopHorizY].maxSpeed = 3;
-			}
-			for( long y = lowerLaneY; y < lowerRightLoopHorizY; ++y ) {
-				contents[lowerRightLoopVertX][y].addPredecessor(
-				    &( contents[lowerRightLoopVertX][y + 1] ) );
-				if( y != lowerLaneY ) {
-					contents[lowerRightLoopVertX][y].maxSpeed = 3;
-				}
-			}
+			contents[tunnelLeftUpper.first][tunnelLeftUpper.second].addPredecessor( &
+			        ( contents[e.first][e.second] ) );
+			contents[q.first][q.second].addPredecessor( &
+			        ( contents[tunnelLeftLower.first][tunnelLeftLower.second] ) );
+			contents[f.first][f.second].addPredecessor( &
+			        ( contents[tunnelRightUpper.first][tunnelRightUpper.second] ) );
+			contents[tunnelRightLower.first][tunnelRightLower.second].addPredecessor( &
+			        ( contents[r.first][r.second] ) );
+			contents[q.first][q.second].maxSpeed = 3;
+			contents[tunnelLeftUpper.first][tunnelLeftUpper.second].maxSpeed = 3;
+			contents[tunnelRightLower.first][tunnelRightLower.second].maxSpeed = 3;
+			contents[f.first][f.second].maxSpeed = 3;
 			
 //			Generate other info from the current state
 			buildDestinationPointers();
@@ -336,10 +315,10 @@ class StreetMap {
 		void visualize() {
 			for( long y = 0; y < dimY; ++y ) {
 				for( long x = 0; x < dimX; ++x ) {
-//					if( ! contents[x][y].isDummy() ) {
-//						cout << contents[x][y].maxSpeed;
-//						continue;
-//					}
+					if( ! contents[x][y].isDummy() ) {
+						cout << contents[x][y].maxSpeed;
+						continue;
+					}
 					if( contents[x][y].v != nullptr ) {
 						cout << contents[x][y].v->currentSpeed;
 					} else if( contents[x][y].isSource() ) {
@@ -385,6 +364,11 @@ class StreetMap {
 		vector<vector<StreetSegment>> contents;
 		set<StreetSegment*> sources;
 		set<StreetSegment*> sinks;
+		
+		void buildPredPointersInLine( pair<long, long> &start, pair<long, long> &stop,
+		                              long maxSpeed ) {
+			buildPredPointersInLine( start.first, start.second, stop.first, stop.second, maxSpeed );
+		}
 		
 //		Builds a line of predecessor pointers that point in the direction from (startX,startY) to
 //		(stopX,stopY).
