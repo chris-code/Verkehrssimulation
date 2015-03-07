@@ -299,7 +299,12 @@ class VisualizationRoundabout {
 				}
 			}
 
-			occupancyHeatMapColored.save_png("output/roundabout_occupancy_heat_map.png", 3);
+			if (relative) {
+				occupancyHeatMapColored.save_png("output/roundabout_occupancy_heat_map_relative.png", 3);
+			}
+			else {
+				occupancyHeatMapColored.save_png("output/roundabout_occupancy_heat_map.png", 3);
+			}
 		}
 
 		void saveDensities() {
