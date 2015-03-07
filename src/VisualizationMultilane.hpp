@@ -16,6 +16,7 @@ class VisualizationMultilane {
 			speedCounter(streetLength, laneCount, 1, 1, 0),
 			occupancyCounter(streetLength, laneCount, 1, 1, 0) {
 			firstAppend = true;
+			iterations = 0;
 		}
 
 		void appendRoad(Road &r) {
@@ -32,6 +33,7 @@ class VisualizationMultilane {
 			updateSpeedHeatMap(r);
 			updateOccupancyHeatMap(r);
 			densities.push_back(r.computeDensity());
+			iterations++;
 		}
 
 		void show() {
@@ -44,7 +46,8 @@ class VisualizationMultilane {
 		void save() {
 			roadImg.save_png("output/multilane_image.png", 3);
 			saveSpeedHeatMap();
-			saveOccupancyHeatMap();
+			saveOccupancyHeatMap(true);
+			saveOccupancyHeatMap(false);
 			saveDensities();
 		}
 
@@ -146,11 +149,14 @@ class VisualizationMultilane {
 			speedHeatMapColored.save_png("output/multilane_speed_heat_map.png", 3);
 		}
 
-		void saveOccupancyHeatMap() {
+		void saveOccupancyHeatMap(bool relative) {
 			CImg<unsigned char> occupancyHeatMapColored(occupancyCounter.width(), occupancyCounter.height(), 1, 3);
 
 			long minValue = occupancyCounter.min();
 			long maxValue = 765;
+			if (!relative) {
+				maxValue = long((double(occupancyCounter.max()) / double(iterations)) * 765.);
+			}
 
 			CImg<long> occupancyHeatMapNormalized = occupancyCounter.get_normalize(minValue, maxValue);
 
@@ -169,7 +175,12 @@ class VisualizationMultilane {
 				}
 			}
 
-			occupancyHeatMapColored.save_png("output/multilane_occupancy_heat_map.png", 3);
+			if (relative) {
+				occupancyHeatMapColored.save_png("output/multilane_occupancy_heat_map_relative.png", 3);
+			}
+			else {
+				occupancyHeatMapColored.save_png("output/multilane_occupancy_heat_map.png", 3);
+			}
 		}
 
 		void saveDensities() {
@@ -224,4 +235,5 @@ class VisualizationMultilane {
 		CImg<long> occupancyCounter;
 		bool firstAppend;
 		std::vector<double> densities;
+		long iterations;
 };
