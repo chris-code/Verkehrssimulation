@@ -362,7 +362,7 @@ Bei der Simulation des Verkehrsflusses an einem Kreisverkehr gibt es Verzweigung
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=8cm]{img/roundaboutSmall}
+	\includegraphics[width=6cm]{img/roundaboutSmall}
 	\caption{Kreisverkehr mit eingetragenen Höchstgeschwindigkeiten}
 	\label{fig:roundaboutSmall}
 \end{figure}
@@ -419,6 +419,17 @@ Ein Vorzug des entwickelten Algorithmus ist seine allgemeingültigkeit. Er läss
 	\includegraphics[width=8cm]{img/interchangeTrumpetSpeedLimits}
 	\caption{Autobahndreieck. Links: Schematische Darstellung \cite{wiki:trumpetInterchange}, Rechts: Umsetzung mit Maximalgeschwindigkeiten}
 	\label{fig:interchangeTrumpet}
+\end{figure}
+
+Hierbei nehmen wir auf den Autobahnen ein Tempolimit von 4 (also $108km/h$) in der Nähe des Dreiecks an. Für die Verbindungsstraßen werden Limits von 3 ($81km/h$) bzw. 2 ($54km/h$) entsprechend ihrer Krümmung aus. Da die von unten kommende Autobahn unter (oder über) der anderen verlaufen muss und damit die selben Zellen nutzen würde, wäre diese Formation mit regulären zellulären Automaten nicht darstellbar. In der Repräsentation als Graph auf der unser Algorithmus arbeitet, ist dies jedoch kein Problem. Zur graphischen Aufbereitung platzieren wir das Unterführungsstück isoliert abseits der anderen Straßen, wie in \ref{fig:interchangeTrumpet} zu sehen.
+
+Ebenso wie der Kreisverkehr verfügt dieses System über 3 Quellen und 3 Senken, verhält sich unter hoher Verkehrslast allerdings wesentlich zuverlässiger. Selbst bei einer Erzeugungsrate von $1.00$, wenn also wann immer möglich ein Fahrzeug eingefügt wird, kommt es nicht zu permanenten Staus.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{img/interchangeTrumpet_100}
+	\caption{Erzeugungsrate 1.00. Links: Autobahndreieck nach 500 Iterationen, Mitte: Belegungshäufigkeit, Rechts: Durchschnittsgeschwindigkeit}
+	\label{fig:interchangeTrumpet100}
 \end{figure}
 
 \newpage
