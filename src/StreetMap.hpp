@@ -169,6 +169,10 @@ class StreetMap {
 				}
 			}
 			
+			long tightLoopSpeed = 2;
+			long wideLoopSpeed = 3;
+			long interchangeSpeed = 4;
+
 			long buffer = 3;
 			long lowerLoopSize = 18;
 			long upperInnerLoopSize = 10;
@@ -186,7 +190,7 @@ class StreetMap {
 //			Set default speed
 			for( long x = 0; x < dimX; ++x ) {
 				for( long y = 0; y < dimY; ++y ) {
-					contents[x][y].maxSpeed = 4;
+					contents[x][y].maxSpeed = interchangeSpeed;
 				}
 			}
 			
@@ -232,49 +236,49 @@ class StreetMap {
 			pair<long, long> x( dejqtxX, xyY );
 			pair<long, long> y( bfkruyX, xyY );
 			
-//			Vertical main streets
-			buildPredPointersInLine( g, l, 4 );
-			buildPredPointersInLine( p, m, 4 );
-			
 //			Horizontal main streets
-			buildPredPointersInLine( r, y, 3 );
-			buildPredPointersInLine( x, q, 3 );
-			buildPredPointersInLine( b, f, 3 );
-			buildPredPointersInLine( e, d, 2 );
+			buildPredPointersInLine( g, l, interchangeSpeed );
+			buildPredPointersInLine( p, m, interchangeSpeed );
+			
+//			Vertical main streets
+			buildPredPointersInLine( r, y, wideLoopSpeed );
+			buildPredPointersInLine( x, q, wideLoopSpeed );
+			buildPredPointersInLine( b, f, wideLoopSpeed );
+			buildPredPointersInLine( e, d, tightLoopSpeed );
 			for( long yPos = stuvY + 5; yPos <= xyY; ++yPos ) {
-				contents[dejqtxX][yPos].maxSpeed = 4;
-				contents[bfkruyX][yPos].maxSpeed = 4;
+				contents[dejqtxX][yPos].maxSpeed = interchangeSpeed;
+				contents[bfkruyX][yPos].maxSpeed = interchangeSpeed;
 			}
 			
 //			Horizontal parts of upper loops
-			buildPredPointersInLine( a, b, 3 );
-			buildPredPointersInLine( d, c, 2 );
+			buildPredPointersInLine( a, b, wideLoopSpeed );
+			buildPredPointersInLine( d, c, tightLoopSpeed );
 			
 //			Vertical parts of upper loops
-			buildPredPointersInLine( h , a, 3 );
-			buildPredPointersInLine( c, i, 2 );
-			contents[h.first][h.second].maxSpeed = 4;
+			buildPredPointersInLine( h , a, wideLoopSpeed );
+			buildPredPointersInLine( c, i, tightLoopSpeed );
+			contents[h.first][h.second].maxSpeed = interchangeSpeed;
 			for( long yPos = ghijklY - 5; yPos < ghijklY; ++yPos ) {
-				contents[ciX][yPos].maxSpeed = 3;
-				contents[dejqtxX][yPos].maxSpeed = 3;
+				contents[ciX][yPos].maxSpeed = wideLoopSpeed;
+				contents[dejqtxX][yPos].maxSpeed = wideLoopSpeed;
 			}
 			
 //			Lower right loop
-			buildPredPointersInLine( o, v, 3 );
-			buildPredPointersInLine( v, u, 3 );
-			contents[o.first][o.second].maxSpeed = 4;
+			buildPredPointersInLine( o, v, wideLoopSpeed );
+			buildPredPointersInLine( v, u, wideLoopSpeed );
+			contents[o.first][o.second].maxSpeed = interchangeSpeed;
 			
 //			Lower left loop
-			buildPredPointersInLine( t, s, 3 );
-			buildPredPointersInLine( s, n, 3 );
+			buildPredPointersInLine( t, s, wideLoopSpeed );
+			buildPredPointersInLine( s, n, wideLoopSpeed );
 			
 //			Build tunnel next to the intersection
-			pair<long, long> tunnelLeftLower( bfkruyX + 5, ghijklY - 2 );
+			pair<long, long> tunnelLeftLower( bfkruyX + 5, ghijklY - 4 );
 			pair<long, long> tunnelLeftUpper( bfkruyX + 5, tunnelLeftLower.second - 5 );
 			pair<long, long> tunnelRightLower( tunnelLeftLower.first + 3, tunnelLeftLower.second );
 			pair<long, long> tunnelRightUpper( tunnelRightLower.first, tunnelRightLower.second - 5 );
-			buildPredPointersInLine( tunnelLeftLower, tunnelLeftUpper, 3 );
-			buildPredPointersInLine( tunnelRightUpper, tunnelRightLower, 3 );
+			buildPredPointersInLine( tunnelLeftLower, tunnelLeftUpper, wideLoopSpeed );
+			buildPredPointersInLine( tunnelRightUpper, tunnelRightLower, wideLoopSpeed );
 			
 			contents[tunnelLeftUpper.first][tunnelLeftUpper.second].addPredecessor( &
 			        ( contents[e.first][e.second] ) );
@@ -284,10 +288,10 @@ class StreetMap {
 			        ( contents[tunnelRightUpper.first][tunnelRightUpper.second] ) );
 			contents[tunnelRightLower.first][tunnelRightLower.second].addPredecessor( &
 			        ( contents[r.first][r.second] ) );
-			contents[q.first][q.second].maxSpeed = 3;
-			contents[tunnelLeftUpper.first][tunnelLeftUpper.second].maxSpeed = 3;
-			contents[tunnelRightLower.first][tunnelRightLower.second].maxSpeed = 3;
-			contents[f.first][f.second].maxSpeed = 3;
+			contents[q.first][q.second].maxSpeed = wideLoopSpeed;
+			contents[tunnelLeftUpper.first][tunnelLeftUpper.second].maxSpeed = wideLoopSpeed;
+			contents[tunnelRightLower.first][tunnelRightLower.second].maxSpeed = wideLoopSpeed;
+			contents[f.first][f.second].maxSpeed = wideLoopSpeed;
 			
 //			Generate other info from the current state
 			buildDestinationPointers();

@@ -157,27 +157,27 @@ Um das Fahrverhalten unterschiedlicher Fahrertypen abbilden zu können, wird der
 Da wir annehmen, dass die Mehrheit der Fahrer eher rücksichtsvoll ist und eher wenig Fahrer riskante Fahrmanöver unternehmen, verwenden wir für die Ermittlung der Riskofaktoren Exponentialverteilungen. Die linke Seite der folgenden Abbildung zeigt die Dichtefunktion einer möglichen Exponentialverteilung für den Risikofaktor L2R (Wechsel von links nach rechts). Auf der rechten Seite ist die Dichtefunktion einer möglichen Exponentialverteilung für den Risikofaktor R2L abgebildet (Wechsel von rechts nach links).
 
 \begin{figure}[h!]
-	\centering
-	\begin{tikzpicture}[xscale=4, yscale=0.3]
-		\def\LAMBDA{12}
-		\draw[->] (-0.1,0) -- (1.1,0) node[right] {L2R};
-		\draw[->] (0,-0.1) --(0,15) node[above] {Exp($\lambda$ = \LAMBDA)};
-		\foreach \x in {0.2,0.4,0.6,0.8,1} {
-			\draw[shift={(\x,0)},color=black] (0pt,8pt) -- (0pt,-8pt) node[below] {\x};
-		}
-		\draw[domain=0:1,samples=800,variable=\x,blue] plot ({\x},{\LAMBDA * exp(- \LAMBDA * \x)});
-	\end{tikzpicture}
-	\begin{tikzpicture}[xscale=4, yscale=0.3]
-		\def\LAMBDA{8}		
-		\draw[->] (-0.1,0) -- (1.1,0) node[right] {R2L};
-		\draw[->] (0,-0.1) --(0,15) node[above] {Exp($\lambda$ = \LAMBDA)};
-		\foreach \x in {0.2,0.4,0.6,0.8,1} {
-			\draw[shift={(\x,0)},color=black] (0pt,8pt) -- (0pt,-8pt) node[below] {\x};
-		}
-		\draw[domain=0:1,samples=800,variable=\x,blue] plot ({\x},{\LAMBDA * exp(- \LAMBDA * \x)});
-	\end{tikzpicture}
-	\caption{Dichtefunktionen der Risikofaktor-Verteilungen}
-	\label{fig:riskFactorDistributions}
+    \centering
+    \begin{tikzpicture}[xscale=4, yscale=0.3]
+        \def\LAMBDA{12}
+        \draw[->] (-0.1,0) -- (1.1,0) node[right] {L2R};
+        \draw[->] (0,-0.1) --(0,15) node[above] {Exp($\lambda$ = \LAMBDA)};
+        \foreach \x in {0.2,0.4,0.6,0.8,1} {
+            \draw[shift={(\x,0)},color=black] (0pt,8pt) -- (0pt,-8pt) node[below] {\x};
+        }
+        \draw[domain=0:1,samples=800,variable=\x,blue] plot ({\x},{\LAMBDA * exp(- \LAMBDA * \x)});
+    \end{tikzpicture}
+    \begin{tikzpicture}[xscale=4, yscale=0.3]
+        \def\LAMBDA{8}
+        \draw[->] (-0.1,0) -- (1.1,0) node[right] {R2L};
+        \draw[->] (0,-0.1) --(0,15) node[above] {Exp($\lambda$ = \LAMBDA)};
+        \foreach \x in {0.2,0.4,0.6,0.8,1} {
+            \draw[shift={(\x,0)},color=black] (0pt,8pt) -- (0pt,-8pt) node[below] {\x};
+        }
+        \draw[domain=0:1,samples=800,variable=\x,blue] plot ({\x},{\LAMBDA * exp(- \LAMBDA * \x)});
+    \end{tikzpicture}
+    \caption{Dichtefunktionen der Risikofaktor-Verteilungen}
+    \label{fig:riskFactorDistributions}
 \end{figure}
 
 Da die Exponentialverteilung nach rechts nicht begrenzt ist, wir jedoch die Begrenzung des Risikofaktors für sinnvoll halten, wird der Risikofaktor auf das 0.97-Fraktil der Verteilung gesetzt, falls genau dieses Fraktil überschritten wird. In der linken Verteilung mit $\lambda = 12$ beträgt der maximal zulässige Wert also ungefähr 0.2922, während er in der rechten Verteilung mit $\lambda = 8$ etwa 0.4383 beträgt. In diesem Szenario wären die Fahrer im Durchschnitt also eher dazu bereit, ohne Rücksicht auf die Abstände von rechts nach links zu wechseln als umgekehrt. Anders als bei den anderen Werten ist hier die Definition exakter Werte für die Risikofaktoren durch geschickte Parameterwahl nicht möglich. An dieser Stelle wäre also eine Anpassung des Programmes notwendig.
@@ -193,27 +193,27 @@ Da die Exponentialverteilung nach rechts nicht begrenzt ist, wir jedoch die Begr
 Da wir annehmen, dass die Mehrheit der Fahrer eher rücksichtsvoll ist und eher wenig Fahrer riskante Fahrmanöver unternehmen, verwenden wir für die Ermittlung der Riskofaktoren Exponentialverteilungen. Die linke Seite der folgenden Abbildung zeigt die Dichtefunktion einer möglichen Exponentialverteilung für den Risikofaktor L2R (Wechsel von links nach rechts). Auf der rechten Seite ist die Dichtefunktion einer möglichen Exponentialverteilung für den Risikofaktor R2L abgebildet (Wechsel von rechts nach links).
 
 \begin{figure}[h!]
-	\centering
-	\begin{tikzpicture}[xscale=4, yscale=0.3]
-		\def\LAMBDA{12}
-		\draw[->] (-0.1,0) -- (1.1,0) node[right] {L2R};
-		\draw[->] (0,-0.1) --(0,15) node[above] {Exp($\lambda$ = \LAMBDA)};
-		\foreach \x in {0.2,0.4,0.6,0.8,1} {
-			\draw[shift={(\x,0)},color=black] (0pt,8pt) -- (0pt,-8pt) node[below] {\x};
-		}
-		\draw[domain=0:1,samples=800,variable=\x,blue] plot ({\x},{\LAMBDA * exp(- \LAMBDA * \x)});
-	\end{tikzpicture}
-	\begin{tikzpicture}[xscale=4, yscale=0.3]
-		\def\LAMBDA{8}		
-		\draw[->] (-0.1,0) -- (1.1,0) node[right] {R2L};
-		\draw[->] (0,-0.1) --(0,15) node[above] {Exp($\lambda$ = \LAMBDA)};
-		\foreach \x in {0.2,0.4,0.6,0.8,1} {
-			\draw[shift={(\x,0)},color=black] (0pt,8pt) -- (0pt,-8pt) node[below] {\x};
-		}
-		\draw[domain=0:1,samples=800,variable=\x,blue] plot ({\x},{\LAMBDA * exp(- \LAMBDA * \x)});
-	\end{tikzpicture}
-	\caption{Dichtefunktionen der Risikofaktor-Verteilungen}
-	\label{fig:riskFactorDistributions}
+    \centering
+    \begin{tikzpicture}[xscale=4, yscale=0.3]
+        \def\LAMBDA{12}
+        \draw[->] (-0.1,0) -- (1.1,0) node[right] {L2R};
+        \draw[->] (0,-0.1) --(0,15) node[above] {Exp($\lambda$ = \LAMBDA)};
+        \foreach \x in {0.2,0.4,0.6,0.8,1} {
+            \draw[shift={(\x,0)},color=black] (0pt,8pt) -- (0pt,-8pt) node[below] {\x};
+        }
+        \draw[domain=0:1,samples=800,variable=\x,blue] plot ({\x},{\LAMBDA * exp(- \LAMBDA * \x)});
+    \end{tikzpicture}
+    \begin{tikzpicture}[xscale=4, yscale=0.3]
+        \def\LAMBDA{8}
+        \draw[->] (-0.1,0) -- (1.1,0) node[right] {R2L};
+        \draw[->] (0,-0.1) --(0,15) node[above] {Exp($\lambda$ = \LAMBDA)};
+        \foreach \x in {0.2,0.4,0.6,0.8,1} {
+            \draw[shift={(\x,0)},color=black] (0pt,8pt) -- (0pt,-8pt) node[below] {\x};
+        }
+        \draw[domain=0:1,samples=800,variable=\x,blue] plot ({\x},{\LAMBDA * exp(- \LAMBDA * \x)});
+    \end{tikzpicture}
+    \caption{Dichtefunktionen der Risikofaktor-Verteilungen}
+    \label{fig:riskFactorDistributions}
 \end{figure}
 
 Da die Exponentialverteilung nach rechts nicht begrenzt ist, wir jedoch die Begrenzung des Risikofaktors für sinnvoll halten, wird der Risikofaktor auf das 0.97-Fraktil der Verteilung gesetzt, falls genau dieses Fraktil überschritten wird. In der linken Verteilung mit $\lambda = 12$ beträgt der maximal zulässige Wert also ungefähr 0.2922, während er in der rechten Verteilung mit $\lambda = 8$ etwa 0.4383 beträgt. In diesem Szenario wären die Fahrer im Durchschnitt also eher dazu bereit, ohne Rücksicht auf die Abstände von rechts nach links zu wechseln als umgekehrt. Anders als bei den anderen Werten ist hier die Definition exakter Werte für die Risikofaktoren durch geschickte Parameterwahl nicht möglich. An dieser Stelle wäre also eine Änderung des Programmes notwendig.
@@ -253,12 +253,12 @@ Nachdem die Autobahn initialisiert wurde, wird der Simulationsschritt in einer S
 \subsubsection{Neue Fahrzeuge hinzufügen}
 \label{subsubsec:neueFahrzeuge}
 
-Falls die Simulation ohne periodische Randbedingungen durchgeführt wird, ist es sinnvoll, nach und nach neue Fahrzeuge zu erzeugen, da nach einiger Zeit alle bei der Initialisierung erzeugten Fahrzeuge die Autobahn am rechten Rand verlassen. Bei der Erzeugung neuer Fahrzeuge wird in jedem Simulationsschritt geprüft, ob die aktuelle Verkehrsdichte auf der Autobahn geringer ist als die bei der Initialisierung angegebene Wunschverkehrsdichte. Ist dies der Fall, wird beginnend mit der rechtesten Spur über alle Spuren der Autobahn iteriert und genau dann ein Fahrzeug in die erste Zelle der Spur eingefügt, wenn die Zelle leer ist und die gewünschte Verkehrtsdichte noch nicht erreicht ist.
+Falls die Simulation ohne periodische Randbedingungen durchgeführt wird, ist es sinnvoll, nach und nach neue Fahrzeuge zu erzeugen, da nach einiger Zeit alle bei der Initialisierung erzeugten Fahrzeuge die Autobahn am rechten Rand verlassen. Bei der Erzeugung neuer Fahrzeuge wird in jedem Simulationsschritt geprüft, ob die aktuelle Verkehrsdichte auf der Autobahn geringer ist als die bei der Initialisierung angegebene Wunschverkehrsdichte. Ist dies der Fall, wird beginnend mit der rechtesten Spur über die ersten Zellen aller Spuren der Autobahn iteriert und in jede freie Zelle ein Fahrzeug eingefügt, bis die gewünschte Verkehrsdichte erreicht ist oder alle Spuren abgearbeitet wurden. 
 
 \subsubsection{Beschleunigen}
 \label{subsubsec:beschleunigen}
 
-Die Regeln für die Beschleunigung sind unverändert geblieben. Falls ein Fahrzeug seine individuelle Maximalgeschwindigkeit noch nicht erreicht hat, wird seine Geschwindigkeit um exakt eine Stufe erhöht.
+Die Regeln für die Beschleunigung sind unverändert geblieben. Falls ein Fahrzeug seine individuelle Maximalgeschwindigkeit noch nicht erreicht hat, wird seine Geschwindigkeit um eine Stufe erhöht.
 
 \subsubsection{Fahrstreifen wechseln}
 \label{subsubsec:fahrstreifenWechseln}
@@ -269,7 +269,7 @@ Ein Wechsel auf die nächste rechtsgelegene Spur wird angestoßen, wenn ein link
 
 Zusätzlich kann der Fall eintreten, dass ein Fahrzeug ohne Rücksicht auf Abstände den Fahrstreifen wechseln möchte. In diesem Fall wird ausschließlich darauf geachtet, dass auf der Zielspur die Zelle frei ist, in die gewechselt werden soll. Die Wahrscheinlichkeit eines solchen Risikofahrstreifenwechsels wird durch die Risikofaktoren des betrachteten Fahrzeuges definiert. In jedem Simulationsschritt wird eine Zufallszahl zwischen 0 und 1 gezogen, ist diese kleiner als der entsprechende Risikofaktor, wird der entsprechende Fahrstreifenwechsel durchgeführt.
 
-Da unser System grundsätzlich für beliebig viele Spuren ausgelegt ist, bleibt noch zu klären, ob zuerst versucht werden soll, von rechts nach links zu wechseln, oder ob zuerst versucht werden soll, von links nach rechts zu wechseln. Da Fahrzeuge zum einen bestrebt sind, das Rechtsfahrgebot einzuhalten, aber sie andererseits auch stets versuchen, möglichst schnell vorwärts zu kommen, wird in jedem Simulationsschritt zufällig entschieden, welcher Wechsel zuerst versucht werden soll. Scheitert der zuerst versuchte Wechsel, wird der verbleibende Wechsel ausprobiert.
+Da unser System grundsätzlich für beliebig viele Spuren ausgelegt ist, bleibt noch zu klären, ob zuerst versucht werden soll, von rechts nach links zu wechseln, oder ob zuerst versucht werden soll, von links nach rechts zu wechseln. Da Fahrzeuge zum einen bestrebt sind, das Rechtsfahrgebot einzuhalten, aber sie andererseits auch stets versuchen, möglichst schnell vorwärts zu kommen, wird in jedem Simulationsschritt zufällig entschieden, welcher Wechsel zuerst versucht werden soll. Scheitert der zuerst versuchte, wird der verbleibende Wechsel ausprobiert.
 
 \subsubsection{Abstände prüfen}
 \label{subsubsec:abstaendePruefen}
@@ -465,7 +465,7 @@ Bei der Simulation des Verkehrsflusses an einem Kreisverkehr gibt es Verzweigung
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=8cm]{img/roundaboutSmall}
+	\includegraphics[width=6cm]{img/roundaboutSmall}
 	\caption{Kreisverkehr mit eingetragenen Höchstgeschwindigkeiten}
 	\label{fig:roundaboutSmall}
 \end{figure}
@@ -514,7 +514,28 @@ Zunächst fällt auf dass der Kreisverkehr komplett gefüllt ist. Da sich die Fa
 
 Der Verlauf der Verkehrsdichte zu diesem Durchlauf ist in Abbildung \ref{fig:roundabout020density} dargestellt. Zu Beginn der Simulation befinden sich nur wenige Fahrzeuge auf der Strecke, dieser Wert steigt allerdings durch die ankommenden Fahrzeuge kontinuierlich, und erreicht dabei eine Dichte von etwa $0.4$. Dies entspicht dem Zeitpunkt, ab dem aus Platzgründen keine Fahrzeuge mehr an den Quellen generiert werden können bis ein Fahrzeug den Kreisverkehr verlässt und andere nachrücken können.
 
-\subsection{Autobahnkreuz}
+\subsection{Autobahndreieck}
+Ein Vorzug des entwickelten Algorithmus ist seine allgemeingültigkeit. Er lässt sich ohne problemspezifische Anpassungen auf beliebige Straßennetze anwenden, sogar auf nicht-planare. Daher sind wir ebenfalls in der Lage, den Verkehrsfluss an einem Autobahndreieck zu simulieren, wobei wir uns für die Bauform \q{Trompete} mit Linksführung entscheiden.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=8cm]{img/interchangeTrumpetSpeedLimits}
+	\caption{Autobahndreieck. Links: Schematische Darstellung \cite{wiki:trumpetInterchange}, Rechts: Umsetzung mit Maximalgeschwindigkeiten}
+	\label{fig:interchangeTrumpet}
+\end{figure}
+
+Hierbei nehmen wir auf den Autobahnen ein Tempolimit von 4 (also $108km/h$) in der Nähe des Dreiecks an. Für die Verbindungsstraßen werden Limits von 3 ($81km/h$) bzw. 2 ($54km/h$) entsprechend ihrer Krümmung aus. Da die von unten kommende Autobahn unter (oder über) der anderen verlaufen muss und damit die selben Zellen nutzen würde, wäre diese Formation mit regulären zellulären Automaten nicht darstellbar. In der Repräsentation als Graph auf der unser Algorithmus arbeitet, ist dies jedoch kein Problem. Zur graphischen Aufbereitung platzieren wir das Unterführungsstück isoliert abseits der anderen Straßen, wie in \ref{fig:interchangeTrumpet} zu sehen.
+
+Ebenso wie der Kreisverkehr verfügt dieses System über 3 Quellen und 3 Senken, verhält sich unter hoher Verkehrslast allerdings wesentlich zuverlässiger. Selbst bei einer Erzeugungsrate von $1.00$, wenn also wann immer möglich ein Fahrzeug eingefügt wird, kommt es nicht zu permanenten Staus.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{img/interchangeTrumpet_100}
+	\caption{Erzeugungsrate 1.00. Links: Autobahndreieck nach 500 Iterationen, Mitte: Belegungshäufigkeit, Rechts: Durchschnittsgeschwindigkeit}
+	\label{fig:interchangeTrumpet100}
+\end{figure}
+
+Abbildung \ref{fig:interchangeTrumpet100} visualisiert das Autobahndreieck mit dieser Erzeugungsrate nach 500 Iterationen, wobei die selben Parameter wie beim Kreisverkehr in Abschnitt \ref{subsec:kreisverkehr} verwendet wurden. Die Zufahrtstraßen haben sich mit Autos gefüllt deren Abstände ungefähr der zulässigen Maximalgeschwindigkeit entsprechen. An der in der Mitte dargestellten Belegung lässt sich erkennen, dass es auf den Verbindungsstraßen und den Autobahnstrecken zwischen den Auf- und Abfahrten weniger Fahrzeuge gibt, was naheliegend ist da sie sich auf Verbindungsstraßen und Auf/Abfahrten aufteilen. Die Geschwindigkeiten im rechten Bild entsprechen ungefähr den Maximalgeschwindigkeiten, wobei es nahe an den Zusammenführungen zu Veringerungen der Geschwindigkeit kommt, Stauketten bilden sich allerdings keine.
 
 \newpage
 \section{Fazit}
