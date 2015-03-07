@@ -141,8 +141,6 @@
 Im Groben basiert unser Modell auf den Annahmen, die Kai Nagel und Michael Schreckenberg \cite{nagel-schreckenberg} für ihr STCA-Verkehrsmodell (STCA = Standard Zellular-Automat) getroffen haben. Um das Modell an die Realität deutscher Straßenverhältnisse anzupassen, wurden jedoch einige Änderungen vorgenommen.
 Im Folgenden werden die unserem Modell zugrunde liegenden Annahmen aufgeführt:%\\
 
-%\begin{comment}
-
 \subsection{Zellbreite und Geschwindigkeiten}
 
 Es gilt weiterhin, dass eine Zelle 7,5 Meter lang ist und jede Zelle nur ein einziges Fahrzeug zur gleichen Zeit aufnehmen kann.
@@ -184,8 +182,6 @@ Da wir annehmen, dass die Mehrheit der Fahrer eher rücksichtsvoll ist und eher 
 
 Da die Exponentialverteilung nach rechts nicht begrenzt ist, wir jedoch die Begrenzung des Risikofaktors für sinnvoll halten, wird der Risikofaktor auf das 0.97-Fraktil der Verteilung gesetzt, falls genau dieses Fraktil überschritten wird. In der linken Verteilung mit $\lambda = 12$ beträgt der maximal zulässige Wert also ungefähr 0.2922, während er in der rechten Verteilung mit $\lambda = 8$ etwa 0.4383 beträgt. In diesem Szenario wären die Fahrer im Durchschnitt also eher dazu bereit, ohne Rücksicht auf die Abstände von rechts nach links zu wechseln als umgekehrt. Anders als bei den anderen Werten ist hier die Definition exakter Werte für die Risikofaktoren durch geschickte Parameterwahl nicht möglich. An dieser Stelle wäre also eine Anpassung des Programmes notwendig.
 
-
-%\end{comment}
 \begin{comment}
 
 \begin{itemize}
@@ -232,7 +228,7 @@ Da die Exponentialverteilung nach rechts nicht begrenzt ist, wir jedoch die Begr
 \subsection{Autobahn}
 \label{subsec:umsetzung-autobahn}
 
-Wir haben unser Modell für die Simulation von Autobahnen strukturell für beliebig viele Spuren ausgelegt. Die in der Aufgabenstellung unterschiedenen Simulationsexperimente einer einspurigen bzw. einer zweispurigen Autobahn können also mit der gleichen Simulationssoftware durchgeführt werden. Somit wird im Folgenden die Umsetzung dieses Modells nur im Allgemeinen beschrieben, nicht jedoch für die genannten Spezialfälle.
+Wir haben unser Modell für die Simulation von Autobahnen strukturell für beliebig viele Spuren ausgelegt. Die in der Aufgabenstellung unterschiedenen Simulationsexperimente einer einspurigen bzw. einer zweispurigen Autobahn können also mit der gleichen Simulationssoftware durchgeführt werden. Somit wird im Folgenden die Umsetzung dieses Modells nur im Allgemeinen beschrieben, nicht jedoch für die genannten Spezialfälle. In Kapitel \ref{sec:ergebnisse} werden selbstredend die Ergebnisse für beide Experimente aufgeführt.
 
 Als Repräsentation für die Autobahn dient eine $l \times s$ Matrix, wobei $l$ die Anzahl der Spuren (engl. \emph{lanes}) und $s$ die Anzahl der Straßensegmente (engl. \emph{segments}) angibt. Für die Simulation einer 2,25km ($= 300 \cdot 7,5m$) langen Autobahn mit drei Spuren wird also eine $3 \times 300$ Matrix erzeugt. Im Wesentlichen dient diese Matrix dazu, Fahrzeuge und ihre Position auf der Autobahn zu speichern.\\
 
@@ -407,6 +403,21 @@ Bei einer Simulation mit periodischen Randbedingungen ist die Verkehrsdichte kon
 \subsection{Einspurige Straße}
 \label{subsec:einspurig}
 
+Gemäß unseren Erwarten konnten wir feststellen, dass es mit einem Trödelfaktor von 0 auf einer 2,25$km$ langen einspurigen Autobahn nur unter ungünstigen Bedingungen zu Staus kommen kann. Gehen wir davon aus, dass alle Fahrzeuge auf der Autobahn eine Maximalgeschwindigkeit von 7 haben und nehmen wir an, dass die Fahrzeuge bei periodischen Randbedingungen äquidistant und mit ihrer Maximalgeschwindigkeit auf der Fahrbahn platziert werden, dann haben die Fahrzeuge bei ausreichend geringer Verkehrsdichte stets genug Platz, um ungehindert vorwärts zu fahren. Wird die Verkehrsdichte erhöht, müssen die Fahrzeuge aufgrund des Platzmangels abbremsen. Es kommt jedoch nicht zu Staus. Zum Stillstand kommt es erst, wenn alle Zellen der Autobahn mit Fahrzeugen besetzt sind.
+
+Wird keine äquidistante sondern eine zufällige Initialisierung verwendet und haben die Fahrzeuge alle unterschiedliche Geschwindigkeiten, kommt es aufgrund ungünstiger Fahrzeugplatzierungen anfangs zu Staus. Bei geringen Verkehrsdichten wie 0.1 lösen sich diese jedoch innerhalb weniger Iterationen komplett auf. Bei höheren Verkehrsdichten kommt es an manchen Stellen der Autobahn dazu, dass aufgrund der Vielzahl der Fahrzeuge einige Fahrzeuge nicht ausreichend Platz haben, um mit ihrer Maximalgeschwindigkeit zu fahren. Daher kommt es zu Staus deren Anzahl von der Höhe der gewählten Verkehrsdichte abhängt. Diese Staus haben das Charakteristikum, dass sich immer weiter nach hinten (bzw. links) entwickeln und sich niemals komplett auflösen.
+
+Falls wir eine Simulation ohne periodische Randbedingungen durchführen und Fahrzeuge nur am linken Rand der Autobahn erzeugen, ist es unmöglich, gewisse Verkehrsdichten zu erreichen.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=15cm]{img/erg_einspurig_kein_wraparound_dichte_0_5}
+	\caption{Staufreiheit bei Simulation ohne periodische Randbedingungen}
+	\label{fig:ergEinspurigKeinWraparoundKeinStau}
+\end{figure}
+
+\begin{comment}
+
 Gemäß unseren Erwartungen konnten wir feststellen, dass es auf einer einspurigen 2,25$km$ langen Autobahn mit periodischen Randbedingungen zu keinen Staus kommt, wenn die Fahrzeuge bei der Initialisierung bei einer Verkehrsdichte von 0.1 äquidistant mit der für alle Fahrzeuge identischen Maximalgeschwindigkeit von 7 und mit einem Trödelfaktor von 0 auf der Fahrbahn platziert werden. Kein Fahrzeug bremst jemals ab und da aufgrund der äquidistanten Initialplatzierung jedes Fahrzeug in jedem Simulationsschritt ausreichend Platz vor sich hat, können alle Fahrzeuge mit der Maximalgeschwindigkeit über die Autobahn fahren.
 
 Wird die Verkehrsdichte auf 0.15 angehoben, haben die Fahrzeuge bereits nicht mehr ausreichend Platz, um mit der Maximalgeschwindigkeit weiterzufahren. Eine Anpassung der Geschwindigkeit auf die Stufe 6 ist hier notwendig. Wird die Verkehrsdichte immer weiter hochgeschraubt, lässt sich feststellen, dass der einzige Effekt die Reduktion der Geschwindigkeit ist. Bei einer Dichte von 0.5 steht in jeder zweiten Zelle ein Fahrzeug. Die Fahrzeuge können also immer noch mit einer Geschwindigkeit von einer Zelle pro Simulationsschritt weiterfahren. Erst bei einer so hohen Verkehrsdichte, dass in jeder Zelle ein Fahrzeug steht, kommt es zum Stillstand, da kein Fahrzeug mehr Platz zum Weiterfahren hat.
@@ -441,8 +452,9 @@ Falls wir eine Simulation ohne periodische Randbedingungen durchführen, spielt 
 	\label{fig:ergEinspurigKeinWraparoundKeinStau}
 \end{figure}
 
-Das erste Fahrzeug hat noch die Möglichkeit, umgehend auf seine Maximalgeschwindigkeit zu beschleunigen. Das zweite erzeugte Fahrzeug, muss jedoch die Maximalgeschwindigkeit abzüglich einer Geschwindigkeitsstufe wählen, da das erste Fahrzeug die letzte Zelle, die das neue Fahrzeug zu befahren wünscht, blockiert. Dieser Effekt setzt sich immer weiter fahrt, bis ein neu erzeugtes Fahrzeug sich nicht einmal eine Zelle weit bewegen kann, da das zuvor erzeugte Fahrzeug bisher selbst bloß eine Zelle weit gefahren ist und so die Beschleunigung des nachfolgenden Fahrzeugs unterbindet. Da nur in der ersten Zelle der Fahrbahn neue Fahrzeuge erzeugt werden können, kommt es im Endeffekt dazu, dass nur in jeder zweiten Runde ein Fahrzeug erzeugt wird. Somit kann eine wie in diesem Beispiel geforderte Verkehrsdichte von z.B. 0.5 nicht erreicht werden. Sollen jedoch entsprechend hohe Verkehrsdichten simuliert werden, muss der Ansatz mit periodischen Randbedingungen gewählt werden.
+Das erste Fahrzeug hat noch die Möglichkeit, umgehend auf seine Maximalgeschwindigkeit zu beschleunigen. Das zweite erzeugte Fahrzeug, muss jedoch die Maximalgeschwindigkeit abzüglich einer Geschwindigkeitsstufe wählen, da das erste Fahrzeug die letzte Zelle, die das neue Fahrzeug zu befahren wünscht, blockiert. Dieser Effekt setzt sich immer weiter fahrt, bis ein neu erzeugtes Fahrzeug sich nicht einmal eine Zelle weit bewegen kann, da das zuvor erzeugte Fahrzeug bisher selbst bloß eine Zelle weit gefahren ist und so die Beschleunigung des nachfolgenden Fahrzeugs unterbindet. Da nur in der ersten Zelle der Fahrbahn neue Fahrzeuge erzeugt werden können, kommt es im Endeffekt dazu, dass nur in jeder zweiten Runde ein Fahrzeug erzeugt wird. Somit kann eine wie in diesem Beispiel geforderte Verkehrsdichte von z.B. 0.5 nicht erreicht werden. Sollen jedoch entsprechend hohe Verkehrsdichten simuliert werden, muss der Ansatz mit periodischen Randbedingungen gewählt werden. Nur diesen Ansatz werden wir im Folgenden verfolgen.
 
+\end{comment}
 
 \subsection{Mehrspurige Straße}
 \label{subsec:mehrspurig}
