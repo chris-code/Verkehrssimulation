@@ -286,6 +286,9 @@ Im letzten Schritt müssen die Fahrzeuge noch entsprechend ihrer Geschwindigkeit
 \subsection{Kreisverkehr (und beliebige Straßenverläufe)}
 \label{subsec:umsetzung-kreisverkehr}
 
+\subsubsection{Vorüberlegungen}
+\label{subsubsec:kreisverkehrUmsetzungVorueberlegungen}
+
 Ein dritter Teil der Aufgabenstellung bestand darin, den Verkehrsfluss eines Kreisverkehrs zu simulieren. Dies ist ein ungleich schwierigeres Problem, da es hier an einigen Stellen Verzweigungen und Zusammenführungen geben kann, bei denen Kollisionsfreiheit gewährleistet werden muss. Zwar kann man den Spurwechsel auf der mehrspurigen Straße auch als Verzweigung/Zusammenführung betrachten, allerdings weist dieser Gleichmäßigkeit über alle Zellen hinweg auf, d.h. die Regeln können einmalig, relativ zur Zellposition und den Geschwindigkeiten der Fahrzeuge festgelegt werden. Im Kreisverkehr hingegen verhalten sich einige Zellen deutlich anders als andere, beispielsweise hinsichtlich zulässiger Geschwindigkeit oder Anzahl der Richtungen, in die man sich bewegen kann. In diesem Zusammenhang müssen auch Vorfahrtsregeln beachtet werden. Darüber hinaus haben Ereignisse in einer Zelle (z.B. die Entscheidung, eine Ausfahrt zu nehmen) Auswirkungen auf die Handlungsmöglichkeiten der Autos in den umliegenden Zellen. Diese Anforderungen machen einen erheblich dynamischeres Vorgehen bei der Berechnung der Bewegungen der Fahrzeuge erforderlich. Eine Lösung muss also folgende Anforderungen erfüllen:
 
 \begin{enumerate}
@@ -316,9 +319,13 @@ Ein Problem beim Überschreiben ist jedoch, dass 'Stummel' vorheriger Markierung
 	\label{fig:overwritingCanCauseStubs}
 \end{figure}
 
-Zuletzt muss noch die Anforderung des Einhaltens von Geschwindigkeitsbegrenzungen erfüllt werden. Dazu wird jede Zelle mit einer Maximalgeschwindigkeit versehen. Betritt ein Fahrzeug eine Zelle, wird die maximale Anzahl an Zellen, die es darüber hinaus noch markieren kann auf die Maximalgeschwindigkeit der Zelle gedeckelt. Somit ist gewährleistet, dass kein Fahrzeug an keiner Zelle die zulässige Geschwindigkeit überschreitet.
+Zuletzt muss noch die Anforderung des Einhaltens von Geschwindigkeitsbegrenzungen erfüllt werden. Dazu wird jede Zelle mit einer Maximalgeschwindigkeit versehen. Betritt ein Fahrzeug eine Zelle, wird die maximale Anzahl an Zellen, die es darüber hinaus noch markieren kann auf die Maximalgeschwindigkeit der Zelle gedeckelt. Somit ist gewährleistet, dass kein Fahrzeug an keiner Zelle die zulässige Geschwindigkeit 
+überschreitet.
 
-Diese Überlegungen führen zu folgendem Markierungsalgorithmus:
+\subsubsection{Verfahren}
+\label{subsubsec:kreisverkehrUmsetzungVerfahren}
+
+Die oben beschriebenen Überlegungen führen zu folgendem Markierungsalgorithmus:
 \lstinputlisting{src/streetMapMarkAlgorithm}
 wobei r die verbleibenden Schritte des Autos runterzählt. Ob ein Fahrzeug an einer Zusammenführung Vorfahrt hat, ergibt sich wie oben beschrieben aus der Reihenfolge der Vorgängerverweise. Um die Implementierung zu vereinfachen beschränken wir uns auf Zusammenführungen mit zwei Vorgängern.
 
@@ -517,9 +524,7 @@ Abbildung \ref{fig:interchangeTrumpet100} visualisiert das Autobahndreieck mit d
 \section{Fazit}
 \label{sec:fazit}
 
-\blindtext
-\blindtext
-\blindtext
+Für den Kreisverkehr und beliebige andere Straßennetze, auch nicht-planare, konnten wir ein Verfahren finden, dass bei gewährleisteter Kollisionsfreiheit Vorfahrtsregeln und und Tempolimits einhält. Die zentralen Ideen dabei sind ein zusätzlicher Markierungsschritt für abzufahrende Straßenteile und das Herunterzählen der verbleibenden Bewegungsschritte. Anschließend werden die Markierungen gezählt und bilden damit die neue Geschwindigkeit des Fahrzeugs. Unsere Implementierung nutzt ein randomisiertes Verfahren zur Richtungsfindung der Fahrzeuge, was für die betrachteten Szenarien ausreichend ist. In komplexeren Systemen, insbesondere solchen mit vielen Kreisen, muss allerdings ein nahezu ewiges im-Kreis-Fahren der Fahrzeuge unterbunden werden. Damit konnten wir ermitteln, dass für den betrachteten Kreisverkehr die kritische Zuflussrate an Fahrzeugen pro Quelle und Schritt etwa bei $0.15$ liegt. Für das Autobahndreieck lassen sich mit plausiblen Parametern keine Staus erzeugen, wobei zu beachten ist dass die Zuflussrate durch die offenen Randbedingungen strukturell begrenzt ist.
 
 %\blindtext asdf \cite{mehrspurig}\\
 %In Kapitel \myref{sec:einleitung} steht Shit. In Foobar (\myrefcomma{sec:ansatz}) bla
