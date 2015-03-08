@@ -397,14 +397,14 @@ Bei einer Simulation mit periodischen Randbedingungen ist die Verkehrsdichte kon
 \section{Ergebnisse}
 \label{sec:ergebnisse}
 
-\subsection{Einspurige Straße}
+\subsection{Einspurige Autobahn}
 \label{subsec:einspurig}
 
 Gemäß unseren Erwarten konnten wir feststellen, dass es mit einem Trödelfaktor von 0 auf einer 2,25$km$ langen einspurigen Autobahn nur unter ungünstigen Bedingungen zu Staus kommen kann. Gehen wir davon aus, dass alle Fahrzeuge auf der Autobahn eine Maximalgeschwindigkeit von 7 haben und nehmen wir an, dass die Fahrzeuge bei periodischen Randbedingungen äquidistant und mit ihrer Maximalgeschwindigkeit auf der Fahrbahn platziert werden, dann haben die Fahrzeuge bei ausreichend geringer Verkehrsdichte stets genug Platz, um ungehindert vorwärts zu fahren. Wird die Verkehrsdichte erhöht, müssen die Fahrzeuge aufgrund des Platzmangels abbremsen. Es kommt jedoch nicht zu Staus. Zum Stillstand kommt es erst, wenn alle Zellen der Autobahn mit Fahrzeugen besetzt sind.
 
 Wird keine äquidistante sondern eine zufällige Initialisierung verwendet und haben die Fahrzeuge alle unterschiedliche Geschwindigkeiten, kommt es aufgrund ungünstiger Fahrzeugplatzierungen anfangs zu Staus. Bei geringen Verkehrsdichten wie 0.1 lösen sich diese jedoch innerhalb weniger Iterationen komplett auf. Bei höheren Verkehrsdichten kommt es an manchen Stellen der Autobahn dazu, dass aufgrund der Vielzahl der Fahrzeuge einige Fahrzeuge nicht ausreichend Platz haben, um mit ihrer Maximalgeschwindigkeit zu fahren. Daher kommt es zu Staus deren Anzahl von der Höhe der gewählten Verkehrsdichte abhängt. Diese Staus haben das Charakteristikum, dass sich immer weiter nach hinten (bzw. links) entwickeln und sich niemals komplett auflösen.
 
-Falls wir eine Simulation ohne periodische Randbedingungen durchführen und Fahrzeuge nur am linken Rand der Autobahn erzeugen, ist es unmöglich, gewisse Verkehrsdichten zu erreichen.
+Falls wir eine Simulation ohne periodische Randbedingungen durchführen und Fahrzeuge nur am linken Rand der Autobahn erzeugt werden, ist es unmöglich, gewisse Verkehrsdichten zu erreichen. Die nachfolgende Abbildung \ref{fig:ergEinspurigKeinWraparoundKeinStau} illustriert diesen Sachverhalt.
 
 \begin{figure}[h!]
 	\centering
@@ -413,47 +413,20 @@ Falls wir eine Simulation ohne periodische Randbedingungen durchführen und Fahr
 	\label{fig:ergEinspurigKeinWraparoundKeinStau}
 \end{figure}
 
-\begin{comment}
+Während das erste Fahrzeug noch die Möglichkeit hat, umgehend auf seine Maximalgeschwindigkeit zu beschleunigen, muss das zweite erzeugte Fahrzeug seine Geschwindigkeit auf die um eine Stufe reduzierte Maximalgeschwindigkeit setzen, da das zuerst erzeugte Fahrzeug, die letzte Zelle, die das neue Fahrzeug zu befahren wünscht, blockiert. Dieser Effekt setzt sich immer weiter fahrt, bis ein neu erzeugtes Fahrzeug sich nicht einmal eine Zelle weit bewegen kann. Da nur in der ersten Zelle der Fahrbahn neue Fahrzeuge erzeugt werden können, kommt es im Endeffekt dazu, dass nur in jeder zweiten Runde ein Fahrzeug erzeugt wird. Somit sind hohe Verkehrsdichten mit diesem Modell nicht umsetzbar und es muss auf den Ansatz mit den periodischen Randbedingungen zurückgegriffen werden. Im Folgenden wird daher ausschließlich dieser Ansatz verwendet.
 
-Gemäß unseren Erwartungen konnten wir feststellen, dass es auf einer einspurigen 2,25$km$ langen Autobahn mit periodischen Randbedingungen zu keinen Staus kommt, wenn die Fahrzeuge bei der Initialisierung bei einer Verkehrsdichte von 0.1 äquidistant mit der für alle Fahrzeuge identischen Maximalgeschwindigkeit von 7 und mit einem Trödelfaktor von 0 auf der Fahrbahn platziert werden. Kein Fahrzeug bremst jemals ab und da aufgrund der äquidistanten Initialplatzierung jedes Fahrzeug in jedem Simulationsschritt ausreichend Platz vor sich hat, können alle Fahrzeuge mit der Maximalgeschwindigkeit über die Autobahn fahren.
+Als nächstes betrachten wir den Fall, dass wir die Maximalgeschwindigkeiten der Fahrzeuge randomisiert bestimmen. Es lässt sich feststellen, dass in diesem Szenario die Ergebnisse nicht von den bisherigen Ergebnissen abweichen, mit der Ausnahme, dass nach einigen Iterationen alle Fahrzeuge mit der Maximalgeschwindigkeit des langsamsten Fahrzeuges fahren. Natürlich gilt dies nur, solange die Verkehrsdichte nicht zu hoch gewählt wird. Im Folgenden werden wir die Auswirkungen des Trödelfaktors zu untersuchen. Um die Ergebnisse möglichst frei von anderen Einwirkungen zu halten, erhalten ab jetzt alle Fahrzeuge eine Maximalgeschwindigkeit von 7.
 
-Wird die Verkehrsdichte auf 0.15 angehoben, haben die Fahrzeuge bereits nicht mehr ausreichend Platz, um mit der Maximalgeschwindigkeit weiterzufahren. Eine Anpassung der Geschwindigkeit auf die Stufe 6 ist hier notwendig. Wird die Verkehrsdichte immer weiter hochgeschraubt, lässt sich feststellen, dass der einzige Effekt die Reduktion der Geschwindigkeit ist. Bei einer Dichte von 0.5 steht in jeder zweiten Zelle ein Fahrzeug. Die Fahrzeuge können also immer noch mit einer Geschwindigkeit von einer Zelle pro Simulationsschritt weiterfahren. Erst bei einer so hohen Verkehrsdichte, dass in jeder Zelle ein Fahrzeug steht, kommt es zum Stillstand, da kein Fahrzeug mehr Platz zum Weiterfahren hat.
-
-Falls die Fahrzeuge bei der Initialisierung bei einer Verkehrsdichte von 0.1 mit zufälligen Geschwindigkeiten (wobei die Maximalgeschwindigkeit aller Fahrzeuge immer noch 7 ist) und nicht äquidistant auf der Fahrbahn platziert werden, entstehen aufgrund der zufälligen Initialisierung zu Anfang Staus. Es lässt sich jedoch beobachten, dass sich diese innerhalb weniger Iterationen komplett auflösen.
+Betrachten wir nun von 0 abweichende Trödelfaktoren bei einer Verkehrsdichte von 0.1 und einer äquidistanten Initialisierung. Bei einem Trödelfaktor von 0.1 treten noch keine Staus ein, alle Fahrzeuge fahren größtenteils ungehindert mit ihrer Maximalgeschwindigkeit. Erhöhen wir den Trödelfaktor auf 0.15 kommt es gelegentlich zu lokal beschränkten Geschwindigkeitsreduktionen, die jedoch nicht in einem wirklichen Stau resultieren. Erhöhen wir den Trödelfaktor auf 0.2, kommt es zu Staus aus dem Nichts. Abbildung \ref{fig:ergStauAusDemNichtsP0_2} illustriert wie aus einer unkritischen Verkehrslage ein Stau entsteht. Dadurch dass ein Fahrzeug zufällig seine Geschwindigkeit mehrmals nacheinander reduziert, müssen die nachfolgenden Fahrzeuge ebenfalls ihre Geschwindigkeit reduzieren. Bei diesem Trödelfaktor lösen sich die Staus jedoch zumeist noch nach einigen Iterationen auf.
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=15cm]{img/erg_einspurig_nicht_aequidistant_dichte_0_1}
-	\caption{Stau aufgrund ungünstiger Initialisierung löst sich auf.}
-	\label{fig:ergEinspurigAufloesungInitialstau}
+	\includegraphics[width=15cm]{img/erg_einspurig_stau_aus_dem_nichts_dichte_0_1_p_0_2}
+	\caption{Stau aus dem Nichts bei Trödelfaktor 0.2}
+	\label{fig:ergStauAusDemNichtsP0_2}
 \end{figure}
 
-Für höhere Verkehrsdichten wie 0.15 lässt sich feststellen, dass es aufgrund des mangelnden Platzes zu Staus kommt, deren Position auf der Autobahn sich immer weiter nach hinten verschiebt.
-
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=15cm]{img/erg_einspurig_nicht_aequidistant_dichte_0_15}
-	\caption{Stau aufgrund ungünstiger Initialisierung löst sich wegen Platzmangel nicht auf.}
-	\label{fig:ergEinspurigAufloesungInitialstau}
-\end{figure}
-
-Noch höhere Verkehrsdichten haben lediglich den Effekt, dass die Zahl der Staus weiter zunimmt.
-Äquidistante und zufällige Initialisierung unterscheiden sich also insofern, dass es den Fahrzeugen bei der äquidistanten Initialisierung aufgrund der stets gleichen Abstände zu Vorder- und Hintermann möglich ist, ihre Geschwindigkeit dem Abstand entsprechend zu reduzieren und diese Geschwindigkeit konstant zu halten. Bei der zufälligen Initialisierung hingegen sind die Abstände zufallsbedingt nach der Initialiserung mal größer und mal kleiner. Somit können die Fahrzeugen in manchen Bereichen der Autobahn mit hoher Geschwindigkeit fahren, während sich in anderen Bereichen viele Fahrzeuge ballen und es daher aufgrund des Platzmangels zu Staus kommt.
-
-Falls wir eine Simulation ohne periodische Randbedingungen durchführen, spielt die eingestellte Verkehrsdichte eine sehr ungeordnete Rolle. Wie Abbildung \ref{fig:ergEinspurigKeinWraparoundKeinStau} zeigt, kommt es in diesem Szenario zu keinen Staus, da die am linken Rand der Autobahn erzeugten Fahrzeuge ungehindert ihre Geschwindigkeit erhöhen und die Autobahn am rechten Rand verlassen können.
-
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=15cm]{img/erg_einspurig_kein_wraparound_dichte_0_5}
-	\caption{Staufreiheit bei Simulation ohne periodische Randbedingungen}
-	\label{fig:ergEinspurigKeinWraparoundKeinStau}
-\end{figure}
-
-Das erste Fahrzeug hat noch die Möglichkeit, umgehend auf seine Maximalgeschwindigkeit zu beschleunigen. Das zweite erzeugte Fahrzeug, muss jedoch die Maximalgeschwindigkeit abzüglich einer Geschwindigkeitsstufe wählen, da das erste Fahrzeug die letzte Zelle, die das neue Fahrzeug zu befahren wünscht, blockiert. Dieser Effekt setzt sich immer weiter fahrt, bis ein neu erzeugtes Fahrzeug sich nicht einmal eine Zelle weit bewegen kann, da das zuvor erzeugte Fahrzeug bisher selbst bloß eine Zelle weit gefahren ist und so die Beschleunigung des nachfolgenden Fahrzeugs unterbindet. Da nur in der ersten Zelle der Fahrbahn neue Fahrzeuge erzeugt werden können, kommt es im Endeffekt dazu, dass nur in jeder zweiten Runde ein Fahrzeug erzeugt wird. Somit kann eine wie in diesem Beispiel geforderte Verkehrsdichte von z.B. 0.5 nicht erreicht werden. Sollen jedoch entsprechend hohe Verkehrsdichten simuliert werden, muss der Ansatz mit periodischen Randbedingungen gewählt werden. Nur diesen Ansatz werden wir im Folgenden verfolgen.
-
-\end{comment}
-
-\subsection{Mehrspurige Straße}
+\subsection{Mehrspurige Autobahn}
 \label{subsec:mehrspurig}
 
 \subsection{Kreisverkehr}
@@ -500,7 +473,7 @@ Erhöhen wir die Erzeugungsrate auf 0.20, so zeigt sich ein anderes Bild. Es bet
 	\label{fig:roundabout020}
 \end{figure}
 
-Zunächst fällt auf dass der Kreisverkehr komplett gefüllt ist. Da sich die Fahrzeuge im Kreis alle mit Geschwindigkeit 1 bewegen und Vorfahrt haben sind in jeder Runde alle Felder belegt. Da auf den Zufahrtsstraßen aber weiterhin Fahrzeuge ankommen bildet sich hier ein Rückstau, der Stellenweise Lücken aufweist wo Autos einem in den Kreis eingefahrenen nachrücken. Dies zeigt sich auch an der Belegungshäufigkeit der Zellen, die auf den Zufahrtsstraßen nun wesentlich höhere Werte annimmt. Wo vormals eine in etwa gleiche Nutzung von Zu- und Abfahrtsstraßen zu sehen war tritt nun eine starke Diskrepanz auf, wobei die Auslastung im Kreisverkehr weiterhin hoch ist. Die Durchschnittsgeschwindigkeiten sind dementsprechend geringer. Wärend innerhalb des Kreisverkehrs aufgrund der Vorfahrt eine Zelle vor jedem Fahrzeug frei bleibt und des dementsprechend nicht zu systematischen Staus kommt stehen die Fahrzeuge auf den Zufahrtsstraßen über weite Teile der Strecke und müssen warten, bis der Vorderste in den Kreisverkehr einfahren kann. Fahrzeuge, die die Abfahrtsstraßen erreichen können ungehindert beschleunigen, da sie in der Regel keine Autos vor sich haben.
+Zunächst fällt auf dass der Kreisverkehr komplett gefüllt ist. Da sich die Fahrzeuge im Kreis alle mit Geschwindigkeit 1 bewegen und Vorfahrt haben sind in jeder Runde alle Felder belegt. Da auf den Zufahrtsstraßen aber weiterhin Fahrzeuge ankommen bildet sich hier ein Rückstau, der Stellenweise Lücken aufweist wo Autos einem in den Kreis eingefahrenen nachrücken. Dies zeigt sich auch an der Belegungshäufigkeit der Zellen, die auf den Zufahrtsstraßen nun wesentlich höhere Werte annimmt. Wo vormals eine in etwa gleiche Nutzung von Zu- und Abfahrtsstraßen zu sehen war tritt nun eine starke Diskrepanz auf, wobei die Auslastung im Kreisverkehr weiterhin hoch ist. Die Durchschnittsgeschwindigkeiten sind dementsprechend geringer. Während innerhalb des Kreisverkehrs aufgrund der Vorfahrt eine Zelle vor jedem Fahrzeug frei bleibt und des dementsprechend nicht zu systematischen Staus kommt stehen die Fahrzeuge auf den Zufahrtsstraßen über weite Teile der Strecke und müssen warten, bis der Vorderste in den Kreisverkehr einfahren kann. Fahrzeuge, die die Abfahrtsstraßen erreichen können ungehindert beschleunigen, da sie in der Regel keine Autos vor sich haben.
 
 \begin{figure}[h!]
 	\centering
@@ -512,7 +485,7 @@ Zunächst fällt auf dass der Kreisverkehr komplett gefüllt ist. Da sich die Fa
 Der Verlauf der Verkehrsdichte zu diesem Durchlauf ist in Abbildung \ref{fig:roundabout020density} dargestellt. Zu Beginn der Simulation befinden sich nur wenige Fahrzeuge auf der Strecke, dieser Wert steigt allerdings durch die ankommenden Fahrzeuge kontinuierlich, und erreicht dabei eine Dichte von etwa $0.4$. Dies entspicht dem Zeitpunkt, ab dem aus Platzgründen keine Fahrzeuge mehr an den Quellen generiert werden können bis ein Fahrzeug den Kreisverkehr verlässt und andere nachrücken können.
 
 \subsection{Autobahndreieck}
-Ein Vorzug des entwickelten Algorithmus ist seine allgemeingültigkeit. Er lässt sich ohne problemspezifische Anpassungen auf beliebige Straßennetze anwenden, sogar auf nicht-planare. Daher sind wir ebenfalls in der Lage, den Verkehrsfluss an einem Autobahndreieck zu simulieren, wobei wir uns für die Bauform \q{Trompete} mit Linksführung entscheiden.
+Ein Vorzug des entwickelten Algorithmus ist seine Allgemeingültigkeit. Er lässt sich ohne problemspezifische Anpassungen auf beliebige Straßennetze anwenden, sogar auf nicht-planare. Daher sind wir ebenfalls in der Lage, den Verkehrsfluss an einem Autobahndreieck zu simulieren, wobei wir uns für die Bauform \q{Trompete} mit Linksführung entscheiden.
 
 \begin{figure}[h!]
 	\centering
@@ -521,7 +494,7 @@ Ein Vorzug des entwickelten Algorithmus ist seine allgemeingültigkeit. Er läss
 	\label{fig:interchangeTrumpet}
 \end{figure}
 
-Hierbei nehmen wir auf den Autobahnen ein Tempolimit von 4 (also $108km/h$) in der Nähe des Dreiecks an. Für die Verbindungsstraßen werden Limits von 3 ($81km/h$) bzw. 2 ($54km/h$) entsprechend ihrer Krümmung aus. Da die von unten kommende Autobahn unter (oder über) der anderen verlaufen muss und damit die selben Zellen nutzen würde, wäre diese Formation mit regulären zellulären Automaten nicht darstellbar. In der Repräsentation als Graph auf der unser Algorithmus arbeitet, ist dies jedoch kein Problem. Zur graphischen Aufbereitung platzieren wir das Unterführungsstück isoliert abseits der anderen Straßen, wie in \ref{fig:interchangeTrumpet} zu sehen.
+Hierbei nehmen wir auf den Autobahnen ein Tempolimit von 4 (also $108km/h$) in der Nähe des Dreiecks an. Für die Verbindungsstraßen werden Limits von 3 ($81km/h$) bzw. 2 ($54km/h$) entsprechend ihrer Krümmung ausgewählt. Da die von unten kommende Autobahn unter (oder über) der anderen verlaufen muss und damit die selben Zellen nutzen würde, wäre diese Formation mit regulären zellulären Automaten nicht darstellbar. In der Repräsentation als Graph, auf der unser Algorithmus arbeitet, ist dies jedoch kein Problem. Zur graphischen Aufbereitung platzieren wir das Unterführungsstück isoliert abseits der anderen Straßen, wie in Abbildung \ref{fig:interchangeTrumpet} zu sehen ist.
 
 Ebenso wie der Kreisverkehr verfügt dieses System über 3 Quellen und 3 Senken, verhält sich unter hoher Verkehrslast allerdings wesentlich zuverlässiger. Selbst bei einer Erzeugungsrate von $1.00$, wenn also wann immer möglich ein Fahrzeug eingefügt wird, kommt es nicht zu permanenten Staus.
 
@@ -532,7 +505,7 @@ Ebenso wie der Kreisverkehr verfügt dieses System über 3 Quellen und 3 Senken,
 	\label{fig:interchangeTrumpet100}
 \end{figure}
 
-Abbildung \ref{fig:interchangeTrumpet100} visualisiert das Autobahndreieck mit dieser Erzeugungsrate nach 500 Iterationen, wobei die selben Parameter wie beim Kreisverkehr in Abschnitt \ref{subsec:kreisverkehr} verwendet wurden. Die Zufahrtstraßen haben sich mit Autos gefüllt deren Abstände ungefähr der zulässigen Maximalgeschwindigkeit entsprechen. An der in der Mitte dargestellten Belegung lässt sich erkennen, dass es auf den Verbindungsstraßen und den Autobahnstrecken zwischen den Auf- und Abfahrten weniger Fahrzeuge gibt, was naheliegend ist da sie sich auf Verbindungsstraßen und Auf/Abfahrten aufteilen. Die Geschwindigkeiten im rechten Bild entsprechen ungefähr den Maximalgeschwindigkeiten, wobei es nahe an den Zusammenführungen zu Veringerungen der Geschwindigkeit kommt, Stauketten bilden sich allerdings keine.
+Abbildung \ref{fig:interchangeTrumpet100} visualisiert das Autobahndreieck mit dieser Erzeugungsrate nach 500 Iterationen, wobei dieselben Parameter wie beim Kreisverkehr in Abschnitt \ref{subsec:kreisverkehr} verwendet wurden. Die Zufahrtsstraßen haben sich mit Autos gefüllt, deren Abstände ungefähr der zulässigen Maximalgeschwindigkeit entsprechen. An der in der Mitte dargestellten Belegung lässt sich erkennen, dass es auf den Verbindungsstraßen und den Autobahnstrecken zwischen den Auf- und Abfahrten weniger Fahrzeuge gibt, was naheliegend ist, da sie sich auf Verbindungsstraßen sowie Auf- und Abfahrten aufteilen. Die Geschwindigkeiten im rechten Bild entsprechen ungefähr den Maximalgeschwindigkeiten, wobei es nahe an den Zusammenführungen zu Veringerungen der Geschwindigkeit kommt, Stauketten bilden sich allerdings keine.
 
 \newpage
 \section{Fazit}
