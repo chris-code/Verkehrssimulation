@@ -12,6 +12,8 @@
 \usepackage{fullpage}
 \usepackage[top=1.5cm,bottom=1.5cm,left=3.5cm,right=2.5cm,headsep=1.5cm,includeheadfoot]{geometry}
 \usepackage{tabularx}
+\usepackage{caption}
+\usepackage{subcaption}
 \usepackage{eurosym}
 \usepackage{enumitem}
 \usepackage{multicol}
@@ -302,19 +304,35 @@ Nun bleibt noch die Frage zu klären, wie an einer Verzweigung die Entscheidung 
 
 \subsection{Visualisierung}
 \label{subsec:visualisierung}
-Die Simulationsergebnisse werden nach Abschluss der Simulation in vier Grafiken visualisiert. Für die Autobahn und beliebige Straßenverläufe wie den Kreisverkehr gibt es bei der Visualisierung keine konzeptionellen Unterschiede. Daher wird die Visualisierung an dieser Stelle nur einmal erläutert, auch wenn wegen einiger Programmierdetails zwei Implementierungen vonnöten sind.
+Die Simulationsergebnisse werden nach Abschluss der Simulation in vier Grafiken visualisiert. Für die Autobahn und beliebige Straßenverläufe wie den Kreisverkehr gibt es bei der Visualisierung keine konzeptionellen Unterschiede. Daher wird die Visualisierung an dieser Stelle nur einmal erläutert, auch wenn wegen einiger Programmierdetails zwei Implementierungen vonnöten sind.\\
+
+\begin{figure}[h!]
+	\centering
+	\begin{subfigure}[b]{0.3\textwidth}
+		\includegraphics[width=\textwidth]{img/vis_multilane_2_lanes}
+		\caption{Momentaufnahmen von zehn Simulationsschritten (Ausschnitt)}
+		\label{fig:momentaufnameMultilane}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.3\textwidth}
+		\includegraphics[width=\textwidth]{img/vis_roundabout_speed_heat_map}
+		\caption{Geschwindigkeits-Heat-Map eines Kreisverkehrs}
+		\label{fig:speedMapRoundabout}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.3\textwidth}
+		\includegraphics[width=\textwidth]{img/vis_roundabout_occupancy_heat_map}
+		\caption{Belegungs-Heat-Map eines Kreisverkehrs}
+		\label{fig:occupancyMapRoundabout}
+	\end{subfigure}
+	\caption{Diverse Visualisierungsmethoden}
+	\label{fig:visualizationMethods}
+\end{figure}
 
 \paragraph{Momentaufnahme}
 \label{paragraph:momentaufnahme}
 
 Nach jedem Simulationsschritt wird eine Momentaufnahme der aktuellen Verkehrssituation gemacht. Dazu wird zunächst eine komplett schwarze Grafik erzeugt, welche genau so groß ist wie die Straßenkarte. Anschließend wird für jedes Fahrzeug gemäß seiner Geschwindigkeit das entsprechende Pixel eingefärbt. Dabei steht die Farbe Dunkelrot für ein stehendes Fahrzeug und die Farbe Weiß für die globale Maximalgeschwindigkeit 7 = 189 $km/h$. Dann wird die aktuelle Momentaufnahme an die bisherigen Momentaufnahmen angefügt. Abbildung \ref{fig:momentaufnameMultilane} zeigt exemplarisch die Momentaufnahmen einer zweispurigen Autobahn über zehn Simulationsschritte hinweg.
-
-\begin{figure}[h!]
-	\centering
-	\includegraphics[height=2.91cm]{img/vis_multilane_2_lanes}
-	\caption{Momentaufnahmen von zehn Simulationsschritten (Ausschnitt)}
-	\label{fig:momentaufnameMultilane}
-\end{figure}
 
 Für Simulationen mit vielen Spuren und über viele Simulationsschritte hinweg kann ein solches Bild natürlich sehr hoch werden. Die zwei nachfolgenden Auswertungen sind deutlich kompakter.
 
@@ -323,26 +341,11 @@ Für Simulationen mit vielen Spuren und über viele Simulationsschritte hinweg k
 
 Die Geschwindigkeits-Heat-Map stellt dar, mit welcher Geschwindigkeit sich Fahrzeuge im Durchschnitt über die einzelnen Zellen bewegt haben. Dazu wird nach jedem Simulationsschritt für jedes Fahrzeug ermittelt, welche Zellen es mit welcher Geschwindigkeit passiert hat.
 
-\begin{figure}[h!]
-	\centering
-	\includegraphics[height=4cm]{img/vis_roundabout_speed_heat_map}
-	\caption{Geschwindigkeits-Heat-Map eines Kreisverkehrs}
-	\label{fig:speedMapRoundabout}
-\end{figure}
-
 Die Farben in der Geschwindigkeits-Heat-Map entsprechen denen der Momentaufnahmen, wobei Zellen schwarz werden, wenn dort während der gesamten Simulation kein einziges Fahrzeug entlang fuhr. Bei einer weißen Zelle hatten alle Fahrzeuge, die diese Zelle passiert haben, Geschwindigkeit 7. Im gegebenen Beispiel in Abbildung \ref{fig:speedMapRoundabout} ist deutlich ersichtlich, dass die Geschwindigkeit im Kreisverkehr geringer als auf den Zubringern ist.
 
 \paragraph{Belegungs-Heat-Map}
 \label{paragraph:occupancymap}
-Die Belegungs-Heat-Map gibt an, während wievieler Schritte eine Zelle von einem Fahrzeug überquert wurde, unabhängig von der Geschwindigkeit. Auf diese Weise können wir ermitteln, wie stark die unterschiedlichen Bereiche eines Straßennetzes ausgelastet waren.
-
-\begin{figure}[h!]
-	\centering
-	\includegraphics[height=4cm]{img/vis_roundabout_occupancy_heat_map}
-	\caption{Belegungs-Heat-Map eines Kreisverkehrs}
-	\label{fig:occupancyMapRoundabout}
-\end{figure}
-Bei der Belegungs-Heat-Map geben die Farben keine Geschwindigkeit an. Während eine schwarze Zelle anzeigt, dass sich hier zu keinem Zeitpunkt ein Fahrzeug befand, war eine weiße Zelle durchgängig belegt.
+Die Belegungs-Heat-Map gibt an, während wievieler Schritte eine Zelle von einem Fahrzeug überquert wurde, unabhängig von der Geschwindigkeit. Auf diese Weise können wir ermitteln, wie stark die unterschiedlichen Bereiche eines Straßennetzes ausgelastet waren. Bei der Belegungs-Heat-Map geben die Farben keine Geschwindigkeit an. Während eine schwarze Zelle anzeigt, dass sich hier zu keinem Zeitpunkt ein Fahrzeug befand, war eine weiße Zelle durchgängig belegt.
 
 \paragraph{Verkehrsdichte}
 \label{paragraph:verkehrsdichte}
