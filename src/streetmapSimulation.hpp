@@ -8,13 +8,13 @@
 
 using namespace std;
 
-class SimulationRoundabout {
+class StreetmapSimulation {
 	public:
-		SimulationRoundabout( default_random_engine &randomEngine,
-		                      uniform_real_distribution<double> &dallyFactorDistribution,
-		                      exponential_distribution<double> &riskFactorDistributionL2R,
-		                      exponential_distribution<double> &riskFactorDistributionR2L,
-		                      normal_distribution<double> &maxSpeedDistribution ) :
+		StreetmapSimulation( default_random_engine &randomEngine,
+		                     uniform_real_distribution<double> &dallyFactorDistribution,
+		                     exponential_distribution<double> &riskFactorDistributionL2R,
+		                     exponential_distribution<double> &riskFactorDistributionR2L,
+		                     normal_distribution<double> &maxSpeedDistribution ) :
 			randomEngine( randomEngine ),
 			dallyFactorDistribution( dallyFactorDistribution ),
 			riskFactorDistributionL2R( riskFactorDistributionL2R ),
@@ -23,12 +23,12 @@ class SimulationRoundabout {
 			streetMap = nullptr;
 		}
 		
-		void simulate( StreetMap &streetMap, double carGenerationRate, long iterations ) {
+		void simulate( StreetmapRoad &streetMap, double carGenerationRate, long iterations ) {
 			this->streetMap = &streetMap;
 			populateMap( carGenerationRate / 2.0 ); // Account for vehicles blocked from generation
 			
-			VisualizationRoundabout vis( streetMap.getContents().size(),
-			                             streetMap.getContents()[0].size() );
+			StreetmapVisualization vis( streetMap.getContents().size(),
+			                            streetMap.getContents()[0].size() );
 			vis.appendRoundabout( streetMap );
 			
 			for( long i = 0; i < iterations; ++i ) {
@@ -49,7 +49,7 @@ class SimulationRoundabout {
 		exponential_distribution<double> riskFactorDistributionR2L;
 		normal_distribution<double> maxSpeedDistribution;
 		
-		StreetMap *streetMap;
+		StreetmapRoad *streetMap;
 		
 		void simulateStep() {
 			streetMap->drawDestinationsRandomly();
@@ -63,7 +63,7 @@ class SimulationRoundabout {
 		}
 		
 		void populateMap( double trafficDensity ) {
-			vector< vector<StreetSegment> > &contents = streetMap->getContents();
+			vector< vector<StreetmapSegment> > &contents = streetMap->getContents();
 			bernoulli_distribution carPlacementDistribution( trafficDensity );
 			
 			for( long x = 0; x < long( contents.size() ); ++x ) {
@@ -81,7 +81,7 @@ class SimulationRoundabout {
 		}
 		
 		void addCars() {
-			set<StreetSegment*> &sources = streetMap->getSources();
+			set<StreetmapSegment*> &sources = streetMap->getSources();
 			uniform_real_distribution<double> uniform01Distribution( 0.0, 1.0 );
 			
 			for( auto s = sources.begin(); s != sources.end(); ++s ) {
@@ -95,7 +95,7 @@ class SimulationRoundabout {
 		}
 		
 		void accelerate() {
-			vector< vector<StreetSegment> > &contents = streetMap->getContents();
+			vector< vector<StreetmapSegment> > &contents = streetMap->getContents();
 			for( long x = 0; x < long( contents.size() ); ++x ) {
 				for( long y = 0; y < long( contents[x].size() ); ++y ) {
 					if( contents[x][y].v != nullptr ) {
@@ -105,8 +105,8 @@ class SimulationRoundabout {
 			}
 		}
 		
-		StreetSegment * findSegmentWithVehicle( Vehicle *v ) {
-			vector< vector<StreetSegment> > &contents = streetMap->getContents();
+		StreetmapSegment * findSegmentWithVehicle( Vehicle *v ) {
+			vector< vector<StreetmapSegment> > &contents = streetMap->getContents();
 			for( long x = 0; x < long( contents.size() ); ++x ) {
 				for( long y = 0; y < long( contents[x].size() ); ++y ) {
 					if( contents[x][y].v == v ) {
@@ -118,14 +118,14 @@ class SimulationRoundabout {
 		}
 		
 		void checkDistances() {
-			vector< vector<StreetSegment> > &contents = streetMap->getContents();
+			vector< vector<StreetmapSegment> > &contents = streetMap->getContents();
 			
 //			Get segments that contain cars
-			deque<StreetSegment*> segmentsWithCars = streetMap->getSegmentsWithCars();
+			deque<StreetmapSegment*> segmentsWithCars = streetMap->getSegmentsWithCars();
 			
 //			Place markings along each Vehicle's path. Overwrite markigns according to right of way
 			while( ! segmentsWithCars.empty() ) {
-				StreetSegment *previousSegment = segmentsWithCars.front();
+				StreetmapSegment *previousSegment = segmentsWithCars.front();
 				Vehicle *v = previousSegment->v;
 				segmentsWithCars.pop_front();
 				
@@ -136,7 +136,7 @@ class SimulationRoundabout {
 						break;
 					}
 					
-					StreetSegment *nextSegment = previousSegment->getCurrentDestination();
+					StreetmapSegment *nextSegment = previousSegment->getCurrentDestination();
 					--remainingSteps;
 					remainingSteps = min( remainingSteps, nextSegment->maxSpeed );
 					if( nextSegment->v != nullptr ) {
@@ -169,7 +169,7 @@ class SimulationRoundabout {
 			}
 			
 			while( ! segmentsWithCars.empty() ) {
-				StreetSegment *currentSegment = segmentsWithCars.front();
+				StreetmapSegment *currentSegment = segmentsWithCars.front();
 				Vehicle *v = currentSegment->v;
 				segmentsWithCars.pop_front();
 				
@@ -195,7 +195,7 @@ class SimulationRoundabout {
 		}
 		
 		void dally() {
-			vector< vector<StreetSegment> > &contents = streetMap->getContents();
+			vector< vector<StreetmapSegment> > &contents = streetMap->getContents();
 			uniform_real_distribution<double> uniform01distribution( 0.0, 1.0 );
 			
 			for( long x = 0; x < long( contents.size() ); ++x ) {
@@ -213,17 +213,17 @@ class SimulationRoundabout {
 		}
 		
 		void move() {
-			vector< vector<StreetSegment> > &contents = streetMap->getContents();
+			vector< vector<StreetmapSegment> > &contents = streetMap->getContents();
 			set<Vehicle*> processedVehicles;
 			
 			for( long x = 0; x < long( contents.size() ); ++x ) {
 				for( long y = 0; y < long( contents[x].size() ); ++y ) {
 					Vehicle *v = contents[x][y].v;
 					if( v != nullptr && processedVehicles.count( v ) == 0 ) {
-						StreetSegment *nextSegment = &( contents[x][y] );
+						StreetmapSegment *nextSegment = &( contents[x][y] );
 						for( long remainingSteps = v->currentSpeed; remainingSteps > 0;
 						        --remainingSteps ) {
-							StreetSegment *previousSegment = nextSegment;
+							StreetmapSegment *previousSegment = nextSegment;
 							if( previousSegment->isSink() ) {
 //								Previous segment was sink and we are moving one further. Remove car.
 								delete previousSegment->v;

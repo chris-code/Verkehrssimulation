@@ -10,9 +10,9 @@ using namespace cimg_library;
 
 const long MAXSPEED = 7;
 
-class VisualizationRoundabout {
+class StreetmapVisualization {
 	public:
-		VisualizationRoundabout( long dimX, long dimY ) :
+		StreetmapVisualization( long dimX, long dimY ) :
 			seperationLine(dimX, 1, 1, 3, 100),
 			speedCounter(dimX, dimY, 1, 1, 0),
 			occupancyCounter(dimX, dimY, 1, 1, 0) {
@@ -21,7 +21,7 @@ class VisualizationRoundabout {
 			iterations = 0;
 		}
 
-		void appendRoundabout(StreetMap &sm) {
+		void appendRoundabout(StreetmapRoad &sm) {
 			CImg<unsigned char> streetMapImg = streetMapToImg(sm);
 
 			lastUsedStreetMap = &sm;
@@ -58,8 +58,8 @@ class VisualizationRoundabout {
 		}
 
 	private:
-		CImg<unsigned char> streetMapToImg(StreetMap &sm) {
-			std::vector< std::vector<StreetSegment> > &streetSegments = sm.getContents();
+		CImg<unsigned char> streetMapToImg(StreetmapRoad &sm) {
+			std::vector< std::vector<StreetmapSegment> > &streetSegments = sm.getContents();
 
 			long dimX = streetSegments.size();
 			long dimY = streetSegments[0].size();
@@ -68,7 +68,7 @@ class VisualizationRoundabout {
 
 			for (long x = 0; x < dimX; ++x) {
 				for (long y = 0; y < dimY; ++y) {
-					StreetSegment *s = &streetSegments[x][y];
+					StreetmapSegment *s = &streetSegments[x][y];
 					// There is no street at this position -> gray
 					if (s->isDummy()) {
 						streetMapImg(x, y, 0, 0) = 100;
@@ -104,42 +104,42 @@ class VisualizationRoundabout {
 			return streetMapImg;
 		}
 
-		void createSegmentToPositionMap(StreetMap &sm) {
-			std::vector< std::vector<StreetSegment> > &streetSegments = sm.getContents();
+		void createSegmentToPositionMap(StreetmapRoad &sm) {
+			std::vector< std::vector<StreetmapSegment> > &streetSegments = sm.getContents();
 
 			long dimX = streetSegments.size();
 			long dimY = streetSegments[0].size();
 
 			for (long x = 0; x < dimX; ++x) {
 				for (long y = 0; y < dimY; ++y) {
-					StreetSegment *s = &streetSegments[x][y];
+					StreetmapSegment *s = &streetSegments[x][y];
 					std::pair<long, long> positionPair = std::make_pair(x, y);
-					std::pair<StreetSegment*, std::pair<long, long> > newEntry = std::make_pair(s, positionPair);
+					std::pair<StreetmapSegment*, std::pair<long, long> > newEntry = std::make_pair(s, positionPair);
 					segmentToPositionMap.insert(newEntry);
 				}
 			}
 		}
 
-		void updateSpeedHeatMap(StreetMap &sm) {
-			std::vector< std::vector<StreetSegment> > &streetSegments = sm.getContents();
+		void updateSpeedHeatMap(StreetmapRoad &sm) {
+			std::vector< std::vector<StreetmapSegment> > &streetSegments = sm.getContents();
 
 			long dimX = streetSegments.size();
 			long dimY = streetSegments[0].size();
 
 			for (long x = 0; x < dimX; ++x) {
 				for (long y = 0; y < dimY; ++y) {
-					StreetSegment *s = &streetSegments[x][y];
+					StreetmapSegment *s = &streetSegments[x][y];
 					if (!s->isDummy()) {
 						if (s->v != nullptr) {
 							speedCounter(x,y,0,0) = speedCounter(x,y,0,0) + s->v->currentSpeed;
 
-							StreetSegment *currentSegment = s;
+							StreetmapSegment *currentSegment = s;
 
 							// go back all predecessors that are marked by the vehicle "s->v"
 							long distance = 0;
 
 							while (currentSegment->predecessors.size() > 0) {
-								StreetSegment *previousSegment = nullptr;
+								StreetmapSegment *previousSegment = nullptr;
 
 								for (long i = 0; i < long(currentSegment->predecessors.size()); ++i) {
 									if (currentSegment->predecessors[i]->getCurrentDestination() == currentSegment) {
@@ -175,23 +175,23 @@ class VisualizationRoundabout {
 			}
 		}
 
-		void updateOccupancyHeatMap(StreetMap &sm) {
-			std::vector< std::vector<StreetSegment> > &streetSegments = sm.getContents();
+		void updateOccupancyHeatMap(StreetmapRoad &sm) {
+			std::vector< std::vector<StreetmapSegment> > &streetSegments = sm.getContents();
 
 			long dimX = streetSegments.size();
 			long dimY = streetSegments[0].size();
 
 			for (long x = 0; x < dimX; ++x) {
 				for (long y = 0; y < dimY; ++y) {
-					StreetSegment *s = &streetSegments[x][y];
+					StreetmapSegment *s = &streetSegments[x][y];
 					if (!s->isDummy()) {
 						if (s->v != nullptr) {
 							occupancyCounter(x,y,0,0) = occupancyCounter(x,y,0,0) + 1;
 
-							StreetSegment *currentSegment = s;
+							StreetmapSegment *currentSegment = s;
 							// go back all predecessors that are marked by the vehicle "s->v"
 							while (currentSegment->predecessors.size() > 0) {
-								StreetSegment *previousSegment = nullptr;
+								StreetmapSegment *previousSegment = nullptr;
 
 								for (long i = 0; i < long(currentSegment->predecessors.size()); ++i) {
 									if (currentSegment->predecessors[i]->getCurrentDestination() == currentSegment) {
@@ -223,7 +223,7 @@ class VisualizationRoundabout {
 		void saveSpeedHeatMap() {
 			CImg<unsigned char> speedHeatMapColored(speedCounter.width(), speedCounter.height(), 1, 3);
 
-			std::vector< std::vector<StreetSegment> > &streetSegments = lastUsedStreetMap->getContents();
+			std::vector< std::vector<StreetmapSegment> > &streetSegments = lastUsedStreetMap->getContents();
 
 			CImg<double> relativeSpeedMap(speedCounter.width(), speedCounter.height(), 1, 1);
 
@@ -275,7 +275,7 @@ class VisualizationRoundabout {
 
 			CImg<long> occupancyHeatMapNormalized = occupancyCounter.get_normalize(minValue, maxValue);
 
-			std::vector< std::vector<StreetSegment> > &streetSegments = lastUsedStreetMap->getContents();
+			std::vector< std::vector<StreetmapSegment> > &streetSegments = lastUsedStreetMap->getContents();
 
 			for (auto x = 0; x < occupancyHeatMapColored.width(); ++x) {
 				for (auto y = 0; y < occupancyHeatMapColored.height(); y++) {
@@ -357,8 +357,8 @@ class VisualizationRoundabout {
 		CImg<unsigned char> seperationLine;
 		CImg<long> speedCounter;
 		CImg<long> occupancyCounter;
-		StreetMap *lastUsedStreetMap;
-		std::map<StreetSegment*, std::pair<long, long>> segmentToPositionMap;
+		StreetmapRoad *lastUsedStreetMap;
+		std::map<StreetmapSegment*, std::pair<long, long>> segmentToPositionMap;
 		bool firstAppend;
 		std::vector<double> densities;
 		long iterations;

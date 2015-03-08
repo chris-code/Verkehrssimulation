@@ -9,9 +9,9 @@ using namespace cimg_library;
 
 const long MAXSPEED = 7;
 
-class VisualizationMultilane {
+class MultilaneVisualization {
 	public:
-		VisualizationMultilane(long streetLength, long laneCount) :
+		MultilaneVisualization(long streetLength, long laneCount) :
 			seperationLine(streetLength, 1, 1, 3, 100),
 			speedCounter(streetLength, laneCount, 1, 1, 0),
 			occupancyCounter(streetLength, laneCount, 1, 1, 0) {
@@ -19,7 +19,7 @@ class VisualizationMultilane {
 			iterations = 0;
 		}
 
-		void appendRoad(Road &r) {
+		void appendRoad(MultilaneRoad &r) {
 			CImg<unsigned char> rImg = roadToImg(r);
 			if (firstAppend) {
 				roadImg = rImg;
@@ -52,7 +52,7 @@ class VisualizationMultilane {
 		}
 
 	private:
-		CImg<unsigned char> roadToImg(Road &r) {
+		CImg<unsigned char> roadToImg(MultilaneRoad &r) {
 			CImg<unsigned char> img(r.getStreetLength(), r.getLaneCount(), 1, 3);
 
 			for (auto s = 0; s < r.getStreetLength(); ++s) {
@@ -84,7 +84,7 @@ class VisualizationMultilane {
 			return img;
 		}
 
-		void updateSpeedHeatMap(Road &r) {
+		void updateSpeedHeatMap(MultilaneRoad &r) {
 			for (auto s = 0; s < r.getStreetLength(); ++s) {
 				for (auto l = 0; l < r.getLaneCount(); ++l) {
 					Vehicle *v = r.getVehicle(s, l);
@@ -99,7 +99,7 @@ class VisualizationMultilane {
 			}
 		}
 
-		void updateOccupancyHeatMap(Road &r) {
+		void updateOccupancyHeatMap(MultilaneRoad &r) {
 			for (auto s = 0; s < r.getStreetLength(); ++s) {
 				for (auto l = 0; l < r.getLaneCount(); ++l) {
 					Vehicle *v = r.getVehicle(s, l);

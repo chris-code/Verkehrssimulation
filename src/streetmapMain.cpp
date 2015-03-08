@@ -143,15 +143,15 @@ int main( int argc, char **argv ) {
 	normal_distribution<double> maxSpeedDistribution( maxSpeedMean, maxSpeedStd );
 	
 	if( simulateRoundabout ) {
-		StreetMap streetMap( roundaboutWidth, roundaboutHeight, driveUpLength, carGenerationRate,
+		StreetmapRoad streetMap( roundaboutWidth, roundaboutHeight, driveUpLength, carGenerationRate,
 		                     randomEngine );
-		SimulationRoundabout simulation( randomEngine, dallyFactorDistribution,
+		StreetmapSimulation simulation( randomEngine, dallyFactorDistribution,
 		                                 riskFactorDistributionL2R, riskFactorDistributionR2L,
 		                                 maxSpeedDistribution );
 		simulation.simulate( streetMap, carGenerationRate, iterations );
 	} else {
-		StreetMap streetMap( randomEngine, driveUpLength, carGenerationRate );
-		SimulationRoundabout simulation( randomEngine, dallyFactorDistribution,
+		StreetmapRoad streetMap( randomEngine, driveUpLength, carGenerationRate );
+		StreetmapSimulation simulation( randomEngine, dallyFactorDistribution,
 		                                 riskFactorDistributionL2R, riskFactorDistributionR2L,
 		                                 maxSpeedDistribution );
 		simulation.simulate( streetMap, carGenerationRate, iterations );

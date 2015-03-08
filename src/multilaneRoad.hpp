@@ -6,12 +6,12 @@
 
 using namespace std;
 
-class Road {
+class MultilaneRoad {
 	public:
-		Road(long streetLength, long laneCount) {
+		MultilaneRoad(long streetLength, long laneCount) {
 			resize(streetLength, laneCount);
 		}
-		virtual ~Road() {
+		virtual ~MultilaneRoad() {
 			clear();
 		}
 

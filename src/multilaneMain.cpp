@@ -109,7 +109,7 @@ int main( int argc, char **argv ) {
 					 <<	"The maximal dally factor must not be smaller than the minimal dally factor!" << endl;
 	}
 
-	SimulationMultilane simulation( minDallyFactor, maxDallyFactor,
+	MultilaneSimulation simulation( minDallyFactor, maxDallyFactor,
 	                                lambdaRiskFactorL2R, lambdaRiskFactorR2L, maxSpeedMean,
 	                                maxSpeedStd );
 	simulation.initialize( streetLength, laneCount, trafficDensity, wrapAround, fillRoad, equallySpaced );

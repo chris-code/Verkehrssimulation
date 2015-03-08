@@ -12,23 +12,23 @@
 
 using namespace std;
 
-class StreetMap {
+class StreetmapRoad {
 	public:
-		StreetMap( default_random_engine &randomEngine, long driveUpLength,
+		StreetmapRoad( default_random_engine &randomEngine, long driveUpLength,
 		           double carGenerationRate ) :
 			randomEngine( randomEngine ) {
 			dimX = 0;
 			dimY = 0;
 			buildTrumpetInterchange( driveUpLength, carGenerationRate );
 		}
-		StreetMap( long roundaboutWidth, long roundaboutHeight, long driveUpLength,
+		StreetmapRoad( long roundaboutWidth, long roundaboutHeight, long driveUpLength,
 		           double carGenerationRate, default_random_engine &randomEngine ) :
 			randomEngine( randomEngine ) {
 			dimX = 0;
 			dimY = 0;
 			buildRoundabout( roundaboutWidth, roundaboutHeight, driveUpLength, carGenerationRate );
 		}
-		virtual ~StreetMap() {
+		virtual ~StreetmapRoad() {
 			for( long x = 0; x < dimX; ++x ) {
 				for( long y = 0; y < dimY; ++y ) {
 					if( contents[x][y].v != nullptr ) {
@@ -341,8 +341,8 @@ class StreetMap {
 			}
 		}
 		
-		deque<StreetSegment*> getSegmentsWithCars() {
-			deque<StreetSegment*> segmentsWithCars;
+		deque<StreetmapSegment*> getSegmentsWithCars() {
+			deque<StreetmapSegment*> segmentsWithCars;
 			for( long x = 0; x < long( contents.size() ); ++x ) {
 				for( long y = 0; y < long( contents[x].size() ); ++y ) {
 					if( contents[x][y].v != nullptr ) {
@@ -353,13 +353,13 @@ class StreetMap {
 			return segmentsWithCars;
 		}
 		
-		set<StreetSegment*> &getSources() {
+		set<StreetmapSegment*> &getSources() {
 			return sources;
 		}
-		set<StreetSegment*> &getSinks() {
+		set<StreetmapSegment*> &getSinks() {
 			return sinks;
 		}
-		vector< vector<StreetSegment> > &getContents() {
+		vector< vector<StreetmapSegment> > &getContents() {
 			return contents;
 		}
 		
@@ -367,9 +367,9 @@ class StreetMap {
 		default_random_engine &randomEngine;
 		long dimX;
 		long dimY;
-		vector<vector<StreetSegment>> contents;
-		set<StreetSegment*> sources;
-		set<StreetSegment*> sinks;
+		vector<vector<StreetmapSegment>> contents;
+		set<StreetmapSegment*> sources;
+		set<StreetmapSegment*> sinks;
 		
 		void buildPredPointersInLine( pair<long, long> &start, pair<long, long> &stop,
 		                              long maxSpeed ) {

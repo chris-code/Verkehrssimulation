@@ -6,9 +6,9 @@
 
 using namespace std;
 
-class StreetSegment {
+class StreetmapSegment {
 	public:
-		StreetSegment() {
+		StreetmapSegment() {
 			maxSpeed = 1;
 			currentDestinationID = 0;
 			carGenerationRate = 0.15;
@@ -24,20 +24,20 @@ class StreetSegment {
 			}
 		}
 		
-		StreetSegment * getCurrentDestination() {
+		StreetmapSegment * getCurrentDestination() {
 			return destinations[currentDestinationID];
 		}
 		
-		void addPredecessor( StreetSegment *pred ) {
+		void addPredecessor( StreetmapSegment *pred ) {
 			predecessors.push_back( pred );
 		}
 		
-		void addDestination( StreetSegment *dest, double weight ) {
+		void addDestination( StreetmapSegment *dest, double weight ) {
 			destinations.push_back( dest );
 			destinationWeights.push_back( weight );
 		}
 		
-		void setDestinationWeight( StreetSegment *dest, double weight ) {
+		void setDestinationWeight( StreetmapSegment *dest, double weight ) {
 			for( long i = 0; i < long( destinations.size() ); ++i ) {
 				if( destinations[i] == dest ) {
 					destinationWeights[i] = weight;
@@ -61,12 +61,12 @@ class StreetSegment {
 		
 		long maxSpeed;
 		double carGenerationRate;
-		vector<StreetSegment*> predecessors;
+		vector<StreetmapSegment*> predecessors;
 		
 		Vehicle *mark;
 		Vehicle *v;
 	private:
-		vector<StreetSegment*> destinations;
+		vector<StreetmapSegment*> destinations;
 		vector<double> destinationWeights;
 		short currentDestinationID;
 };

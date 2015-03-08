@@ -12,9 +12,9 @@
 
 using namespace std;
 
-class SimulationMultilane {
+class MultilaneSimulation {
 	public:
-		SimulationMultilane(double minDallyFactor, double maxDallyFactor, double lambdaRiskFactorL2R, double lambdaRiskFactorR2L, double maxSpeedMean, double maxSpeedStd)
+		MultilaneSimulation(double minDallyFactor, double maxDallyFactor, double lambdaRiskFactorL2R, double lambdaRiskFactorR2L, double maxSpeedMean, double maxSpeedStd)
 		: road(0,0),
 		  visualization(nullptr),
 		  randomEngine(chrono::system_clock::now().time_since_epoch().count()),
@@ -65,7 +65,7 @@ class SimulationMultilane {
 			if(visualization != nullptr) {
 				delete visualization;
 			}
-			visualization = new VisualizationMultilane(road.getStreetLength(), road.getLaneCount());
+			visualization = new MultilaneVisualization(road.getStreetLength(), road.getLaneCount());
 
 			visualization->appendRoad(road);
 			for (long i = 0; i < runs; ++i) {
@@ -398,8 +398,8 @@ class SimulationMultilane {
 		}
 
 	private:
-		Road road;
-		VisualizationMultilane *visualization;
+		MultilaneRoad road;
+		MultilaneVisualization *visualization;
 		default_random_engine randomEngine;
 		uniform_real_distribution<double> dallyFactorDistribution;
 		exponential_distribution<double> riskFactorDistributionL2R;
