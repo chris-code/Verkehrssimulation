@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <random>
-#include "Vehicle.hpp"
+#include "vehicle.hpp"
 
 using namespace std;
 
@@ -11,7 +11,7 @@ class StreetSegment {
 		StreetSegment() {
 			maxSpeed = 1;
 			currentDestinationID = 0;
-			vehicleSpawnProbability = 0.15;
+			carGenerationRate = 0.15;
 			mark = nullptr;
 			v = nullptr;
 		}
@@ -60,7 +60,7 @@ class StreetSegment {
 		}
 		
 		long maxSpeed;
-		double vehicleSpawnProbability;
+		double carGenerationRate;
 		vector<StreetSegment*> predecessors;
 		
 		Vehicle *mark;

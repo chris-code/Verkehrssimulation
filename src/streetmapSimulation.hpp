@@ -2,9 +2,9 @@
 
 #include <set>
 #include <deque>
-#include "MessageException.hpp"
-#include "StreetMap.hpp"
-#include "VisualizationRoundabout.hpp"
+#include "messageException.hpp"
+#include "streetmapRoad.hpp"
+#include "streetmapVisualization.hpp"
 
 using namespace std;
 
@@ -23,9 +23,9 @@ class SimulationRoundabout {
 			streetMap = nullptr;
 		}
 		
-		void simulate( StreetMap &streetMap, double trafficDensity, long iterations ) {
+		void simulate( StreetMap &streetMap, double carGenerationRate, long iterations ) {
 			this->streetMap = &streetMap;
-			populateMap( trafficDensity );
+			populateMap( carGenerationRate / 2.0 ); // Account for vehicles blocked from generation
 			
 			VisualizationRoundabout vis( streetMap.getContents().size(),
 			                             streetMap.getContents()[0].size() );
@@ -86,7 +86,7 @@ class SimulationRoundabout {
 			
 			for( auto s = sources.begin(); s != sources.end(); ++s ) {
 				if( ( *s )->v == nullptr &&
-				        uniform01Distribution( randomEngine ) < ( *s )->vehicleSpawnProbability ) {
+				        uniform01Distribution( randomEngine ) < ( *s )->carGenerationRate ) {
 					( *s )->v = new Vehicle( randomEngine, dallyFactorDistribution,
 					                         riskFactorDistributionL2R, riskFactorDistributionR2L,
 					                         maxSpeedDistribution );

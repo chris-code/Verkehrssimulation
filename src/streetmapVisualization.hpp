@@ -308,7 +308,7 @@ class VisualizationRoundabout {
 		}
 
 		void saveDensities() {
-			ofstream densitiesFile("output/street_map_densities.txt");
+			ofstream densitiesFile("output/streetmap_densities.txt");
 
 			double min = 1.;
 			double max = 0.;
@@ -340,14 +340,14 @@ class VisualizationRoundabout {
 			double yRangeMin = std::max(0., (min - deltaMinMax));
 			double yRangeMax = max + deltaMinMax;
 
-			ofstream plotDensitiesFile("bin/street_map_plot_densities.txt");
+			ofstream plotDensitiesFile("bin/streetmap_plot_densities.txt");
 			plotDensitiesFile << "set term png size 1024,768\n";
 			plotDensitiesFile << "set output \"output/street_map_densities.png\"\n";
 			plotDensitiesFile << "set title \"Traffic Density Street Map\" \n";
 			plotDensitiesFile << "set xlabel \"Time (in s)\" \n";
 			plotDensitiesFile << "set ylabel \"Traffic Density\" \n";
 			plotDensitiesFile << "set yrange [" << yRangeMin << ":" << yRangeMax << "] \n";
-			plotDensitiesFile << "plot \"output/street_map_densities.txt\" with lines\n";
+			plotDensitiesFile << "plot \"output/streetmap_densities.txt\" with lines\n";
 			plotDensitiesFile.close();
 
 //			system("gnuplot street_map_plot_densities.txt");

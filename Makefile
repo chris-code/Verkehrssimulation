@@ -6,18 +6,15 @@ OPTFLAGS=
 INCLUDES=
 LIBS=-lpthread -lX11
 
-#PROGRAMS=einspurig mehrspurig kreisverkehr
-PROGRAMS=bin/multilane bin/roundabout
+PROGRAMS=bin/multilane bin/streetmap
 
 all:$(PROGRAMS)
 .PHONY:$(PROGRAMS)
 
-#einspurig:
-#	$(CC) $(CFLAGS) src/mainEinspurig.cpp -o $@ $(INCLUDES) $(LIBS) $(OPTFLAGS)
 bin/multilane:
-	$(CC) $(CFLAGS) src/mainMultilane.cpp -o $@ $(INCLUDES) $(LIBS) $(OPTFLAGS)
-bin/roundabout:
-	$(CC) $(CFLAGS) src/mainRoundabout.cpp -o $@ $(INCLUDES) $(LIBS) $(OPTFLAGS)
+	$(CC) $(CFLAGS) src/multilaneMain.cpp -o $@ $(INCLUDES) $(LIBS) $(OPTFLAGS)
+bin/streetmap:
+	$(CC) $(CFLAGS) src/streetmapMain.cpp -o $@ $(INCLUDES) $(LIBS) $(OPTFLAGS)
 
 clean:
 	rm $(PROGRAMS) 2>/dev/null

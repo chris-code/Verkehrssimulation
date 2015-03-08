@@ -1,7 +1,7 @@
 #include <getopt.h>
-#include "Vehicle.hpp"
-#include "Road.hpp"
-#include "SimulationMultilane.hpp"
+#include "vehicle.hpp"
+#include "multilaneRoad.hpp"
+#include "multilaneSimulation.hpp"
 
 using namespace std;
 

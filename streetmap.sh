@@ -1,7 +1,7 @@
 #!/bin/bash
 
-binary='bin/roundabout'
-plot_script="bin/street_map_plot_densities.txt"
+binary='bin/streetmap'
+plot_script="bin/streetmap_plot_densities.txt"
 
 if [ -x "$binary" ]; then
 	echo "Launching $binary"

@@ -6,26 +6,27 @@
 #include <chrono>
 #include <random>
 #include <iostream> //TODO remove this
-#include "MessageException.hpp"
-#include "StreetSegment.hpp"
-#include "Vehicle.hpp"
+#include "messageException.hpp"
+#include "streetmapSegment.hpp"
+#include "vehicle.hpp"
 
 using namespace std;
 
 class StreetMap {
 	public:
-		StreetMap( default_random_engine &randomEngine, long driveUpLength ) :
+		StreetMap( default_random_engine &randomEngine, long driveUpLength,
+		           double carGenerationRate ) :
 			randomEngine( randomEngine ) {
 			dimX = 0;
 			dimY = 0;
-			buildTrumpetInterchange( driveUpLength );
+			buildTrumpetInterchange( driveUpLength, carGenerationRate );
 		}
 		StreetMap( long roundaboutWidth, long roundaboutHeight, long driveUpLength,
-		           default_random_engine &randomEngine ) :
+		           double carGenerationRate, default_random_engine &randomEngine ) :
 			randomEngine( randomEngine ) {
 			dimX = 0;
 			dimY = 0;
-			buildRoundabout( roundaboutWidth, roundaboutHeight, driveUpLength );
+			buildRoundabout( roundaboutWidth, roundaboutHeight, driveUpLength, carGenerationRate );
 		}
 		virtual ~StreetMap() {
 			for( long x = 0; x < dimX; ++x ) {
@@ -55,7 +56,8 @@ class StreetMap {
 			}
 		}
 		
-		void buildRoundabout( long roundaboutWidth, long roundaboutHeight, long driveUpLength ) {
+		void buildRoundabout( long roundaboutWidth, long roundaboutHeight, long driveUpLength,
+		                      double carGenerationRate ) {
 			long buffer = 3;
 			long roundaboutSpeed = 1;
 			long driveUpSpeed = 4;
@@ -129,7 +131,7 @@ class StreetMap {
 			
 //			Generate other info from the current state
 			buildDestinationPointers();
-			determineSourcesAndSinks();
+			determineSourcesAndSinks( carGenerationRate );
 			
 //			Set weights
 			contents[leftBorder][leftDriveUpUpper].setDestinationWeight(
@@ -159,7 +161,7 @@ class StreetMap {
 		 *               |  |
 		 *               X  Y
 		 */
-		void buildTrumpetInterchange( long driveUpLength ) {
+		void buildTrumpetInterchange( long driveUpLength, double carGenerationRate ) {
 			for( long x = 0; x < dimX; ++x ) {
 				for( long y = 0; y < dimY; ++y ) {
 					if( contents[x][y].v != nullptr ) {
@@ -172,7 +174,7 @@ class StreetMap {
 			long tightLoopSpeed = 2;
 			long wideLoopSpeed = 3;
 			long interchangeSpeed = 4;
-
+			
 			long buffer = 3;
 			long lowerLoopSize = 18;
 			long upperInnerLoopSize = 10;
@@ -295,7 +297,7 @@ class StreetMap {
 			
 //			Generate other info from the current state
 			buildDestinationPointers();
-			determineSourcesAndSinks();
+			determineSourcesAndSinks( carGenerationRate );
 		}
 		
 		double computeDensity() {
@@ -423,7 +425,7 @@ class StreetMap {
 			}
 		}
 		
-		void determineSourcesAndSinks() {
+		void determineSourcesAndSinks( double carGenerationRate ) {
 			sources.clear();
 			sinks.clear();
 			
@@ -431,6 +433,7 @@ class StreetMap {
 				for( long y = 0; y < dimY; ++y ) {
 					if( contents[x][y].isSource() ) {
 						sources.insert( &( contents[x][y] ) );
+						contents[x][y].carGenerationRate = carGenerationRate;
 					}
 					if( contents[x][y].isSink() ) {
 						sinks.insert( &( contents[x][y] ) );

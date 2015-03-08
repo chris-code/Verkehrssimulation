@@ -6,9 +6,9 @@
 #include <random>
 #include <chrono>
 #include <iostream>
-#include "Road.hpp"
-#include "Vehicle.hpp"
-#include "VisualizationMultilane.hpp"
+#include "multilaneRoad.hpp"
+#include "vehicle.hpp"
+#include "multilaneVisualization.hpp"
 
 using namespace std;
 
