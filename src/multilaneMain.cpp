@@ -5,6 +5,46 @@
 
 using namespace std;
 
+void printHelp( int argc, char **argv ) {
+	cout << "SYNOPSIS" << endl;
+	cout << "\t" << argv[0] << " [-r] [-iWHlcdDsS]" << endl;
+	cout << "\t" << argv[0] << " -x [-ilcdDsS]" << endl;
+	cout << "\t" << argv[0] << " -h | --help" << endl;
+	
+	cout << "OPTIONS" << endl;
+	cout << "\t" << "-i #, --iterations #" << endl;
+	cout << "\t\t" << "Run simulation for # iterations" << endl;
+	
+	cout << "\t" << "-w, --wrap-around" << endl;
+	cout << "\t\t" << "Use cyclic boundary conditions (default is open boundary conditions)" << endl;
+	cout << "\t" << "-p, --pre-fill-road" << endl;
+	cout << "\t\t" << "Place vehicles on the road during initialization" << endl;
+	cout << "\t" << "-e, --equally-spaced" << endl;
+	cout << "\t\t" << "Place initial vehicles (-p) at equal distance" << endl;
+	cout << "\t" << "-x #, --street-length #" << endl;
+	cout << "\t\t" << "Set length of the street to # cells" << endl;
+	cout << "\t" << "-y #, --lanes #" << endl;
+	cout << "\t\t" << "Set number of lanes to #" << endl;
+	cout << "\t" << "-t #, --traffic-density #" << endl;
+	cout << "\t\t" << "Aim for a traffic density of #" << endl;
+	
+	cout << "\t" << "-d #, --min-dally-factor #" << endl;
+	cout << "\t\t" << "Set minimum dally factor to #" << endl;
+	cout << "\t" << "-D #, --max-dally-factor #" << endl;
+	cout << "\t\t" << "Set maximum dally factor to #" << endl;
+	cout << "\t" << "-r #, --lambda-risk-factor-l2r #" << endl;
+	cout << "\t\t" << "Set risk factor for changing from left to right lane to #" << endl;
+	cout << "\t" << "-R #, --lambda-risk-factor-r2l #" << endl;
+	cout << "\t\t" << "Set risk factor for changing from right to left lane to #" << endl;
+	cout << "\t" << "-s #, --speed-mean #" << endl;
+	cout << "\t\t" << "Set mean of the max-speed normal distribution to #" << endl;
+	cout << "\t" << "-S #, --speed-std #" << endl;
+	cout << "\t\t" << "Set standard deviation of the max-speed normal distribution to #" << endl;
+	
+	cout << "\t" << "-h, --help" << endl;
+	cout << "\t\t" << "Display this message." << endl;
+}
+
 int main( int argc, char **argv ) {
 	long iterations = 500;
 	
@@ -24,6 +64,8 @@ int main( int argc, char **argv ) {
 	bool equallySpaced = false;
 	
 	struct option options[] = {
+		{"help", no_argument, nullptr, 'h'},
+		
 		{"iterations", required_argument, nullptr, 'i'},
 		
 		{"wrap-around", no_argument, nullptr, 'w'},
@@ -44,9 +86,14 @@ int main( int argc, char **argv ) {
 	};
 	
 	char option;
-	while( ( option = getopt_long( argc, argv, "i:wpex:y:t:d:D:r:R:s:S:", options, nullptr ) )
+	while( ( option = getopt_long( argc, argv, "hi:wpex:y:t:d:D:r:R:s:S:", options, nullptr ) )
 	        != -1 ) {
 		switch( option ) {
+			case 'h':
+				printHelp( argc, argv );
+				exit( EXIT_SUCCESS );
+				break;
+				
 			case 'i':
 				iterations = atoi( optarg );
 				break;
@@ -104,16 +151,17 @@ int main( int argc, char **argv ) {
 		}
 	}
 	
-	if (minDallyFactor > maxDallyFactor || minDallyFactor < 0. || maxDallyFactor < 0.) {
-				cerr << "Please choose values between 0 and 1 for the minimal and maximal dally factor." << endl
-					 <<	"The maximal dally factor must not be smaller than the minimal dally factor!" << endl;
+	if( minDallyFactor > maxDallyFactor || minDallyFactor < 0. || maxDallyFactor < 0. ) {
+		cerr << "Please choose values between 0 and 1 for the minimal and maximal dally factor." << endl
+		     <<	"The maximal dally factor must not be smaller than the minimal dally factor!" << endl;
 	}
-
+	
 	MultilaneSimulation simulation( minDallyFactor, maxDallyFactor,
 	                                lambdaRiskFactorL2R, lambdaRiskFactorR2L, maxSpeedMean,
 	                                maxSpeedStd );
-	simulation.initialize( streetLength, laneCount, trafficDensity, wrapAround, fillRoad, equallySpaced );
-	
+	simulation.initialize( streetLength, laneCount, trafficDensity, wrapAround, fillRoad,
+	                       equallySpaced );
+	                       
 	simulation.simulate( iterations );
 	
 	return EXIT_SUCCESS;
