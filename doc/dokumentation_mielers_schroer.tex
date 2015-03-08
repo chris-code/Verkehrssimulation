@@ -191,12 +191,12 @@ Wir haben unser Modell strukturell für die Simulation von Autobahnen mit belieb
 
 Als Repräsentation für die Autobahn dient eine $l \times s$ Matrix, wobei $l$ die Anzahl der Spuren (engl. \emph{lanes}) und $s$ die Anzahl der Straßensegmente (engl. \emph{segments}) angibt. Für die Simulation einer 2,25km ($= 300 \cdot 7,5m$) langen Autobahn mit drei Spuren wird also eine $3 \times 300$ Matrix erzeugt. Im Wesentlichen dient diese Matrix dazu, Fahrzeuge und ihre Position auf der Autobahn zu speichern.\\
 
-\begin{figure}[h!]
-	\centering
-	\includegraphics{img/twoLaneRoad}
-	\caption{Zweispurige Autobahn mit unterschiedlich schnellen Fahrzeugen (Ausschnitt)}
-	\label{fig:twoLaneRoad}
-\end{figure}
+%\begin{figure}[h!]
+%	\centering
+%	\includegraphics[width=0.8\textwidth]{img/twoLaneRoad}
+%	\caption{Zweispurige Autobahn mit unterschiedlich schnellen Fahrzeugen (Ausschnitt)}
+%	\label{fig:twoLaneRoad}
+%\end{figure}
 
 Im \nsm gibt es Szenarien mit zyklischen und offenen Randbedingungen. Da zyklische Autobahnen weniger realitätsnah sind, haben wir die Simulation zunächst so implementiert, dass stets auf der linken Seite neue Fahrzeuge erzeugt werden und diese bei Verlassen des rechten Randes wieder vernichtet werden. Da es bei dieser Implementierung aber schwierig ist, die Verkehrsdichte auf dem gewünschten Niveau zu halten, wurde zusätzlich eine Implementierung mit periodischen Randbedingungen umgesetzt. Die Entscheidung über die Periodizität der Autobahn wird dem Nutzer des Programms überlassen.
 
@@ -259,16 +259,16 @@ Ein dritter Teil der Aufgabenstellung bestand darin, den Verkehrsfluss eines Kre
 	\item Geschwindigkeitsbegrenzungen
 \end{enumerate}
 
-Grundsätzlich wäre eine vergleichsweise simple Lösung möglich, die die Anforderungen dieses spezifischen Szenarios erfüllt. Hierbei würde man die kritischen Stellen, wie die Zu- und Abfahrtszellen zum/vom Kreisverkehr, gesondert behandeln und dafür eine andere Logik implementieren. Es ist offensichtlich, dass eine solche Lösung hochgradig abhängig vom der Problemstellung ist und man daher für jedes Szenario manuelle Anpassungen vornehmen muss. Dies ist nicht zufriedenstellend, weswegen wir uns ein Verfahren zum Ziel gesetzt haben, dass von Spezifika des Scenarios (wie der konkreten Position der Abzweigungen) unabhängig ist.
+Grundsätzlich wäre eine simple Lösung möglich, die die Anforderungen dieses spezifischen Szenarios erfüllt. Hierbei würde man die kritischen Stellen, wie die Zu- und Abfahrtszellen zum/vom Kreisverkehr, gesondert (mit eigener Logik) behandeln. Es ist offensichtlich, dass eine solche Lösung hochgradig abhängig vom der Problemstellung ist und man daher für jedes Szenario manuelle Anpassungen vornehmen muss. Dies ist nicht zufriedenstellend, weswegen wir uns ein Verfahren zum Ziel gesetzt haben, dass von Spezifika des Szenarios unabhängig ist.
 
 Strukturell behalten wir das Layout eines Grids bei, in dem die Zellen der Simulation mit x- und y-Koordinaten gespeichert werden. Dies dient allerdings nur der Vereinfachung der Visualisierung. Konzeptionell besteht unsere Straßenkarte aus losen Zellen, die Verweise auf ihre Vorgänger- und Nachfolgerzellen beinhalten. Somit entspricht das Layout unserer Lösung einem gerichteten, nicht notwendigerweise kreisfreien Graphen.
 
-Zunächst betrachten wir die Anforderung der Kollisionsfreiheit. Es soll, analog zum Nagel-Schreckenberg Modell \cite{nagel-schreckenberg} erreicht werden, dass in keinem Simulationsschritt eine Zelle von mehr als einem Auto befahren wird. Ein einfacher Weg dies zu erreichen besteht darin, alle Fahrzeuge sequenziell durchzugehen und für jedes die Zellen, die es abfahren möchte zu markieren. Hier geht man nur soweit, wie das Auto mit seiner aktuellen Geschwindigkeit fahren kann. Dabei wird das Markieren gestoppt, sobald eine Zelle erreicht wird, die bereits von einem anderen Auto markiert wurde. Nachdem alle Fahrzeuge ihren Weg markiert haben, wird für jedes die Anzahl der Markierungen gezählt und seine Geschwindigkeit auf diese Zahl gedeckelt.
+Zunächst betrachten wir die Anforderung der Kollisionsfreiheit. Es soll analog zum Nagel-Schrecken\-berg Modell \cite{nagel-schreckenberg} erreicht werden, dass in keinem Simulationsschritt eine Zelle von mehr als einem Auto befahren wird. Ein einfacher Weg dies zu erreichen besteht darin, alle Fahrzeuge sequenziell durchzugehen und für jedes die Zellen, die es abfahren möchte, zu markieren. Hier geht man nur soweit, wie das Auto mit seiner aktuellen Geschwindigkeit fahren kann. Dabei wird das Markieren gestoppt, sobald eine Zelle erreicht wird, die bereits von einem anderen Auto markiert wurde. Nachdem alle Fahrzeuge ihren Weg markiert haben, wird für jedes die Anzahl der Markierungen gezählt und seine Geschwindigkeit auf diese Zahl gedeckelt.
 
-Bei diesem Ansatz ergibt sich allerdings das Problem, dass Vorfahrtsregeln missachtet werden. Wird zuerst ein Fahrzeug bewegt, dass dann von einer Nebenstraße aus in eine Hauptstraße eingibt und dort Zellen markiert, blockiert es dort möglicherweise ein Vorfahrt habendes Fahrzeug. Es gibt keine Möglichkeit präemtiv zu bestimmen, welches Fahrzeug Vorfahrt haben wird. Das kann man unter Anderem daran sehen, dass die Vorfahrts-Relation nicht transitiv ist (vgl. Abb. \ref{fig:rightOfWayNotTransitive}), weswegen keine Ordungsrelation auf den Fahrzeugen etabliert werden kann. Daher muss es eine Möglichkeit geben, Markierungen zu überschreiben. Der Ansatz wird also so erweitert, dass ein Fahrzeug nur dann mit dem Markieren aufhört, wenn es an einer Zusammenführung auf eine Markierung trifft, ohne an der Zusammenführung Vorfahrt gehabt zu haben. Hat es Vorfahrt, überschreibt es die Markierungen einfach. Die Vorfahrt wird über die Reihenfolge der Vorgängerverweise einer Zelle bestimmt, ist also eine lokale Eigenschaft. Externe Informationen sind nicht erforderlich. Da die Geschwindigkeit der Fahrzeuge erst berechnet wird nachdem alle Autos abgearbeitet wurden, lassen sich mit dieser Methode Vorfahrtsregeln berücksichtigen. Die Kollisionsfreiheit bleibt dabei erhalten.
+Bei diesem Ansatz ergibt sich allerdings das Problem, dass Vorfahrtsregeln missachtet werden. Wird zuerst ein Fahrzeug bewegt, dass dann von einer Nebenstraße aus in eine Hauptstraße einbiegt und dort Zellen markiert, blockiert es dort möglicherweise ein Vorfahrt habendes Fahrzeug. Es gibt keine Möglichkeit präemtiv zu bestimmen, welches Fahrzeug Vorfahrt haben wird. Das kann man unter Anderem daran sehen, dass die Vorfahrts-Relation nicht transitiv ist (vgl. Abb. \ref{fig:rightOfWayNotTransitive}), weswegen keine Ordungsrelation auf den Fahrzeugen etabliert werden kann. Daher muss es eine Möglichkeit geben, Markierungen zu überschreiben. Der Ansatz wird also so erweitert, dass ein Fahrzeug nur dann mit dem Markieren aufhört, wenn es an einer Zusammenführung auf eine Markierung trifft, ohne an der Zusammenführung Vorfahrt gehabt zu haben. Hat es Vorfahrt, überschreibt es die Markierungen einfach. Die Vorfahrt wird über die Reihenfolge der Vorgängerverweise einer Zelle bestimmt, ist also eine lokale Eigenschaft. Externe Informationen sind nicht erforderlich. Da die Geschwindigkeit der Fahrzeuge erst berechnet wird nachdem alle Autos abgearbeitet wurden, lassen sich mit dieser Methode Vorfahrtsregeln berücksichtigen. Die Kollisionsfreiheit bleibt dabei erhalten.
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=4cm]{img/rightOfWay}
+	\includegraphics[width=3cm]{img/rightOfWay}
 	\caption{Vorfahrt ist nicht transitiv: d hat Vorfahrt vor c hat Vorfahrt vor b hat Vorfahrt vor a hat Vorfahrt vor d}
 	\label{fig:rightOfWayNotTransitive}
 \end{figure}
@@ -276,13 +276,12 @@ Bei diesem Ansatz ergibt sich allerdings das Problem, dass Vorfahrtsregeln missa
 Ein Problem beim Überschreiben ist jedoch, dass 'Stummel' vorheriger Markierungen übrig bleiben können, wie in Abb. \ref{fig:overwritingCanCauseStubs} exemplarisch dargestellt. Daher müssen, wenn eine Markierung eines Fahrzeugs entfernt wird, alle Markierungen des Fahrzeugs entfernt werden. Später sind dann die Markierungen des Fahrzeuges neu zu bestimmen.
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=8cm]{img/stubs}
+	\includegraphics[width=6cm]{img/stubs}
 	\caption{Möglichkeit von Stummeln: Links: A markiert zunächst 4 Felder. Dann rechts: B hat vorfahrt, markiert dabei 3 Felder und überschreibt Markierungen von A. Übberreste der Markierungen von A behindern nun C, der eigentlich fahren könnte}
 	\label{fig:overwritingCanCauseStubs}
 \end{figure}
 
-Zuletzt muss noch die Anforderung des Einhaltens von Geschwindigkeitsbegrenzungen erfüllt werden. Dazu wird jede Zelle mit einer Maximalgeschwindigkeit versehen. Betritt ein Fahrzeug eine Zelle, wird die maximale Anzahl an Zellen, die es darüber hinaus noch markieren kann auf die Maximalgeschwindigkeit der Zelle gedeckelt. Somit ist gewährleistet, dass kein Fahrzeug an keiner Zelle die zulässige Geschwindigkeit 
-überschreitet.
+Zuletzt muss noch das Einhalten von Geschwindigkeitsbegrenzungen gewährleistet werden. Dazu wird jede Zelle mit einer Maximalgeschwindigkeit versehen. Betritt ein Fahrzeug eine Zelle, wird die maximale Anzahl an Zellen, die es darüber hinaus noch markieren kann, auf die Maximalgeschwindigkeit der Zelle gedeckelt. Somit ist gewährleistet, dass kein Fahrzeug an keiner Zelle die zulässige Geschwindigkeit überschreitet.
 
 \subsubsection{Verfahren}
 \label{subsubsec:kreisverkehrUmsetzungVerfahren}
@@ -351,7 +350,7 @@ Bei der Belegungs-Heat-Map geben die Farben keine Geschwindigkeit an. Während e
 Bei einer Simulation mit periodischen Randbedingungen ist die Verkehrsdichte konstant, mit offenen Randbedingungen kann sie jedoch durchaus aufschlussreich sein. Daher wird nach der Simulation eine Grafik erzeugt, die zu jedem Simulationsschritt die dazugehörige Verkehrsdichte anzeigt.
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=\textwidth]{img/vis_street_map_densities}
+	\includegraphics[width=0.9\textwidth]{img/vis_street_map_densities}
 	\caption{Belegungs-Heat-Map eines Kreisverkehrs}
 	\label{fig:trafficDensityMapRoundabout}
 \end{figure}
@@ -389,7 +388,7 @@ Wir nehmen eine Verkehrsdichte von 0.1 und äquidistante Initialisierung an. Bei
 	\label{fig:ergStauAusDemNichtsP0_2}
 \end{figure}
 
-Bei Trödelfaktoren zwischen 0.2 und 0.3 hingegen bestehen Staus manchmal sogar über etwa eintausend Iterationen hinweg, sie lösen sich nur noch gelegentlich in angemessener Zeit auf. Ab Trödelfaktoren zwischen 0.25 und 0.35 lösen sich einmal gebildete Staus selbst über Simulationen über 2000 Sekunden nicht mehr auf. \textcolor{AI-BLUE}{Bis zu Trödelfaktoren zwischen 0.45 und 0.55 ist die Autobahn bei zumeist einem größeren Stau noch halbwegs befahrbar, mit höheren Faktoren können nur vereinzelt Fahrzeuge kurze Strecken zurücklegen, ohne in einen Stau zu kommen.}
+Bei Trödelfaktoren zwischen 0.2 und 0.3 hingegen bestehen Staus manchmal sogar über etwa eintausend Iterationen hinweg, sie lösen sich nur noch gelegentlich in angemessener Zeit auf. Ab Trödelfaktoren zwischen 0.25 und 0.35 lösen sich einmal gebildete Staus selbst über Simulationen über 2000 Sekunden nicht mehr auf. %\textcolor{AI-BLUE}{Bis zu Trödelfaktoren zwischen 0.45 und 0.55 ist die Autobahn bei zumeist einem größeren Stau noch halbwegs befahrbar, mit höheren Faktoren können nur vereinzelt Fahrzeuge kurze Strecken zurücklegen, ohne in einen Stau zu kommen.}
 
 Wählen wir eine zufällige Initialisierung, kommt es bereits bei Trödelfaktoren von 0.1 bis 0.2 zu Staus, die sich in der Regel nicht mehr auflösen. Dies entspricht dem Verhalten bei äquidistanter Initialisierung mit Trödelfaktoren zwischen 0.2 und 0.3.
 Bei der Verkehrsdichte 0.15 und sowohl zufälliger als auch äquidistanter Initialisierung genügen bereits sehr kleine Trödelfaktoren zwischen 0 und 0.05, um permanente Staus zu verursachen. Höhere Verkehrsdichten verstärken die aufgeführten Effekte.
