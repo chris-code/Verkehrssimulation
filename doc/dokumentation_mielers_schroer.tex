@@ -133,13 +133,13 @@
 \newpage
 \section{Einleitung}
 \label{sec:einleitung}
-Eine umfassende, allgemeingültige Vorhersage von Verkehrsflüssen entzieht sich analytischen Methoden. Dies liegt zum einen an der Vielzahl möglicher, in der Realität relevanter Szenarien und Einflussfaktoren und zum anderen daran, dass die Zustände eines Verkehrssystems nicht gedächtnislos sind, sondern vom vorherigen Zustand abhängen. Dies macht die Simulation des Verkehrsflusses auf Basis von Eingangsgrößen und Parametern zu einer attraktiven Alternative. Wir beschäftigen uns daher mit der Simulation dreier Szenarien: Einer einspurigen und einer mehrspurigen Autobahn sowie einem Kreisverkehr. Zunächst beschreiben wir die von uns getroffenen Annahmen. Anschließend gehen wir auf die Umsetzung ein, wobei es für einspurige und zweispurige Autobahnen bereits etablierte Verfahren auf Basis zellulärer Automaten gibt, für den Kreisverkehr haben wir jedoch ein eigenes Verfahren entwickelt. Wir werden sehen, dass sich unser für den Kreisverkehr entworfenes Verfahren aufgrund seiner Generalität auf beliebige Straßennetze anwenden lässt. Aufgrund der Komplexität des Systems haben wir uns dazu entschlossen, die Implementierung in C++ vorzunehmen\footnote{Dies erfolgte in Absprache mit unserem Betreuer}. Abschließend bestimmen wir verschiedene Parameter, bei denen es zu Verlangsamungen und Staus im Verkehrsfluss kommt.
+Eine umfassende, allgemeingültige Vorhersage von Verkehrsflüssen entzieht sich analytischen Methoden. Dies liegt zum einen an der Vielzahl möglicher, in der Realität relevanter Szenarien und Einflussfaktoren und zum anderen daran, dass die Zustände eines Verkehrssystems nicht gedächtnislos sind, sondern vom vorherigen Zustand abhängen. Dies macht die Simulation des Verkehrsflusses auf Basis von Eingangsgrößen und Parametern zu einer attraktiven Alternative. Wir beschäftigen uns im Folgenden mit der Simulation dreier Szenarien: Einer einspurigen und einer mehrspurigen Autobahn sowie einem Kreisverkehr. Zunächst beschreiben wir die von uns getroffenen Annahmen. Anschließend gehen wir auf die Umsetzung ein, wobei es für einspurige und zweispurige Autobahnen bereits etablierte Verfahren auf Basis zellulärer Automaten gibt, für den Kreisverkehr haben wir jedoch ein eigenes Verfahren entwickelt. Wir werden sehen, dass sich unser für den Kreisverkehr entworfenes Verfahren aufgrund seiner Generalität auf beliebige Straßennetze anwenden lässt. Aufgrund der Komplexität des Systems haben wir uns dazu entschlossen, die Implementierung in C++ vorzunehmen\footnote{Dies erfolgte in Absprache mit unserem Betreuer.}. Abschließend bestimmen wir verschiedene Parameter, bei denen es zu Verlangsamungen und Staus im Verkehrsfluss kommt.
 
 \section{Annahmen}
 \label{sec:annahmen}
 
 Im Groben basiert unser Modell auf den Annahmen, die Kai Nagel und Michael Schreckenberg \cite{nagel-schreckenberg} für ihr STCA-Verkehrsmodell (STCA = Standard Zellular-Automat) getroffen haben. Um das Modell an die Realität deutscher Straßenverhältnisse anzupassen, wurden jedoch einige Änderungen vorgenommen.
-Im Folgenden werden die unserem Modell zugrunde liegenden Annahmen aufgeführt:%\\
+Im Folgenden werden die unserem Modell zugrunde liegenden Annahmen aufgeführt.
 
 \subsection{Zellgröße und Geschwindigkeiten}
 
@@ -151,7 +151,7 @@ Während im \nsm alle Fahrzeuge üblicherweise die gleiche Maximalgeschwindigkei
 
 \subsection{Individuelles Fahrverhalten}
 
-Um das Fahrverhalten unterschiedlicher Fahrer abbilden zu können, wird der Trödelfaktor eines jeden Fahrzeugs randomisiert bestimmt. Zu diesem Zweck wird jedoch keine Normalverteilung verwendet, sondern eine Gleichverteilung, deren Minimalwert und Maximalwert ebenfalls frei vom Nutzer festgelegt werden können (es gelten die natürlichen Schranken 0 und 1). Ist keine Varianz erwünscht, kann durch Gleichsetzung von Minimal- und Maximalwert ein konstanter Trödelfaktor definiert werden.
+Um das Fahrverhalten unterschiedlicher Fahrertypen abbilden zu können, wird der Trödelfaktor eines jeden Fahrzeugs randomisiert bestimmt. Zu diesem Zweck wird jedoch keine Normalverteilung verwendet, sondern eine Gleichverteilung, deren Minimalwert und Maximalwert ebenfalls frei vom Nutzer festgelegt werden können (es gelten die natürlichen Schranken 0 und 1). Ist keine Varianz erwünscht, kann durch Gleichsetzung von Minimal- und Maximalwert ein konstanter Trödelfaktor definiert werden.
 
 Über eine Maximalgeschwindigkeit und einen Trödelfaktor hinaus hat in unserem Modell jedes Fahrzeug zwei individuelle Risikofaktoren. Diese dienen auf der Autobahn als Wahrscheinlichkeit dafür, ohne Rücksicht auf Abstände auf die Spur links bzw. rechts zu wechseln. Es ist notwendig zwei Risikofaktoren zu verwenden, da Fahrer je nach individuellem Fahrverhalten oft dazu neigen, tendenziell nach links oder tendenziell nach rechts zu fahren. Ein Fahrer, der möglichst schnell vorwärts kommen möchte, riskiert es eher, nach links zu fahren als nach rechts. Bei Fahrern, die auf das Rechtsfahrgebot achten oder sich unsicher auf der Autobahn fühlen, verhält es sich eher anders herum.
 
@@ -181,7 +181,7 @@ Da wir annehmen, dass die Mehrheit der Fahrer eher rücksichtsvoll ist und wenig
     \label{fig:riskFactorDistributions}
 \end{figure}
 
-Da die Exponentialverteilung nach rechts nicht begrenzt ist, wir jedoch die Begrenzung des Risikofaktors für sinnvoll halten, wird der Risikofaktor auf das 0.97-Fraktil der Verteilung gesetzt, falls genau dieses Fraktil überschritten wird. In der linken Verteilung mit $\lambda = 12$ beträgt der maximal zulässige Wert also ungefähr 0.2922, während er in der rechten Verteilung mit $\lambda = 8$ etwa 0.4383 beträgt. In diesem Szenario wären die Fahrer im Durchschnitt eher dazu bereit, ohne Rücksicht auf die Abstände von rechts nach links zu wechseln als umgekehrt.
+Da die Exponentialverteilung nach rechts nicht begrenzt ist, wir jedoch die Begrenzung des Risikofaktors für sinnvoll halten, wird der Risikofaktor auf das 0.97-Fraktil der Verteilung gesetzt, falls genau dieses Fraktil überschritten wird. Bei der in Abbildung \ref{fig:riskFactorDistributions} linken Verteilung mit $\lambda = 12$ beträgt der maximal zulässige Wert also ungefähr 0.2922, während er bei der rechten Verteilung mit $\lambda = 8$ etwa 0.4383 beträgt. In diesem Szenario wären die Fahrer im Durchschnitt eher dazu bereit, ohne Rücksicht auf die Abstände von rechts nach links zu wechseln als umgekehrt.
 
 \section{Umsetzung}
 \label{sec:umsetzung}
@@ -189,9 +189,9 @@ Da die Exponentialverteilung nach rechts nicht begrenzt ist, wir jedoch die Begr
 \subsection{Autobahn}
 \label{subsec:umsetzung-autobahn}
 
-Wir haben unser Modell strukturell für die Simulation von Autobahnen mit beliebig vielen Spuren ausgelegt. Die in der Aufgabenstellung unterschiedenen Simulationsexperimente einer einspurigen bzw. einer zweispurigen Autobahn können also mit der gleichen Software durchgeführt werden. Im Folgenden wird die Umsetzung dieses allgemeinen Modells beschrieben. In Kapitel \ref{sec:ergebnisse} werden selbstredend die Ergebnisse für beide Experimente aufgeführt.
+Wir haben unser Modell strukturell für die Simulation von Autobahnen mit beliebig vielen Spuren ausgelegt. Die in der Aufgabenstellung unterschiedenen Simulationsexperimente einer einspurigen bzw. einer zweispurigen Autobahn können also mit derselben Software durchgeführt werden. Im Folgenden wird die Umsetzung dieses allgemeinen Modells beschrieben. In Kapitel \ref{sec:ergebnisse} werden selbstredend die Ergebnisse für beide Experimente aufgeführt.
 
-Als Repräsentation für die Autobahn dient eine $l \times s$ Matrix, wobei $l$ die Anzahl der Spuren (engl. \emph{lanes}) und $s$ die Anzahl der Straßensegmente (engl. \emph{segments}) angibt. Für die Simulation einer 2,25km ($= 300 \cdot 7,5m$) langen Autobahn mit drei Spuren wird also eine $3 \times 300$ Matrix erzeugt. Im Wesentlichen dient diese Matrix dazu, Fahrzeuge und ihre Position auf der Autobahn zu speichern.\\
+Als Repräsentation für die Autobahn dient eine $l \times s$ Matrix, wobei $l$ die Anzahl der Spuren (engl. \emph{lanes}) und $s$ die Anzahl der Straßensegmente (engl. \emph{segments}) angibt. Für die Simulation einer 2,25km ($= 300 \cdot 7.5m$) langen Autobahn mit drei Spuren wird also eine $3 \times 300$ Matrix erzeugt. Im Wesentlichen dient diese Matrix dazu, Fahrzeuge und ihre Position auf der Autobahn zu speichern.\\
 
 %\begin{figure}[h!]
 %	\centering
