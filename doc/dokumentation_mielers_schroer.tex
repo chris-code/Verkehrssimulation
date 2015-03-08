@@ -305,8 +305,8 @@ Nun bleibt noch die Frage zu klären, wie an einer Verzweigung die Entscheidung 
 \label{subsec:visualisierung}
 Die Simulationsergebnisse werden nach Abschluss der Simulation in vier Grafiken visualisiert. Für die Autobahn und beliebige Straßenverläufe wie den Kreisverkehr gibt es bei der Visualisierung keine konzeptionellen Unterschiede. Daher wird die Visualisierung an dieser Stelle nur einmal erläutert, auch wenn wegen einiger Programmierdetails zwei Implementierungen vonnöten sind.
 
-\subsubsection{Momentaufnahme}
-\label{subsubsec:momentaufnahme}
+\paragraph{Momentaufnahme}
+\label{paragraph:momentaufnahme}
 
 Nach jedem Simulationsschritt wird eine Momentaufnahme der aktuellen Verkehrssituation gemacht. Dazu wird zunächst eine komplett schwarze Grafik erzeugt, welche genau so groß ist wie die Straßenkarte. Anschließend wird für jedes Fahrzeug gemäß seiner Geschwindigkeit das entsprechende Pixel eingefärbt. Dabei steht die Farbe Dunkelrot für ein stehendes Fahrzeug und die Farbe Weiß für die globale Maximalgeschwindigkeit 7 = 189 $km/h$. Dann wird die aktuelle Momentaufnahme an die bisherigen Momentaufnahmen angefügt. Abbildung \ref{fig:momentaufnameMultilane} zeigt exemplarisch die Momentaufnahmen einer zweispurigen Autobahn über zehn Simulationsschritte hinweg.
 
@@ -319,8 +319,8 @@ Nach jedem Simulationsschritt wird eine Momentaufnahme der aktuellen Verkehrssit
 
 Für Simulationen mit vielen Spuren und über viele Simulationsschritte hinweg kann ein solches Bild natürlich sehr hoch werden. Die zwei nachfolgenden Auswertungen sind deutlich kompakter.
 
-\subsubsection{Geschwindigkeits-Heat-Map}
-\label{subsubsec:speedmap}
+\paragraph{Geschwindigkeits-Heat-Map}
+\label{paragraph:speedmap}
 
 Die Geschwindigkeits-Heat-Map stellt dar, mit welcher Geschwindigkeit sich Fahrzeuge im Durchschnitt über die einzelnen Zellen bewegt haben. Dazu wird nach jedem Simulationsschritt für jedes Fahrzeug ermittelt, welche Zellen es mit welcher Geschwindigkeit passiert hat.
 
@@ -333,8 +333,8 @@ Die Geschwindigkeits-Heat-Map stellt dar, mit welcher Geschwindigkeit sich Fahrz
 
 Die Farben in der Geschwindigkeits-Heat-Map entsprechen denen der Momentaufnahmen, wobei Zellen schwarz werden, wenn dort während der gesamten Simulation kein einziges Fahrzeug entlang fuhr. Bei einer weißen Zelle hatten alle Fahrzeuge, die diese Zelle passiert haben, Geschwindigkeit 7. Im gegebenen Beispiel in Abbildung \ref{fig:speedMapRoundabout} ist deutlich ersichtlich, dass die Geschwindigkeit im Kreisverkehr geringer als auf den Zubringern ist.
 
-\subsubsection{Belegungs-Heat-Map}
-\label{subsubsec:occupancymap}
+\paragraph{Belegungs-Heat-Map}
+\label{paragraph:occupancymap}
 Die Belegungs-Heat-Map gibt an, während wievieler Schritte eine Zelle von einem Fahrzeug überquert wurde, unabhängig von der Geschwindigkeit. Auf diese Weise können wir ermitteln, wie stark die unterschiedlichen Bereiche eines Straßennetzes ausgelastet waren.
 
 \begin{figure}[h!]
@@ -345,15 +345,15 @@ Die Belegungs-Heat-Map gibt an, während wievieler Schritte eine Zelle von einem
 \end{figure}
 Bei der Belegungs-Heat-Map geben die Farben keine Geschwindigkeit an. Während eine schwarze Zelle anzeigt, dass sich hier zu keinem Zeitpunkt ein Fahrzeug befand, war eine weiße Zelle durchgängig belegt.
 
-\subsubsection{Verkehrsdichte}
-\label{subsubsec:verkehrsdichte}
+\paragraph{Verkehrsdichte}
+\label{paragraph:verkehrsdichte}
 
 Bei einer Simulation mit periodischen Randbedingungen ist die Verkehrsdichte konstant, mit offenen Randbedingungen kann sie jedoch durchaus aufschlussreich sein. Daher wird nach der Simulation eine Grafik erzeugt, die zu jedem Simulationsschritt die dazugehörige Verkehrsdichte anzeigt.
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=\textwidth]{img/vis_street_map_densities}
 	\caption{Belegungs-Heat-Map eines Kreisverkehrs}
-	\label{fig:occupancyMapRoundabout}
+	\label{fig:trafficDensityMapRoundabout}
 \end{figure}
 
 
@@ -402,7 +402,7 @@ Anders als bei der einspurigen Autobahn beginnen wir bei der Betrachtung der zwe
 In diesem Szenario kann die Verkehrsdichte auf 0.08 erhöht werden, ohne dass es grundsätzlich zu nennenswerten Geschwindigkeitsreduktionen kommt. Bei höheren Verkehrsdichten wie 0.1 oder 0.125 müssen wir jedoch das Auftreten zahlreicher, sich nicht auflösender Staus konstatieren.
 Während es also auf der einspurigen Autobahn bei äquidistanter Initialierung unabhängig von der Verkehrsdichte nie zu Staus kommt, sondern nur zu gleichmäßigen, kollektiven Geschwindigkeitsreduktionen, führt bei nah hintereinander fahrenden Fahrzeugen der Abbremszwang des rechten, hinteren Fahrzeuges dazu, dass sich die Geschwindigkeiten der Fahrzeuge nicht an allen Stellen der Autobahn gleichmäßig reduzieren, sondern an manchen Stellen mehr Rückstaus auftreten als an anderen. Zwar fahren die Fahrzeuge im Schnitt nicht zwangsweise langsamer, sie müssen ihre Geschwindigkeit jedoch häufiger an die aktuelle Verkehrslage anpassen.
 
-Erhöhen wir nun den Trödelfaktor schrittweise bei einer konstanten Verkehrsdichte von 0.08. Um allein den Einfluss des Trödelfaktors untersuchen zu können, wurden für diesen Abschnitt die Risikofaktoren händisch auf exakt 0 gesetzt. Es lässt sich feststellen, dass es bereits bei Trödelfaktoren aus dem Intervall von 0 bis 0.01 zu Staus aus dem Nichts kommt. Bei einem Trödelfaktor von 0 optimieren sich die Abstände zwischen den Fahrzeugen nach einigen Schwierigkeiten nach der Initialisierung und alle Fahrzeuge können mit ihrer Maximalgeschwindigkeit weiter fahren. Wird jedoch der Trödelfaktor auch nur leicht angehoben, kommt es zu Situationen wie im letzten Abschnitt beschrieben. Es müssen also Fahrzeuge auf dem rechten Fahrstreifen ihre Geschwindigkeit drastisch reduzieren, was zu Rückstaus führt.
+Bei einer Verkehrsdichte von 0.08 und händisch auf exakt 0 gesetzten Risikofaktoren erhöhen wir nun schrittweise den Trödelfaktor, um allein dessen Einfluss untersuchen zu können.Es lässt sich feststellen, dass es bereits bei Werten aus dem Intervall von 0 bis 0.01 zu Staus aus dem Nichts kommt. Bei einem Trödelfaktor von 0 optimieren sich die Abstände zwischen den Fahrzeugen nach einigen Schwierigkeiten nach der Initialisierung und alle Fahrzeuge können mit ihrer Maximalgeschwindigkeit weiter fahren. Wird jedoch der Trödelfaktor auch nur leicht angehoben, kommt es zu Situationen wie im letzten Abschnitt beschrieben. Es müssen also Fahrzeuge auf dem rechten Fahrstreifen ihre Geschwindigkeit drastisch reduzieren, was zu Rückstaus führt.
 
 \begin{figure}[h!]
 	\centering
@@ -417,19 +417,19 @@ Belassen wir es nun bei dem Trödelfaktor bei 0 und erhöhen die Risikofaktoren.
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=\textwidth]{img/erg_mehrspurig_stau_wegen_risikospurwechsel_p_0_r_32}
+	\includegraphics[width=\textwidth]{img/erg_mehrspurig_stau_wegen_risikospurwechsel_p_0_r_32_version2}
 	\caption{Stau aus dem Nichts bei Trödelfaktor 0 und $\lambda_{L2R} = \lambda_{R2L} = 32$}
 	\label{fig:ergStauAusDemNichtsMehrspurig_p_0_r_32}
 \end{figure}
 
-Interessanterweise ist es das System gegenüber Risikofahrstreifenwechseln bemerkenswert robust. Selbst bei sehr hohen Risikofaktoren (z.B. mit $\lambda = 2$) kommt es nur zu Beginn der Simulation zu Staus. Nach und nach lösen sich die Staus auf, wobei zufallsbedingt immer mehr Fahrzeuge direkt nebeneinander fahren. Da wir nicht trödeln, ist es nicht möglich, eine solche Konstellation wieder zu verlassen. Weil somit die direkte Nachbarzelle stets belegt ist, können immer weniger Fahrzeuge die Spur wechseln. Irgendwann ist das System so stabil, dass keine Staus mehr auftreten.
+Interessanterweise ist es das System gegenüber Risikofahrstreifenwechseln bemerkenswert robust. Selbst bei sehr hohen Risikofaktoren (z.B. mit $\lambda = 2$) kommt es nur zu Beginn der Simulation zu Staus. Nach und nach lösen sich die Staus auf, wobei zufallsbedingt immer mehr Fahrzeuge direkt nebeneinander fahren. Da wir nicht trödeln, ist es nicht möglich, eine solche Konstellation wieder zu verlassen. Weil somit die direkte Nachbarzelle stets belegt ist, können immer weniger Fahrzeuge die Spur wechseln. Irgendwann ist das System so stabil, dass keine Staus mehr auftreten. Diesem Szenario muss man allerdings die Plausibilität absprechen. Dass alle Fahrzeuge über längere Zeit parallel fahren, ist realitätsfern.
 
 Kombiniert man Trödeln und Risikofahrstreifenwechsel erhöht sich die Anzahl und Intensität mit steigendem Trödelfaktor und sinkenden Lambda-Werten für die beiden Risikofaktorexponentialverteilungen. Wählt man das Intervall von 0.2 bis 0.3 für den Trödelfaktor und $\lambda_{L2R} = \lambda_{R2L} = 8$ zur Bestimmung der Risikofaktoren erhöht sich die Anzahl und Intensität der Staus drastisch. Der in Abbildung \ref{fig:ergMehrspurigTroedelnUndRisikowechsel} gezeigte Ausschnitt einer langen Simulation verdeutlicht diesen Umstand.
 
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=\textwidth]{img/erg_mehrspurig_troedeln_und_risikowechsel}
-	\caption{Stau aus dem Nichts bei Trödelfaktor 0 und $\lambda_{L2R} = \lambda_{R2L} = 32$}
+	\caption{Schleichender Verkehr bei Kombination von Trödeln und Risikofahrstreifenwechsel}
 	\label{fig:ergMehrspurigTroedelnUndRisikowechsel}
 \end{figure}
 
