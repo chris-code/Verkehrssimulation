@@ -193,12 +193,12 @@ Wir haben unser Modell strukturell für die Simulation von Autobahnen mit belieb
 
 Als Repräsentation für die Autobahn dient eine $l \times s$ Matrix, wobei $l$ die Anzahl der Spuren (engl. \emph{lanes}) und $s$ die Anzahl der Straßensegmente (engl. \emph{segments}) angibt. Für die Simulation einer 2,25km ($= 300 \cdot 7,5m$) langen Autobahn mit drei Spuren wird also eine $3 \times 300$ Matrix erzeugt. Im Wesentlichen dient diese Matrix dazu, Fahrzeuge und ihre Position auf der Autobahn zu speichern.\\
 
-%\begin{figure}[h!]
-%	\centering
-%	\includegraphics[width=0.8\textwidth]{img/twoLaneRoad}
-%	\caption{Zweispurige Autobahn mit unterschiedlich schnellen Fahrzeugen (Ausschnitt)}
-%	\label{fig:twoLaneRoad}
-%\end{figure}
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.8\textwidth]{img/twoLaneRoad}
+	\caption{Zweispurige Autobahn mit unterschiedlich schnellen Fahrzeugen (Ausschnitt)}
+	\label{fig:twoLaneRoad}
+\end{figure}
 
 Im \nsm gibt es Szenarien mit zyklischen und offenen Randbedingungen. Da zyklische Autobahnen weniger realitätsnah sind, haben wir die Simulation zunächst so implementiert, dass stets auf der linken Seite neue Fahrzeuge erzeugt werden und diese bei Verlassen des rechten Randes wieder vernichtet werden. Da es bei dieser Implementierung aber schwierig ist, die Verkehrsdichte auf dem gewünschten Niveau zu halten, wurde zusätzlich eine Implementierung mit periodischen Randbedingungen umgesetzt. Die Entscheidung über die Periodizität der Autobahn wird dem Nutzer des Programms überlassen.
 
