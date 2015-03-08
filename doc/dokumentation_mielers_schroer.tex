@@ -95,7 +95,9 @@
   showspaces=false,            % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
   stepnumber=1,                % the step between two line-numbers. If it's 1, each line will be numbered
   tabsize=4,                   % sets default tabsize to 4 spaces
+  xleftmargin=0.14cm		   % sets left margin
 }
+
 
 \begin{titlepage}
     \begin{center}
@@ -179,46 +181,6 @@ Da wir annehmen, dass die Mehrheit der Fahrer eher rücksichtsvoll ist und wenig
 
 Da die Exponentialverteilung nach rechts nicht begrenzt ist, wir jedoch die Begrenzung des Risikofaktors für sinnvoll halten, wird der Risikofaktor auf das 0.97-Fraktil der Verteilung gesetzt, falls genau dieses Fraktil überschritten wird. In der linken Verteilung mit $\lambda = 12$ beträgt der maximal zulässige Wert also ungefähr 0.2922, während er in der rechten Verteilung mit $\lambda = 8$ etwa 0.4383 beträgt. In diesem Szenario wären die Fahrer im Durchschnitt eher dazu bereit, ohne Rücksicht auf die Abstände von rechts nach links zu wechseln als umgekehrt.
 
-\begin{comment}
-
-\begin{itemize}
-\item Es gilt weiterhin, dass eine Zelle 7,5 Meter lang ist und jede Zelle nur ein einziges Fahrzeug zur gleichen Zeit aufnehmen kann.
-\item Im klassichen \nsm gibt es die Geschwindigkeitsstufen 0 bis 5. Diese entsprechen Geschwindigkeiten von 0 $km/h$ bis 135 $km/h$ in 27 $km/h$ Abständen. Da uns 135 $km/h$ als Höchstgeschwindigkeit auf einer deutschen Autobahn zu wenig erschienen, haben wir die Höchstgeschwindigkeit auf 7 erhöht, so dass Fahrzeuge nun eine Maximalgeschwindigkeit von 189 $km/h$ erreichen können.
-\item Während im \nsm alle Fahrzeuge üblicherweise die gleiche Maximalgeschwindigkeit erreichen können, werden in unserem Modell die Maximalgeschwindigkeiten der Fahrzeuge aus einer Normalverteilung gezogen, deren Mittelwert und Standardabweichung vom Nutzer des Programms frei gewählt werden können. Wir halten dieses Szenario für realistischer, da in der Realität unterschiedliche Fahrzeugtypen unterschiedliche Maximalgeschwindigkeiten erreichen können. Falls vom Nutzer keine Varianz bei den Maximalgeschwindigkeiten gewünscht ist, kann er die Standardabweichung sehr klein wählen, so dass es sehr unwahrscheinlich wird, eine Maximalgeschwindigkeit ungleich dem Mittelwert zu erhalten. Es ist zu beachten, dass es nicht möglich ist, auf diese Weise Fahrzeugen Maximalgeschwindigkeiten zuzuweisen, die 3 unter- oder 7 überschreiten. Dies ist dadurch begründet, dass in Deutschland nur solche Fahrzeuge eine Autobahn befahren dürfen, welche eine Höchstgeschwindigkeit von mindestens 60 $km/h$ erreichen können. Ein Fahrzeug mit der Geschwingkeitsstufe 2 als Höchstgeschwindigkeit (= 54 $km/h$) würde diesen Grenzwert um 6 $km/h$ unterschreiten.
-\item Um das Fahrverhalten unterschiedlicher Fahrertypen abbilden zu können, wird der Trödelfaktor eines jeden Fahrzeugs randomisiert bestimmt. Zu diesem Zweck wird jedoch keine Normalverteilung verwendet, sondern eine Gleichverteilung, deren Minimalwert und Maximalwert ebenfalls frei vom Nutzer festgelegt werden können. Ist keine Varianz erwünscht, kann durch Gleichsetzung von Minimalwert und Maximalwert ein konstanter Trödelfaktor definiert werden. Als Grenzen für den Minimalwert und Maximalwert gelten nur die natürlichen Schranken 0 und 1. Zu hohe Trödelfaktoren sollten jedoch nicht verwendet werden, da das System sonst schnell zum Stillstand kommt.
-\item Über eine individuelle Maximalgeschwindigkeit und einen individuellen Trödelfaktor hinaus hat in unserem Modell jedes Fahrzeug zwei individuelle Risikofaktoren. Diese dienen auf der Autobahn als Wahrscheinlichkeit dafür, dass ein Fahrzeug ohne Rücksicht auf Abstände auf die Spur links bzw. rechts von ihm wechselt. Es ist notwendig zwei Risikofaktoren zu verwenden, da Fahrer je nach individuellem Fahrverhalten oft dazu neigen, tendenziell nach links oder tendenziell nach rechts zu fahren. Ein Fahrer, der möglichst schnell vorwärts kommen möchte, hätte beispielsweise einen deutlich höheren Risikofaktor für den Wechsel nach links als für den Wechsel nach rechts. Bei Fahrern, die auf das Rechtsfahrgebot achten oder sich unsicher auf der Autobahn fühlen, verhält es sich eher anders herum.\\
-Da wir annehmen, dass die Mehrheit der Fahrer eher rücksichtsvoll ist und eher wenig Fahrer riskante Fahrmanöver unternehmen, verwenden wir für die Ermittlung der Riskofaktoren Exponentialverteilungen. Die linke Seite der folgenden Abbildung zeigt die Dichtefunktion einer möglichen Exponentialverteilung für den Risikofaktor L2R (Wechsel von links nach rechts). Auf der rechten Seite ist die Dichtefunktion einer möglichen Exponentialverteilung für den Risikofaktor R2L abgebildet (Wechsel von rechts nach links).
-
-\begin{figure}[h!]
-    \centering
-    \begin{tikzpicture}[xscale=4, yscale=0.3]
-        \def\LAMBDA{12}
-        \draw[->] (-0.1,0) -- (1.1,0) node[right] {L2R};
-        \draw[->] (0,-0.1) --(0,15) node[above] {Exp($\lambda$ = \LAMBDA)};
-        \foreach \x in {0.2,0.4,0.6,0.8,1} {
-            \draw[shift={(\x,0)},color=black] (0pt,8pt) -- (0pt,-8pt) node[below] {\x};
-        }
-        \draw[domain=0:1,samples=800,variable=\x,blue] plot ({\x},{\LAMBDA * exp(- \LAMBDA * \x)});
-    \end{tikzpicture}
-    \begin{tikzpicture}[xscale=4, yscale=0.3]
-        \def\LAMBDA{8}
-        \draw[->] (-0.1,0) -- (1.1,0) node[right] {R2L};
-        \draw[->] (0,-0.1) --(0,15) node[above] {Exp($\lambda$ = \LAMBDA)};
-        \foreach \x in {0.2,0.4,0.6,0.8,1} {
-            \draw[shift={(\x,0)},color=black] (0pt,8pt) -- (0pt,-8pt) node[below] {\x};
-        }
-        \draw[domain=0:1,samples=800,variable=\x,blue] plot ({\x},{\LAMBDA * exp(- \LAMBDA * \x)});
-    \end{tikzpicture}
-    \caption{Dichtefunktionen der Risikofaktor-Verteilungen}
-    \label{fig:riskFactorDistributions}
-\end{figure}
-
-Da die Exponentialverteilung nach rechts nicht begrenzt ist, wir jedoch die Begrenzung des Risikofaktors für sinnvoll halten, wird der Risikofaktor auf das 0.97-Fraktil der Verteilung gesetzt, falls genau dieses Fraktil überschritten wird. In der linken Verteilung mit $\lambda = 12$ beträgt der maximal zulässige Wert also ungefähr 0.2922, während er in der rechten Verteilung mit $\lambda = 8$ etwa 0.4383 beträgt. In diesem Szenario wären die Fahrer im Durchschnitt also eher dazu bereit, ohne Rücksicht auf die Abstände von rechts nach links zu wechseln als umgekehrt. Anders als bei den anderen Werten ist hier die Definition exakter Werte für die Risikofaktoren durch geschickte Parameterwahl nicht möglich. An dieser Stelle wäre also eine Änderung des Programmes notwendig.
-
-\end{itemize}
-
-\end{comment}
-
 \section{Umsetzung}
 \label{sec:umsetzung}
 
@@ -250,7 +212,7 @@ Nachdem die Autobahn initialisiert wurde, wird der Simulationsschritt in einer S
 \subsubsection{Neue Fahrzeuge hinzufügen}
 \label{subsubsec:neueFahrzeuge}
 
-Falls die Simulation mit offenen Randbedingungen durchgeführt wird, ist es notwendig, neue Fahrzeuge zu erzeugen, um die Ausfahrenden zu ersetzen. Bei der Erzeugung neuer Fahrzeuge wird in jedem Simulationsschritt geprüft, ob die aktuelle Verkehrsdichte geringer ist als die angegebene Wunschverkehrsdichte. Ist dies der Fall, wird beginnend mit der rechtesten Spur über die ersten Zellen aller Spuren iteriert und in jede freie Zelle ein Fahrzeug eingefügt, bis die gewünschte Verkehrsdichte erreicht ist oder alle Spuren abgearbeitet wurden. 
+Falls die Simulation mit offenen Randbedingungen durchgeführt wird, ist es notwendig, neue Fahrzeuge zu erzeugen, um die Ausfahrenden zu ersetzen. Bei der Erzeugung neuer Fahrzeuge wird in jedem Simulationsschritt geprüft, ob die aktuelle Verkehrsdichte geringer ist als die angegebene Wunschverkehrsdichte. Ist dies der Fall, wird beginnend mit der rechtesten Spur über alle Spuren iteriert und genau dann in die jeweils erste Zelle ein Fahrzeug eingefügt, wenn diese frei ist und die gewünschte Verkehrsdichte noch nicht erreicht ist.
 
 \subsubsection{Beschleunigen}
 \label{subsubsec:beschleunigen}
@@ -270,8 +232,8 @@ Da unser System grundsätzlich für beliebig viele Spuren ausgelegt ist, bleibt 
 
 \subsubsection{Abstände prüfen}
 \label{subsubsec:abstaendePruefen}
-Die Regeln für die Überprüfung der Abstände basieren ebenfalls auf den erweiterten STCA-Regeln. Ist die aktuelle Geschwindigkeit eines Fahrzeugs größer als der Abstand zum nächsten vorausfahrenden Fahrzeug, wird die Geschwindigkeit so weit reduziert, dass keine Auffahrunfälle auftreten. Vorausfahrende Fahrzeuge sind hier all jene, die auf der gleichen oder einer linksseitigen Spur vorweg fahren (wegen des Rechtsüberholverbotes). \textcolor{red}{Diesen Teil des STCA-Regelwerks kritisieren wir, da es so nicht möglich ist, dass zwei Fahrzeuge mit gleicher Geschwindigkeit nebeneinander her fahren. Fahren zwei Fahrzeuge direkt nebeneinander, muss das rechte Fahrzeug seine Geschwindigkeit auf 0 reduzieren, um Auffahrunfälle unmöglich zu machen. 
-Realistischer, aber mit mehr Aufwand für die Kollisionsvermeidung verbunden, wäre die Begrenzung der Geschwindigkeit des rechts fahrenden Fahrzeugs auf die Geschwindigkeit des links fahrenden Fahrzeugs.}
+Die Regeln für die Überprüfung der Abstände basieren ebenfalls auf den erweiterten STCA-Regeln. Ist die aktuelle Geschwindigkeit eines Fahrzeugs größer als der Abstand zum nächsten vorausfahrenden Fahrzeug, wird die Geschwindigkeit so weit reduziert, dass keine Auffahrunfälle auftreten. Vorausfahrende Fahrzeuge sind hier all jene, die auf der gleichen oder einer linksseitigen Spur vorweg fahren (wegen des Rechtsüberholverbotes). Diesen Teil des STCA-Regelwerks kritisieren wir, da es so nicht möglich ist, dass zwei Fahrzeuge mit ähnlicher Geschwindigkeit nah hintereinander her fahren. Fährt auf der linken Spur ein Fahrzeug eine Zelle weiter vorne als ein Fahrzeug auf der rechten Spur, muss das rechte Fahrzeug seine Geschwindigkeit auf 0 reduzieren, um Auffahrunfälle unmöglich zu machen. 
+Realistischer, aber mit mehr Aufwand für die Kollisionsvermeidung verbunden, wäre die Begrenzung der Geschwindigkeit des rechts fahrenden Fahrzeugs auf die Geschwindigkeit des links fahrenden Fahrzeugs.
 
 \subsubsection{Trödeln}
 \label{subsubsec:troedeln}
@@ -326,13 +288,11 @@ Nachdem die Markierungen entsprechend gesetzt wurden müssen im Anschluss daran 
 
 \lstinputlisting{src/streetMapDistAlgorithm}
 
-Damit haben wir einen Algorithmus erreicht, der beliebige Verkehrsnetze kollisionsfrei unter Berücksichtigung von Vorfahrtsregeln und Geschwindigkeitsbegrenzungen simulieren kann. Im Kontrast zur mehrspurigen Simulation oben kann dieses Verfahren zwar ebenfalls mit mehreren Spuren umgehen, das Rechtsfahrgebot und das Rechtsüberholverbot müssten aber separat implementiert werden. Bis auf das modifizierte Verfahren zur Bestimmung der maximalen Fahrdistanz können die Regeln des Nagel-Schreckenberg Modells \cite{nagel-schreckenberg} übernommen werden. Es werden also zunächst alle Fahrzeuge beschleunigt, dann die Distanzen wie oben beschrieben geprüft, anschließend getrödelt und am Ende die Fahrzeuge bewegt.
+Damit haben wir einen Algorithmus erreicht, der beliebige Verkehrsnetze kollisionsfrei unter Berück\-sichtigung von Vorfahrtsregeln und Geschwindigkeitsbegrenzungen simulieren kann. Im Kontrast zur mehrspurigen Simulation oben kann dieses Verfahren zwar ebenfalls mit mehreren Spuren umgehen, das Rechtsfahrgebot und das Rechtsüberholverbot müssten aber separat implementiert werden. Bis auf das modifizierte Verfahren zur Bestimmung der maximalen Fahrdistanz können die Regeln des Nagel-Schreckenberg Modells \cite{nagel-schreckenberg} übernommen werden. Es werden also zunächst alle Fahrzeuge beschleunigt, dann die Distanzen wie oben beschrieben geprüft, anschließend getrödelt und am Ende die Fahrzeuge bewegt.
 
 Eine schöne Eigenschaft dieser Herangehensweise ist, dass wir ohne zusätzlichen Aufwand Quellen und Senken von Fahrzeugen erzeugen können. Als Quelle wird schlicht jede Zelle definiert, die zwar Nachfolger, aber keine Vorgänger hat. Analog ist jede Zelle eine Senke, die Vorgänger, aber keine Nachfolger hat. Jeder Zelle kann darüber hinaus eine Autoerzeugungswahrscheinlichkeit zugeordnet werden, mit der in der Zelle pro Simulationsschritt ein neues Auto entsteht, sofern sie leer ist. Ein Auto, was eine Senke überfährt, wird hingegen entfernt.
 
 Nun bleibt noch die Frage zu klären, wie an einer Verzweigung die Entscheidung zu treffen ist, in welche Richtung ein Fahrzeug fahren soll (vgl. Zeile 7). Konzeptionell wäre es möglich, jedem neu hinzugefügten Fahrzeug ein Ziel zuzuweisen und einen (randomisierten) Pfadfindungsalgorithmus zu nutzen, um die Entscheidungen an Verzweigungen zu treffen. Da Fahrzeuge in der Regel ein festes Ziel haben, wäre dies der realistischste Ansatz. Zur Vereinfachung der Implementierung entscheiden wir uns allerdings dafür, die Entscheidung an jeder Verzweigung zufällig zu treffen, wobei für jede Nachfolgerzelle individuelle Wahrscheinlichkeiten festgelegt werden können. Da wir nur sehr einfache Straßennetze mit wenigen Verzweigungen (die insbesondere nicht verschachtelt sind) betrachten, erachten wir das als eine ausreichend gute Annäherung. Für komplexere Szenarien werden allerdings komplexere Entscheidungssysteme notwendig.
-
-%TODO: Problem: wenn wir markierungen überschreiben, können 'Stummel' überbleiben, die andere Fahrzeuge blockieren. Illustrieren
 
 \subsection{Visualisierung}
 \label{subsec:visualisierung}
@@ -432,8 +392,42 @@ Bei der Verkehrsdichte 0.15 und sowohl zufälliger als auch äquidistanter Initi
 
 Um zunächst nur die Auswirkungen der rücksichtsvollen Fahrstreifenwechsel bei variierenden Verkehrsdichten, äquidistanter Initialisierung und auf 7 konzentrierten Maximalgeschwindigkeiten analysieren zu können, setzen wir zunächst den Trödelfaktor auf den Wert 0 (Minimalwert = Maximalwert = 0) und die Risikobereitschaft der Fahrzeug auf praktisch 0, indem wir als Lambda für die Exponentialverteilungen der Risikofaktoren den Wert 10'000 wählen.
 Anders als bei der einspurigen Autobahn beginnen wir bei der Betrachtung der zweispurigen Autobahn mit einer Vekehrsdichte von 0.05. Die Gesamtanzahl der Fahrzeuge entspricht in diesem Szenario der Anzahl der Fahrzeuge auf einer einspurigen Autobahn bei einer Verkehrsdichte von 0.1.
-In diesem Szenario kann die Verkehrsdichte auf 0.085 erhöht werden, ohne dass es grundsätzlich zu nennenswerten Geschwindigkeitsreduktionen kommt. Bei höheren Verkehrsdichten wie 0.1 oder 0.125 müssen wir jedoch das Auftreten von zahlreichen, sich nicht auflösenden Staus konstatieren.
-Während es also auf der einspurigen Autobahn bei äquidistanter Initialierung unabhängig von der Verkehrsdichte nie zu Staus kam und alle Fahrzeuge zumindest langsam weiterfahren konnten, führt bei nebeneinander fahrenden Fahrzeugen der Abbremszwang des rechten Fahrzeuges zu Staus. \textcolor{red}{Dieses bereits in Kapitel \ref{subsubsec:abstaendePruefen} kritisierte Faktum stellt ein Problem dar, welches sich auch durch die weiteren Ergebnisse zieht.}
+In diesem Szenario kann die Verkehrsdichte auf 0.08 erhöht werden, ohne dass es grundsätzlich zu nennenswerten Geschwindigkeitsreduktionen kommt. Bei höheren Verkehrsdichten wie 0.1 oder 0.125 müssen wir jedoch das Auftreten zahlreicher, sich nicht auflösender Staus konstatieren.
+Während es also auf der einspurigen Autobahn bei äquidistanter Initialierung unabhängig von der Verkehrsdichte nie zu Staus kommt, sondern nur zu gleichmäßigen, kollektiven Geschwindigkeitsreduktionen, führt bei nah hintereinander fahrenden Fahrzeugen der Abbremszwang des rechten, hinteren Fahrzeuges dazu, dass sich die Geschwindigkeiten der Fahrzeuge nicht an allen Stellen der Autobahn gleichmäßig reduzieren, sondern an manchen Stellen mehr Rückstaus auftreten als an anderen. Zwar fahren die Fahrzeuge im Schnitt nicht zwangsweise langsamer, sie müssen ihre Geschwindigkeit jedoch häufiger an die aktuelle Verkehrslage anpassen.
+
+Erhöhen wir nun den Trödelfaktor schrittweise bei einer konstanten Verkehrsdichte von 0.08. Um allein den Einfluss des Trödelfaktors untersuchen zu können, wurden für diesen Abschnitt die Risikofaktoren händisch auf exakt 0 gesetzt. Es lässt sich feststellen, dass es bereits bei Trödelfaktoren aus dem Intervall von 0 bis 0.01 zu Staus aus dem Nichts kommt. Bei einem Trödelfaktor von 0 optimieren sich die Abstände zwischen den Fahrzeugen nach einigen Schwierigkeiten nach der Initialisierung und alle Fahrzeuge können mit ihrer Maximalgeschwindigkeit weiter fahren. Wird jedoch der Trödelfaktor auch nur leicht angehoben, kommt es zu Situationen wie im letzten Abschnitt beschrieben. Es müssen also Fahrzeuge auf dem rechten Fahrstreifen ihre Geschwindigkeit drastisch reduzieren, was zu Rückstaus führt.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{img/erg_mehrspurig_stau_aus_dem_nichts_p_0_01}
+	\caption{Stau aus dem Nichts bei Trödelfaktoren zwischen 0 und 0.01}
+	\label{fig:ergStauAusDemNichtsMehrspurigP0_01}
+\end{figure}
+
+Abbildung \ref{fig:ergStauAusDemNichtsMehrspurigP0_01} zeigt eine solche Situation. In der ersten Momentaufnahme fahren acht Fahrzeuge je zweit nebeneinander. Beim zweiten dieser Paare reduziert das rechtsfahrende Fahrzeug seine Geschwindigkeit um eine Stufe und muss daher aufgrund des Rechtsüberholverbots seine Geschwindigkeit auf 0 reduzieren, was schlussendlich in einem Stau resultiert. Höhere Trödelfaktoren verstärken erwartungsgemäß die Intensität und die Anzahl der auftretenden Staus.
+
+Belassen wir es nun bei dem Trödelfaktor bei 0 und erhöhen die Risikofaktoren. Bei einem Lambda von 32 für beide Risikofaktoren erhalten wir einen Mittelwert von $\frac{1}{32}$ und einen Maximalwert von 0.10958. In einem solchen Szenario kommt es zu Situation wie in Abbildung \ref{fig:ergStauAusDemNichtsMehrspurig_p_0_r_32}. Das violett umkringelte Fahrzeug zieht, ohne auf Abstände zu achten, auf die linke Spur herüber. Das blau umkringelte Fahrzeug muss daraufhin seine Geschwindigkeit stark reduzieren, wodurch es zu einem Stau kommt.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{img/erg_mehrspurig_stau_wegen_risikospurwechsel_p_0_r_32}
+	\caption{Stau aus dem Nichts bei Trödelfaktor 0 und $\lambda_{L2R} = \lambda_{R2L} = 32$}
+	\label{fig:ergStauAusDemNichtsMehrspurig_p_0_r_32}
+\end{figure}
+
+Interessanterweise ist es das System gegenüber Risikofahrstreifenwechseln bemerkenswert robust. Selbst bei sehr hohen Risikofaktoren (z.B. mit $\lambda = 2$) kommt es nur zu Beginn der Simulation zu Staus. Nach und nach lösen sich die Staus auf, wobei zufallsbedingt immer mehr Fahrzeuge direkt nebeneinander fahren. Da wir nicht trödeln, ist es nicht möglich, eine solche Konstellation wieder zu verlassen. Weil somit die direkte Nachbarzelle stets belegt ist, können immer weniger Fahrzeuge die Spur wechseln. Irgendwann ist das System so stabil, dass keine Staus mehr auftreten.
+
+Kombiniert man Trödeln und Risikofahrstreifenwechsel erhöht sich die Anzahl und Intensität mit steigendem Trödelfaktor und sinkenden Lambda-Werten für die beiden Risikofaktorexponentialverteilungen. Wählt man das Intervall von 0.2 bis 0.3 für den Trödelfaktor und $\lambda_{L2R} = \lambda_{R2L} = 8$ zur Bestimmung der Risikofaktoren erhöht sich die Anzahl und Intensität der Staus drastisch. Der in Abbildung \ref{fig:ergMehrspurigTroedelnUndRisikowechsel} gezeigte Ausschnitt einer langen Simulation verdeutlicht diesen Umstand.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{img/erg_mehrspurig_troedeln_und_risikowechsel}
+	\caption{Stau aus dem Nichts bei Trödelfaktor 0 und $\lambda_{L2R} = \lambda_{R2L} = 32$}
+	\label{fig:ergMehrspurigTroedelnUndRisikowechsel}
+\end{figure}
+
+All diese Ergebnisse gelten für eine Verkehrsdichte von 0.08. Höhere Verkehrsdichten verstärken die aufgeführten Effekte deutlich.
+
 
 \subsection{Kreisverkehr}
 \label{subsec:kreisverkehr}
